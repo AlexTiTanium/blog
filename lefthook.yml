@@ -1,7 +1,7 @@
 pre-commit:
   jobs:
-    - name: build
-      run: bun run build
+    - name: typecheck
+      run: bunx tsc --noEmit
     - name: biome-format
       glob: "*.{ts,js,mjs,cjs,json,jsonc}"
       run: bunx biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}

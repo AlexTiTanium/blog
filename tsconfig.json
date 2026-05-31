@@ -4,6 +4,8 @@
     "target": "ESNext",
     "module": "Preserve",
     "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
     "moduleResolution": "bundler",
     "verbatimModuleSyntax": true,
     "noEmit": true,

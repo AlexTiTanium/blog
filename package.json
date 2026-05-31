@@ -7,12 +7,15 @@
     "bun": ">=1.3.14"
   },
   "dependencies": {
+    "@fontsource-variable/fira-code": "5.2.7",
+    "@fontsource-variable/ibm-plex-sans": "5.2.8",
     "@moku-labs/web": "0.3.0"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.3",
     "@arethetypeswrong/core": "0.18.3",
     "@biomejs/biome": "2.4.16",
+    "@playwright/test": "1.60.0",
     "@types/bun": "1.3.14",
     "@vitest/coverage-istanbul": "4.0.18",
     "eslint": "9.39.3",
@@ -24,20 +27,25 @@
     "jiti": "2.6.1",
     "lefthook": "2.1.1",
     "publint": "0.3.21",
-    "tsdown": "0.22.1",
     "typescript": "6.0.3",
     "typescript-eslint": "8.58.0",
-    "vitest": "4.0.18"
+    "vitest": "4.0.18",
+    "wrangler": "4.95.0"
   },
   "scripts": {
-    "build": "tsdown",
-    "validate": "publint && attw --pack . --profile node16",
-    "lint": "biome check . && eslint .",
-    "lint:fix": "biome check --write . && eslint --fix .",
-    "format": "biome format --write .",
+    "build": "bun scripts/build.ts",
+    "dev": "bun scripts/dev.ts",
+    "preview": "bun scripts/serve.ts",
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
-    "test:coverage": "vitest run --project unit --project integration --coverage"
+    "test:coverage": "vitest run --project unit --project integration --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots",
+    "test:e2e:update:linux": "docker run --rm -v \"$PWD\":/w -w /w mcr.microsoft.com/playwright:v1.58.2-noble bunx playwright test --update-snapshots",
+    "deploy": "bun scripts/deploy.ts",
+    "lint": "biome check . && eslint .",
+    "lint:fix": "biome check --write . && eslint --fix .",
+    "format": "biome format --write ."
   }
 }
