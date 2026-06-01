@@ -1,0 +1,37 @@
+/* StatusBar -- build status indicators */
+
+@scope ([data-component="status"]) {
+  :scope {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.4rem 0;
+    margin: 0.5rem 0 1.5rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  [data-item] {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  [data-dot] {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  [data-dot="green"] {
+    background: var(--accent-success);
+  }
+  [data-dot="amber"] {
+    background: var(--accent-primary);
+  }
+  [data-dot="coral"] {
+    background: var(--accent-secondary);
+  }
+}

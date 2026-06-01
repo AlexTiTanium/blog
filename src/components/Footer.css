@@ -1,0 +1,38 @@
+/* Footer -- IDE status bar */
+
+@scope ([data-component="footer"]) {
+  :scope {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    margin-top: 1.5rem;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-default);
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+  }
+
+  [data-part] {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  [data-item] {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  [data-dot] {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  [data-dot="green"] {
+    background: var(--accent-success);
+  }
+}

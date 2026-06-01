@@ -1,0 +1,35 @@
+/* Code Blocks -- Shiki output styling
+   Shiki generates <pre class="shiki warm-syntax"> with inline color styles.
+   We only style the container (margins, overflow, font) here.
+   Syntax colors come from Shiki's warm-syntax theme (inline styles). */
+
+@scope ([data-content]) {
+  pre.shiki {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    overflow-x: auto;
+    font-family: var(--font-code);
+    font-size: 0.78rem;
+    line-height: 1.6;
+    border: 1px solid var(--border-default);
+    tab-size: 2;
+
+    code {
+      font-family: inherit;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  [data-content] pre.shiki {
+    font-size: 0.72rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 320px) {
+  [data-content] pre.shiki {
+    font-size: 0.7rem;
+    padding: 0.5rem;
+  }
+}

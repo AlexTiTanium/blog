@@ -1,0 +1,73 @@
+/* Hero Section + Syntax Highlights */
+
+/* --- Home Hero (site header) --- */
+[data-hero] {
+  padding: 2rem 0 1rem;
+
+  [data-title] {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.05em;
+  }
+
+  [data-tagline] {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  [data-cursor] {
+    color: var(--accent-primary);
+    animation: blink-cursor 1s step-end infinite;
+    margin-left: 0.1em;
+    font-weight: 400;
+  }
+}
+
+/* Syntax highlight spans (used in hero title and potentially elsewhere) */
+[data-syntax="keyword"] {
+  color: var(--accent-secondary);
+}
+[data-syntax="function"] {
+  color: var(--accent-primary);
+}
+[data-syntax="string"] {
+  color: var(--accent-success);
+}
+[data-syntax="comment"] {
+  color: var(--accent-success);
+  opacity: 0.7;
+}
+
+/* Hero responsive */
+@media (max-width: 768px) {
+  [data-hero] [data-title] {
+    font-size: clamp(1.8rem, 4vw + 0.5rem, 2.5rem);
+  }
+}
+
+@media (max-width: 600px) {
+  [data-hero] [data-title] {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 375px) {
+  [data-hero] [data-title] {
+    font-size: 1.4rem;
+    letter-spacing: 0.02em;
+  }
+
+  [data-hero] [data-tagline] {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 320px) {
+  [data-hero] [data-title] {
+    font-size: 1.2rem;
+  }
+}

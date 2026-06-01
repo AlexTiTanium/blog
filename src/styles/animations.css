@@ -1,0 +1,174 @@
+/* ============================================================
+   Animations & Interactions
+   Keyframes, view transitions, hover gating,
+   active/focus states.
+   ============================================================ */
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes blink-cursor {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Pulsing status dots */
+[data-component="footer"] [data-dot="green"] {
+  animation: pulse 2s var(--ease-in-out) infinite;
+}
+
+/* ============================================================
+   VIEW TRANSITIONS
+   ============================================================ */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-normal);
+}
+
+/* ============================================================
+   HOVER GATING (desktop only)
+   ============================================================ */
+
+@media (hover: hover) and (pointer: fine) {
+  [data-component="tab-nav"] a:hover {
+    color: var(--text-secondary);
+    background: rgba(245, 158, 11, 0.05);
+  }
+
+  /* Enhanced card hover: lift + stronger shadow */
+  [data-component="dashboard"] article:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.5),
+      0 0 60px rgba(245, 158, 11, 0.04);
+  }
+
+  /* Card title hover: amber underline */
+  [data-component="dashboard"] h2 a:hover {
+    color: var(--accent-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  /* Window dots: sequential bounce on hover */
+  [data-component="titlebar"] [data-dot] {
+    transition: transform var(--duration-fast) var(--ease-out-back);
+  }
+
+  [data-component="titlebar"] [data-dots]:hover [data-dot] {
+    transform: scale(1.3);
+  }
+
+  [data-component="titlebar"] [data-dots]:hover [data-dot]:nth-child(1) {
+    transition-delay: 0ms;
+  }
+  [data-component="titlebar"] [data-dots]:hover [data-dot]:nth-child(2) {
+    transition-delay: 50ms;
+  }
+  [data-component="titlebar"] [data-dots]:hover [data-dot]:nth-child(3) {
+    transition-delay: 100ms;
+  }
+
+  /* Git tag hover: lift + brighter background */
+  [data-tag] {
+    transition:
+      background var(--duration-fast),
+      border-color var(--duration-fast),
+      transform var(--duration-fast) var(--ease-out-back);
+  }
+
+  [data-tag]:hover {
+    transform: translateY(-1px);
+    background: rgba(132, 204, 22, 0.2);
+    border-color: rgba(132, 204, 22, 0.4);
+  }
+
+  /* File tree item hover: brighten text + icon */
+  [data-component="meta-panel"] ul[role="tree"] li {
+    transition: color var(--duration-fast);
+    cursor: pointer;
+  }
+
+  [data-component="meta-panel"] ul[role="tree"] li:hover {
+    color: var(--text-primary);
+  }
+
+  [data-component="meta-panel"] ul[role="tree"] li:hover::before {
+    opacity: 1;
+  }
+
+  /* Recent posts list hover: brighten text */
+  [data-component="meta-panel"] ul[data-recent] li {
+    transition: color var(--duration-fast);
+    cursor: pointer;
+  }
+
+  [data-component="meta-panel"] ul[data-recent] li:hover {
+    color: var(--text-secondary);
+  }
+}
+
+/* ============================================================
+   TOUCH ACTIVE STATES
+   ============================================================ */
+
+[data-component="dashboard"] article:active {
+  transform: scale(0.98);
+  transition: transform var(--duration-fast);
+}
+
+[data-component="tab-nav"] a:active {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+[data-component="dashboard"] h2 a:active {
+  color: var(--accent-primary);
+}
+
+/* ============================================================
+   KEYBOARD FOCUS STATES
+   ============================================================ */
+
+[data-component="tab-nav"] a:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+
+[data-component="dashboard"] h2 a:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+[data-tag]:focus-visible {
+  outline: 1px solid var(--accent-primary);
+}

@@ -1,0 +1,308 @@
+/* Dashboard Bento Grid -- colocated from components.css */
+
+@scope ([data-component="dashboard"]) {
+  :scope {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    grid-template-areas:
+      "c1  c1  c2  c3"
+      "c4  c5  c5  c3"
+      "c4  c5  c5  c6"
+      "c7  c7  c8  c8"
+      "c9  c10 c10 c11";
+  }
+
+  /* Grid area assignments */
+  article:nth-child(1) {
+    grid-area: c1;
+  }
+  article:nth-child(2) {
+    grid-area: c2;
+  }
+  article:nth-child(3) {
+    grid-area: c3;
+  }
+  article:nth-child(4) {
+    grid-area: c4;
+  }
+  article:nth-child(5) {
+    grid-area: c5;
+  }
+  article:nth-child(6) {
+    grid-area: c6;
+  }
+  article:nth-child(7) {
+    grid-area: c7;
+  }
+  article:nth-child(8) {
+    grid-area: c8;
+  }
+  article:nth-child(9) {
+    grid-area: c9;
+  }
+  article:nth-child(10) {
+    grid-area: c10;
+  }
+  article:nth-child(11) {
+    grid-area: c11;
+  }
+
+  /* Card base */
+  article {
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    padding: 1.25rem;
+    position: relative;
+    transition:
+      border-color var(--duration-normal) var(--ease-out-expo),
+      box-shadow var(--duration-normal) var(--ease-out-expo),
+      transform var(--duration-normal) var(--ease-out-expo);
+  }
+
+  /* Cycling accent colors */
+  article:nth-child(7n + 1) {
+    border-left: 3px solid var(--accent-primary);
+  }
+  article:nth-child(7n + 2) {
+    border-left: 3px solid var(--accent-success);
+  }
+  article:nth-child(7n + 3) {
+    border-left: 3px solid var(--accent-secondary);
+  }
+  article:nth-child(7n + 4) {
+    border-left: 3px solid var(--accent-danger);
+  }
+  article:nth-child(7n + 5) {
+    border-left: 3px solid var(--accent-function);
+  }
+  article:nth-child(7n + 6) {
+    border-left: 3px solid var(--accent-type);
+  }
+  article:nth-child(7n + 0) {
+    border-left: 3px solid var(--accent-soft);
+  }
+
+  /* Stagger animation via nth-child (replaces inline --i variable) */
+  article {
+    animation: card-enter var(--duration-enter) var(--ease-out-expo) both;
+
+    &:nth-child(1) {
+      animation-delay: calc(0 * var(--stagger-delay));
+    }
+    &:nth-child(2) {
+      animation-delay: calc(1 * var(--stagger-delay));
+    }
+    &:nth-child(3) {
+      animation-delay: calc(2 * var(--stagger-delay));
+    }
+    &:nth-child(4) {
+      animation-delay: calc(3 * var(--stagger-delay));
+    }
+    &:nth-child(5) {
+      animation-delay: calc(4 * var(--stagger-delay));
+    }
+    &:nth-child(6) {
+      animation-delay: calc(5 * var(--stagger-delay));
+    }
+    &:nth-child(7) {
+      animation-delay: calc(6 * var(--stagger-delay));
+    }
+    &:nth-child(8) {
+      animation-delay: calc(7 * var(--stagger-delay));
+    }
+    &:nth-child(9) {
+      animation-delay: calc(8 * var(--stagger-delay));
+    }
+    &:nth-child(10) {
+      animation-delay: calc(9 * var(--stagger-delay));
+    }
+    &:nth-child(11) {
+      animation-delay: calc(10 * var(--stagger-delay));
+    }
+  }
+
+  /* Card header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  [data-id] {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  [data-status] {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+  }
+
+  [data-dot] {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-success);
+    animation: pulse 2.5s var(--ease-in-out) infinite;
+  }
+
+  /* Card content */
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+
+    a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color var(--duration-fast);
+    }
+  }
+
+  time {
+    display: block;
+    font-family: var(--font-code);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.03em;
+  }
+
+  p {
+    font-size: 0.9rem;
+    color: var(--text-body);
+    line-height: 1.6;
+    opacity: 0.85;
+  }
+
+  [data-tags] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+  }
+
+  /* Stats card variant */
+  article[data-variant="stats"] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [data-metrics] {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    flex: 1;
+    align-content: center;
+  }
+
+  [data-metric] {
+    text-align: center;
+  }
+
+  [data-value] {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+  }
+
+  [data-label] {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Partial pages: simple auto-flow grid instead of bento */
+  :scope:not([data-cards="10"]) {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-areas: none;
+
+    article {
+      grid-area: auto;
+    }
+  }
+
+  @media (max-width: 900px) {
+    :scope {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-areas:
+        "c1  c1"
+        "c2  c3"
+        "c4  c5"
+        "c6  c7"
+        "c8  c8"
+        "c9  c10"
+        "c11 c11";
+    }
+  }
+
+  @media (max-width: 600px) {
+    :scope {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "c1" "c2" "c3" "c4" "c5"
+        "c6" "c7" "c8" "c9" "c10" "c11";
+    }
+
+    article {
+      padding: 1rem;
+    }
+
+    [data-tags] {
+      justify-content: flex-end;
+    }
+  }
+
+  @media (max-width: 375px) {
+    article {
+      padding: 0.75rem;
+    }
+
+    [data-id],
+    [data-status] {
+      font-size: 0.55rem;
+    }
+
+    time {
+      font-size: 0.6rem;
+    }
+
+    p {
+      font-size: 0.82rem;
+    }
+
+    h2 {
+      font-size: 0.9rem;
+    }
+
+    [data-value] {
+      font-size: 1.2rem;
+    }
+  }
+
+  @media (max-width: 320px) {
+    article {
+      padding: 0.75rem;
+    }
+
+    [data-id],
+    time {
+      overflow-wrap: break-word;
+    }
+  }
+}

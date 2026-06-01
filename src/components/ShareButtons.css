@@ -1,0 +1,57 @@
+/* ShareButtons -- social sharing links */
+
+@scope ([data-component="share"]) {
+  :scope {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-default);
+  }
+
+  [data-label] {
+    font-family: var(--font-code);
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  [data-share] {
+    font-family: var(--font-code);
+    font-size: 0.6rem;
+    padding: 0.15rem 0.5rem;
+    background: var(--surface-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: 2px;
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 1.4;
+
+    &:focus-visible {
+      outline: 1px solid var(--accent-primary);
+      outline-offset: 1px;
+    }
+  }
+
+  [data-share="copy"] {
+    background: transparent;
+    border-style: dashed;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-share] {
+      transition:
+        color 0.15s,
+        border-color 0.15s;
+
+      &:hover {
+        color: var(--accent-primary);
+        border-color: var(--accent-primary);
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+/* ============================================================
+   Base Styles -- Element-level semantic defaults
+   Uses semantic tokens only (not primitives)
+   ============================================================ */
+
+body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-body);
+  background: var(--surface-page);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+main {
+  max-width: var(--width-content);
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+ul,
+ol {
+  list-style: none;
+}

@@ -1,0 +1,117 @@
+/* ArticleLayout -- split-pane layout + article section padding */
+
+/* --- Article Section Padding --- */
+[data-component="split-pane"] {
+  margin: 1rem 0 3rem;
+  min-width: 0;
+}
+
+/* --- Split Pane (article layout) --- */
+@scope ([data-component="split-pane"]) {
+  :scope {
+    display: grid;
+    grid-template-columns: 1fr var(--width-sidebar);
+    gap: 0;
+    border: 1px solid var(--border-default);
+    background: var(--surface-card);
+    min-width: 0;
+  }
+
+  main {
+    padding: 2rem;
+    margin: 0;
+    max-width: none;
+    min-width: 0;
+  }
+
+  /* Article header */
+  article > header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  nav[aria-label="breadcrumb"] {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  [data-sep] {
+    color: var(--accent-secondary);
+    margin: 0 0.3rem;
+  }
+
+  nav[aria-label="breadcrumb"] a:hover {
+    color: var(--accent-secondary);
+  }
+
+  article > header h1 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+  }
+
+  [data-meta] {
+    font-family: var(--font-code);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+
+    [data-sep] {
+      color: var(--accent-primary);
+      margin: 0 0.25rem;
+    }
+  }
+
+  article > [data-tags] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-default);
+  }
+
+  @media (max-width: 900px) {
+    :scope {
+      grid-template-columns: 1fr;
+    }
+
+    main {
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    article > header h1 {
+      font-size: 1.4rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    main {
+      padding: 1.25rem;
+    }
+
+    article > header h1 {
+      font-size: 1.2rem;
+    }
+
+    nav[aria-label="breadcrumb"] {
+      word-break: break-all;
+    }
+  }
+
+  @media (max-width: 375px) {
+    main {
+      padding: 1rem;
+    }
+
+    nav[aria-label="breadcrumb"] {
+      font-size: 0.6rem;
+      overflow-wrap: break-word;
+    }
+  }
+}

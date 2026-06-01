@@ -1,0 +1,79 @@
+/* Pagination Navigation -- button-style page controls */
+
+@scope ([data-component="pagination"]) {
+  :scope {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 1rem 0;
+    font-family: var(--font-code);
+    font-size: 0.75rem;
+  }
+
+  a {
+    padding: 0.25rem 0.6rem;
+    background: var(--surface-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: 2px;
+    text-decoration: none;
+    cursor: pointer;
+    line-height: 1.4;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    a {
+      transition:
+        color var(--duration-fast),
+        border-color var(--duration-fast);
+    }
+
+    a:hover {
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+  }
+
+  /* Active page indicator */
+  [data-active] {
+    background: var(--accent-primary);
+    color: var(--color-stone-950);
+    border-color: var(--accent-primary);
+    font-weight: 700;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-active]:hover {
+      color: var(--color-stone-950);
+      border-color: var(--accent-primary);
+    }
+  }
+
+  /* Hidden prev/next -- keep layout stable */
+  [data-hidden] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  @media (max-width: 600px) {
+    :scope {
+      gap: 0.3rem;
+      font-size: 0.7rem;
+    }
+
+    a {
+      padding: 0.2rem 0.45rem;
+    }
+  }
+
+  @media (max-width: 375px) {
+    :scope {
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      font-size: 0.65rem;
+    }
+  }
+}

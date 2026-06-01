@@ -1,0 +1,39 @@
+/* TabNav -- tab navigation (donut scope: excludes lang-switcher) */
+
+@scope ([data-component="tab-nav"]) to ([data-component="lang-switcher"]) {
+  :scope {
+    display: flex;
+    align-items: stretch;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-default);
+    border-bottom: 2px solid var(--border-default);
+  }
+
+  a {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.6rem 1.25rem;
+    border-right: 1px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+    transition:
+      color var(--duration-normal),
+      background var(--duration-normal);
+    position: relative;
+
+    &[aria-current="page"] {
+      color: var(--text-primary);
+      background: var(--surface-card);
+      border-bottom: 2px solid var(--accent-primary);
+      margin-bottom: -2px;
+    }
+  }
+
+  [data-icon] {
+    font-size: 0.8rem;
+  }
+}

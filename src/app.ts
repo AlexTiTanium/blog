@@ -10,6 +10,7 @@ import { SITE } from "./config";
 import { i18nConfig } from "./i18n/index";
 import { islands } from "./islands";
 import { bindContent } from "./lib/articles";
+import { bindRouter } from "./lib/urls";
 import { OgTemplate } from "./og/template";
 import { routes } from "./routes";
 
@@ -44,5 +45,7 @@ export const app = createApp({
   }
 });
 
-// Break the createApp ↔ routes loader cycle and give loaders the cached content API.
+// Break the createApp ↔ routes cycles: give loaders the cached content API and components the
+// router URL builder (both are referenced by routes/components imported above createApp).
 bindContent(app.content);
+bindRouter(app.router);

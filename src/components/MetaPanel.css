@@ -1,0 +1,146 @@
+/* MetaPanel -- article sidebar meta panel */
+
+@scope ([data-component="meta-panel"]) {
+  :scope {
+    padding: 0;
+    background: var(--surface-elevated);
+    border-left: 1px solid var(--border-default);
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  section {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-default);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  h3 {
+    font-size: 0.65rem;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* Key-value rows */
+  dl > div {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid rgba(61, 53, 48, 0.5);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  dt {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+  }
+
+  dd {
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-family: var(--font-code);
+  }
+
+  dd[data-color="green"] {
+    color: var(--accent-success);
+  }
+  dd[data-color="amber"] {
+    color: var(--accent-primary);
+  }
+  dd[data-color="coral"] {
+    color: var(--accent-secondary);
+  }
+
+  /* Tags in sidebar (smaller) */
+  [data-tags] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+
+    [data-tag] {
+      font-size: 0.55rem;
+      padding: 0.1rem 0.35rem;
+    }
+  }
+
+  /* File tree */
+  ul[role="tree"] {
+    list-style: none;
+
+    li {
+      padding: 0.3rem 0;
+      font-size: 0.72rem;
+      color: var(--text-body);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+
+      &::before {
+        content: "";
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23f59e0b'%3E%3Cpath d='M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5a.25.25 0 0 1-.2-.1l-.9-1.2C6.07 1.26 5.55 1 5 1H1.75z'/%3E%3C/svg%3E");
+        background-size: contain;
+        background-repeat: no-repeat;
+        flex-shrink: 0;
+        opacity: 0.6;
+      }
+
+      &[aria-selected="true"] {
+        color: var(--text-primary);
+
+        &::before {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  /* Recent posts */
+  ul[data-recent] {
+    list-style: none;
+
+    li {
+      padding: 0.35rem 0;
+      font-size: 0.72rem;
+      color: var(--text-body);
+      border-bottom: 1px solid rgba(61, 53, 48, 0.4);
+      line-height: 1.4;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+
+  @media (max-width: 900px) {
+    :scope {
+      border-left: none;
+      border-top: 1px solid var(--border-default);
+    }
+  }
+
+  @media (max-width: 768px) {
+    :scope {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media (max-width: 375px) {
+    :scope {
+      font-size: 0.72rem;
+    }
+  }
+}

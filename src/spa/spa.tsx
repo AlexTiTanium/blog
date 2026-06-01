@@ -13,6 +13,7 @@ import { createApp, dataPlugin } from "@moku-labs/web";
 import { SITE } from "../config";
 import { i18nConfig } from "../i18n/index";
 import { islands } from "../islands";
+import { bindRouter } from "../lib/urls";
 import { routes } from "../routes";
 
 const app = createApp({
@@ -27,6 +28,9 @@ const app = createApp({
     data: { baseUrl: "/_data/" }
   }
 });
+
+// Give components (rendered into the swap region on client navigation) the router URL builder.
+bindRouter(app.router);
 
 // Boots kernel: nav interception + scan [data-component] + hydrate.
 // Errors surfaced, not swallowed (spec/11 §1.13).

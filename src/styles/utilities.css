@@ -1,0 +1,21 @@
+/* ============================================================
+   Utility Styles
+   Reduced motion, rare helpers, and override patterns.
+   Highest-priority layer -- overrides components without !important.
+   ============================================================ */
+
+/* ============================================================
+   REDUCED MOTION
+   Disables all transitions and animations for users who
+   prefer reduced motion. In utilities layer (highest priority),
+   so no !important needed.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none;
+    animation: none;
+  }
+}

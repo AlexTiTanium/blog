@@ -1,14 +1,17 @@
 /**
- * @file AboutPage — static about-the-author page. PORT from legacy in build phase C.
+ * @file AboutPage — static README-style author profile. Returns the page's INNER content (SiteLayout
+ * owns the swap region).
  */
 import type { VNode } from "preact";
+import { AboutView } from "../components/AboutView";
+import type { Locale } from "../i18n/index";
 
 /**
- * About page.
+ * About page: the author profile.
  *
- * @param _props - Active locale.
- * @throws {Error} Always — implemented during the build phase.
+ * @param props - Active locale.
+ * @returns The about page content.
  */
-export function AboutPage(_props: { locale: string }): VNode {
-  throw new Error("not implemented");
+export function AboutPage({ locale }: { locale: string }): VNode {
+  return <AboutView locale={locale as Locale} />;
 }

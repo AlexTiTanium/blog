@@ -1,13 +1,16 @@
-/* CSS bundle entry — @import the ported stylesheets in cascade order. */
-/* PORT the 27 legacy files in build phase C; audit & remove @custom-media (Bun.build can't expand it). */
-@import "./reset.css";
-@import "./tokens.css";
+/* ============================================================
+   CSS bundle entry — @layer order controls cascade priority.
+   Ported from legacy src/styles/index.css. All author CSS is layered.
+   Audited: NO @custom-media anywhere in the legacy CSS (Bun.build-safe).
+   ============================================================ */
+
+@layer reset, tokens, base, components, animations, utilities;
+
 @import "./fonts.css";
-@import "./base.css";
-@import "./code.css";
-@import "./components.css";
-@import "./article.css";
-@import "./hero.css";
-@import "./spa.css";
-@import "./animations.css";
-@import "./utilities.css";
+@import "./tokens.css" layer(tokens);
+@import "./reset.css" layer(reset);
+@import "./base.css" layer(base);
+@import "./components.css" layer(components);
+@import "./spa.css" layer(components);
+@import "./animations.css" layer(animations);
+@import "./utilities.css" layer(utilities);

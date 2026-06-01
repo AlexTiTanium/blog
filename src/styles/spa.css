@@ -1,0 +1,41 @@
+/* ============================================================
+   SPA Framework Styles
+   Progress bar and view transition setup.
+   ============================================================ */
+
+/* Progress bar */
+[data-progress] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent-primary);
+  z-index: 9999;
+  transition: width 200ms ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-progress][data-active] {
+  opacity: 1;
+}
+
+/* View Transitions: assign transition name to content area.
+   Browser default cross-fade handles the animation correctly
+   using mix-blend-mode: plus-lighter (no content overlap). */
+main > section {
+  view-transition-name: spa-content;
+}
+
+/* Respect reduced motion preference (locked decision) */
+@media (prefers-reduced-motion: reduce) {
+  [data-progress] {
+    transition: none;
+  }
+
+  ::view-transition-old(spa-content),
+  ::view-transition-new(spa-content) {
+    animation: none;
+  }
+}
