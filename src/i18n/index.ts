@@ -9,8 +9,25 @@ import { ru } from "./ru";
 /** Supported locale codes for the blog. */
 export type Locale = "en" | "ru";
 
-/** Flat translation map: dotted key → localized string. */
-export type UIStrings = Record<string, string>;
+/**
+ * UI chrome strings (typed keys for autocomplete + compile-time checking). A `type` alias (not an
+ * `interface`) so it keeps an implicit string index signature → assignable to the framework's
+ * `pluginConfigs.i18n.translations` (`Record<string, Record<string, string>>`).
+ */
+export type UIStrings = {
+  home: string;
+  archive: string;
+  about: string;
+  readMore: string;
+  minRead: string;
+  noTranslation: string;
+  publishedLabel: string;
+  draftLabel: string;
+  tags: string;
+  recentPosts: string;
+  fileInfo: string;
+  tagPageTitle: string;
+};
 
 /** Supported locales, in display order. */
 export const LOCALES: readonly Locale[] = ["en", "ru"];
@@ -33,15 +50,17 @@ export const i18nConfig = {
   translations: { en, ru }
 };
 
+/** All UI-string sets keyed by locale. */
+const strings: Record<Locale, UIStrings> = { en, ru };
+
 /**
- * Resolve a translation key for a locale.
+ * Resolve the full UI-string set for a locale (components read `t(locale).home`, etc.).
  *
- * @param _locale - Target locale code.
- * @param _key - Dotted translation key.
- * @throws {Error} Always — implemented during the build phase.
+ * @param locale - Target locale code.
+ * @returns The locale's {@link UIStrings}.
  * @example
- * t("en", "nav.home");
+ * t("ru").archive; // "Архив"
  */
-export function t(_locale: Locale, _key: string): string {
-  throw new Error("not implemented");
+export function t(locale: Locale): UIStrings {
+  return strings[locale];
 }

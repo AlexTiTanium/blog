@@ -1,11 +1,20 @@
 /**
- * @file Russian UI strings (UIStrings). Skeleton stub — full set ported in build phase B.
+ * @file Russian UI strings (the {@link UIStrings} value set), ported from the legacy translations.
  */
 import type { UIStrings } from "./index";
 
 /** Russian translations. */
 export const ru: UIStrings = {
-  "nav.home": "Главная",
-  "nav.archive": "Архив",
-  "nav.about": "Об авторе"
+  home: "Главная",
+  archive: "Архив",
+  about: "Об авторе",
+  readMore: "Читать дальше",
+  minRead: "мин чтения",
+  noTranslation: "Эта статья пока не переведена на ваш язык.",
+  publishedLabel: "Опубликовано",
+  draftLabel: "Черновик",
+  tags: "Теги",
+  recentPosts: "Последние посты",
+  fileInfo: "Информация",
+  tagPageTitle: "Тег"
 };
