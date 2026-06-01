@@ -1,8 +1,9 @@
 /**
- * @file SEO head builders + bundled-asset injection (0.3.0 doesn't auto-link assets).
+ * @file SEO head builders. The build plugin auto-injects the bundled main.{css,js} tags
+ * (build.injectAssets, 0.4.0), so these builders own SEO metadata only — not asset linking.
  *
  * Build phase C implements these using the SEO primitives (meta/og/twitter/canonical/
- * hreflang/feedLink/buildArticleHead) and injects the /assets/main.{css,js} tags.
+ * hreflang/feedLink/buildArticleHead + jsonLd).
  */
 import type { Content, Head } from "@moku-labs/web";
 

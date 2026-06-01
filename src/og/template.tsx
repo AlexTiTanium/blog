@@ -1,30 +1,24 @@
 /**
- * @file OG satori template (plain element tree, NOT Preact VNodes). PORT of legacy OgTemplate.
+ * @file OG card renderer — returns a Preact VNode consumed by `build.ogImage.render`
+ * (@moku-labs/web@0.4.0 casts the VNode to Satori's input at its single render boundary).
  *
- * Build phase A (OG spike) resolves the exact contract 0.3.0's `ogImage.template` expects
- * and ports the legacy template body.
+ * This is a minimal title-only stub; the build phase (OG port) replaces it with the full
+ * legacy rich-card layout (blog name + title + date + tags, warm Dev-Dashboard theme).
  */
+import type { Build } from "@moku-labs/web";
 
 /**
- * Input describing a single OG card.
- */
-type OgInput = {
-  /** Article/page title. */
-  title: string;
-  /** ISO date string. */
-  date: string;
-  /** Topic tags. */
-  tags: string[];
-  /** Blog name shown on the card. */
-  blogName: string;
-};
-
-/**
- * Render a satori element tree for one OG image.
+ * Render the OG card for one article.
  *
- * @param _input - Title/date/tags/blogName for the card.
- * @throws {Error} Always — implemented during the build phase (OG spike).
+ * @param input - Rich OG input (title/description/date/tags/author/locale/siteName/size).
+ * @returns A Preact VNode describing the card.
+ * @example
+ * OgTemplate({ title: "Hi", description: "", date: "2026-01-01", tags: [], locale: "en", siteName: "Geek Life", size: { width: 1200, height: 630 } });
  */
-export default function OgTemplate(_input: OgInput): unknown {
-  throw new Error("not implemented");
+export function OgTemplate(input: Build.RichOgInput) {
+  return (
+    <div style={{ display: "flex", width: "100%", height: "100%", color: "#f5efe8" }}>
+      {input.title}
+    </div>
+  );
 }

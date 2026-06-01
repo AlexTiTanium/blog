@@ -1,26 +1,30 @@
 /**
  * @file Client/SPA boot. Composes the browser-scoped app (island hydration + intercepted
- * navigation) and starts the kernel.
+ * navigation) and starts the kernel. This module is the client bundle entry (build.clientEntry
+ * resolves it via src/main.ts).
  *
- * Browser-scoped app: only browser-relevant plugins configured (router mode "spa").
- * SPIKE (build phase A): verify Bun.build tree-shakes Node-only plugins (content/build/deploy →
- * satori, @resvg/resvg-js, shiki) out of THIS bundle. If not, fall back to a browser-only barrel
- * or the framework `@moku-labs/web/client` export.
+ * Browser-safety (0.4.0): createApp's defaults (site/i18n/router/head/spa) are isomorphic; only
+ * dataPlugin is opted in here for JSON DATA navigation. The Node-only plugins (content/build/
+ * deploy) are NOT added, so the bundler tree-shakes them — and the native @resvg/satori graph —
+ * out. The tests/unit/bundle-safety gate asserts the emitted bundle is free of
+ * node:/satori/resvg/shiki/gray-matter/feed references.
  */
-import { createApp } from "@moku-labs/web";
+import { createApp, dataPlugin } from "@moku-labs/web";
 import { SITE } from "../config";
 import { i18nConfig } from "../i18n/index";
 import { islands } from "../islands";
 import { routes } from "../routes";
 
 const app = createApp({
+  plugins: [dataPlugin],
   config: { mode: "production" },
   pluginConfigs: {
     site: SITE,
     i18n: i18nConfig,
-    router: { routes, mode: "spa" },
+    router: { routes, mode: "hybrid" },
     head: { titleTemplate: "%s — Geek Life" },
-    spa: { components: islands, viewTransitions: true, progressBar: true }
+    spa: { components: islands, viewTransitions: true, progressBar: true },
+    data: { baseUrl: "/_data/" }
   }
 });
 
