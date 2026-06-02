@@ -113,3 +113,18 @@ export function paginate(arts: Content.Article[], page: number, per = PER_PAGE):
 export function byTag(arts: Content.Article[], tag: string): Content.Article[] {
   return arts.filter(a => a.frontmatter.tags.includes(tag));
 }
+
+/**
+ * Sequential card label ("post/NNN", 1-based, zero-padded to 3 digits) for an article, mirroring
+ * the legacy blog's post id. Derived from the date-descending rank the content pipeline encodes in
+ * `contentId` (`${locale}:${index}:${slug}`), so it stays stable and continues across pages.
+ *
+ * @param article - The article to label.
+ * @returns The `post/NNN` id (e.g. "post/001").
+ * @example
+ * postId(article); // "post/001"
+ */
+export function postId(article: Content.Article): string {
+  const index = Number.parseInt(article.computed.contentId.split(":")[1] ?? "", 10);
+  return `post/${String((Number.isNaN(index) ? 0 : index) + 1).padStart(3, "0")}`;
+}

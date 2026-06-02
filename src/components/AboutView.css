@@ -1,7 +1,7 @@
 /* About View (README-style profile) -- colocated from components.css */
 
 [data-component="about"] {
-  margin: 1rem 0 3rem;
+  padding: 1rem 0 3rem;
 }
 
 @scope ([data-component="about"]) {
@@ -10,8 +10,7 @@
     border: 1px solid var(--border-default);
   }
 
-  >
-  header {
+  :scope > header {
     padding: 0.75rem 2rem;
     border-bottom: 1px solid var(--border-default);
     background: var(--surface-elevated);
@@ -183,8 +182,7 @@
     gap: 0.4rem;
   }
 
-  >
-  [data-body] > footer {
+  :scope > [data-body] > footer {
     margin-top: 2rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border-default);

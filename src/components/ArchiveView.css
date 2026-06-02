@@ -1,7 +1,7 @@
 /* Archive View (git-log listing) -- colocated from components.css */
 
 [data-component="archive"] {
-  margin: 1rem 0 3rem;
+  padding: 1rem 0 3rem;
 }
 
 @scope ([data-component="archive"]) {

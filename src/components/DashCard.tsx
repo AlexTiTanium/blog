@@ -4,6 +4,7 @@
  */
 
 import type { Content } from "@moku-labs/web";
+import { postId } from "../lib/articles";
 import { GitTag } from "./GitTag";
 
 interface Props {
@@ -16,7 +17,7 @@ export function DashCard({ article, locale }: Props) {
   return (
     <article>
       <header>
-        <span data-id>{article.computed.contentId}</span>
+        <span data-id>{postId(article)}</span>
         <span data-status>
           <span data-dot></span>
           {article.computed.status}

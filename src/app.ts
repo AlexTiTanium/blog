@@ -10,6 +10,7 @@ import { SITE } from "./config";
 import { i18nConfig } from "./i18n/index";
 import { islands } from "./islands";
 import { bindContent } from "./lib/articles";
+import { warmSyntaxTheme } from "./lib/shiki-theme";
 import { bindRouter } from "./lib/urls";
 import { OgTemplate } from "./og/template";
 import { routes } from "./routes";
@@ -20,7 +21,7 @@ export const app = createApp({
   pluginConfigs: {
     site: SITE,
     i18n: i18nConfig,
-    content: { contentDir: "./content" },
+    content: { contentDir: "./content", shikiTheme: warmSyntaxTheme },
     router: { routes, mode: "hybrid" },
     head: { titleTemplate: "%s — Geek Life", twitterCard: "summary_large_image" },
     build: {

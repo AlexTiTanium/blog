@@ -1,7 +1,7 @@
 /* Tag List View -- filtered article listing by tag */
 
 [data-component="tag-list"] {
-  margin: 1rem 0 3rem;
+  padding: 1rem 0 3rem;
 }
 
 @scope ([data-component="tag-list"]) {

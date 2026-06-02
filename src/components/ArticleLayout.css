@@ -2,7 +2,7 @@
 
 /* --- Article Section Padding --- */
 [data-component="split-pane"] {
-  margin: 1rem 0 3rem;
+  padding: 1rem 0 3rem;
   min-width: 0;
 }
 
