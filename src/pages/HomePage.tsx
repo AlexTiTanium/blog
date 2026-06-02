@@ -5,6 +5,7 @@
 import type { VNode } from "preact";
 import { DashboardGrid } from "../components/DashboardGrid";
 import { StatusBar } from "../components/StatusBar";
+import { SITE } from "../config";
 import type { Paginated } from "../lib/articles";
 
 /**
@@ -22,7 +23,7 @@ export function HomePage({ page, locale }: { page: Paginated; locale: string }):
           <span data-syntax="string">{"{}"}</span>
         </h1>
         <p data-tagline>
-          <span data-syntax="comment">{"// A literary, self-ironic dev blog"}</span>
+          <span data-syntax="comment">{`// ${SITE.description}`}</span>
           <span data-cursor>|</span>
         </p>
       </header>

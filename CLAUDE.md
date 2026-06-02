@@ -34,14 +34,36 @@ This is a **Layer 3 consumer app** in the three-layer Moku model:
 2. This app is Layer 3: it imports `createApp` from `@moku-labs/web` and supplies
    plugin config overrides.
 
-Entry point: `src/index.ts` calls `createApp({ ... })`. This app does NOT define core
-config or plugins, and must NOT depend on `@moku-labs/core` directly — only on the
-framework package.
+Entry points: `src/app.ts` calls `createApp({ ... })` for the SSG build (driven by
+`scripts/build.ts`); `src/main.ts` → `src/spa/spa.tsx` is the browser bundle (imports from
+`@moku-labs/web/browser` and omits the Node-only plugins). Both share `src/routes.tsx`. This app
+does NOT define core config or plugins, and must NOT depend on `@moku-labs/core` directly — only on
+the framework package.
+
+## Conventions & invariants
+
+- **Identity lives in `src/config.ts`.** `SITE` (name, url, author, description, email, github) is
+  the single source of truth — never hardcode these elsewhere; source them from `SITE`.
+- **UI chrome is intentionally English.** The IDE/terminal aesthetic (`build: passing`, `git log`,
+  `<< prev`, dashboard metric labels, the tab glyphs `~`/`[]`/`@`, …) is locale-invariant by design.
+  Do NOT move it into i18n or translate it. Only article content and the nav labels are localized
+  (`src/i18n/`).
+- **Rendered output is guarded by visual baselines.** Playwright golden screenshots exist for
+  home/archive/about/article in en+ru (desktop+mobile). Refactors should be output-preserving; if a
+  change intentionally alters rendering, regenerate baselines with `bun run test:e2e:update` and say
+  so. A fast pre-check: `bun run build` then diff `dist/**/*.html` (ignoring the non-deterministic
+  `build-id` meta) against a pre-change build.
+- **Client bundle must stay node/native-free.** `routes.tsx` and the shared `lib/` helpers are in the
+  browser graph, so they must not import the concrete SSG app. `app.content`/`app.router` are injected
+  once after `createApp` via `bindContent`/`bindRouter`. The `bundle-safety` test enforces this.
+- **Fonts are vendored** under `assets/fonts/` with local `@font-face` (`src/styles/*.css`) — no
+  font npm dependencies.
 
 ## Testing
 
 - Vitest with unit + integration projects
 - App-level tests: `tests/unit/` and `tests/integration/`
+- E2E: Playwright functional + visual baselines (`tests/e2e/`)
 - 90% coverage threshold
 
 ## Moku Development Toolkit

@@ -1,26 +1,14 @@
 /**
  * @file tab-nav island — keeps the persistent header nav in sync after SPA navigation. The header
- * is not re-rendered by the framework on nav, so this re-derives each tab's href, label, and
- * active state from the live `location.pathname`. Mounts on `[data-component="tab-nav"]`.
+ * is not re-rendered by the framework on nav, so this re-derives each tab's href, label, and active
+ * state from the live `location.pathname`. Mounts on `[data-component="tab-nav"]`.
  */
 import type { Spa } from "@moku-labs/web";
-import { DEFAULT_LOCALE, LOCALES, type Locale, t } from "../i18n/index";
+import { t } from "../i18n/index";
+import { localeFromPath } from "../lib/locale";
 
-/** Terminal-style icon glyph per tab. */
+/** Terminal-style icon glyph per tab (mirrors the SSG `TabNav` component). */
 const ICONS: Record<string, string> = { home: "~", archive: "[]", about: "@" };
-
-/**
- * Resolve the active locale from the first path segment (falls back to the default locale).
- *
- * @param path - The current `location.pathname`.
- * @returns The active locale code.
- * @example
- * localeFromPath("/ru/archive/"); // "ru"
- */
-function localeFromPath(path: string): Locale {
-  const segment = path.split("/").find(Boolean) ?? "";
-  return (LOCALES as readonly string[]).includes(segment) ? (segment as Locale) : DEFAULT_LOCALE;
-}
 
 /**
  * Determine which tab the current path activates.
@@ -32,9 +20,10 @@ function localeFromPath(path: string): Locale {
  * activeTab("/en/archive/", "en"); // "archive"
  */
 function activeTab(path: string, locale: string): string {
-  let rest = path;
-  if (rest.startsWith(`/${locale}`)) rest = rest.slice(locale.length + 1);
-  rest = rest.replace(/^\/+/, "");
+  const rest = (path.startsWith(`/${locale}`) ? path.slice(locale.length + 1) : path).replace(
+    /^\/+/,
+    ""
+  );
   if (rest.startsWith("archive")) return "archive";
   if (rest.startsWith("about")) return "about";
   if (rest === "" || rest.startsWith("page/")) return "home";

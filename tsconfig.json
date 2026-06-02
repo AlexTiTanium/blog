@@ -15,7 +15,7 @@
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
-    "types": ["bun"]
+    "types": ["bun", "node"]
   },
-  "include": ["src", "tests", "declarations.d.ts", "*.config.ts"]
+  "include": ["src", "tests", "scripts", "declarations.d.ts", "*.config.ts"]
 }

@@ -5,6 +5,7 @@
 import type { Content } from "@moku-labs/web";
 import type { VNode } from "preact";
 import { TagListView } from "../components/TagListView";
+import type { Locale } from "../i18n/index";
 
 /**
  * Tag page: the articles that share one tag.
@@ -21,5 +22,5 @@ export function TagPage({
   articles: Content.Article[];
   locale: string;
 }): VNode {
-  return <TagListView tag={tag} articles={articles} locale={locale} />;
+  return <TagListView tag={tag} articles={articles} locale={locale as Locale} />;
 }

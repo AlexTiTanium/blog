@@ -1,0 +1,27 @@
+# Geek Life
+
+> A bilingual (English/Russian) literary, self-ironic dev blog by Alex Kucherenko — short essays on
+> software development with an IDE/terminal aesthetic. Statically generated; every article is
+> available in both English (`/en/`) and Russian (`/ru/`), with untranslated posts falling back to
+> English.
+
+## Main pages
+
+- [Home (EN)](https://geeklife.dev/en/): Latest posts dashboard
+- [Home (RU)](https://geeklife.dev/ru/): Лента последних постов
+- [Archive (EN)](https://geeklife.dev/en/archive/): All posts, grouped by month
+- [Archive (RU)](https://geeklife.dev/ru/archive/): Архив всех постов, по месяцам
+- [About (EN)](https://geeklife.dev/en/about/): Author profile
+- [About (RU)](https://geeklife.dev/ru/about/): Об авторе
+
+## Feeds & indexes
+
+- [RSS feed](https://geeklife.dev/feed.xml): Recent articles (RSS 2.0)
+- [Atom feed](https://geeklife.dev/atom.xml): Recent articles (Atom)
+- [Sitemap](https://geeklife.dev/sitemap.xml): All pages
+
+## Conventions
+
+- Articles: `/{lang}/{slug}/` — e.g. `/en/hello-pipeline/`
+- Tags: `/{lang}/tags/{tag}/` — e.g. `/en/tags/typescript/`
+- Languages: `en` (default) and `ru`; bare paths redirect to the default language.

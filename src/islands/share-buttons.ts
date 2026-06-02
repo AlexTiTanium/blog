@@ -5,8 +5,14 @@
  */
 import type { Spa } from "@moku-labs/web";
 
+/** Confirmation label shown on the copy button after a successful copy. */
+const COPIED_LABEL = "Copied!";
+
+/** How long the "Copied!" confirmation stays before the original label is restored (ms). */
+const COPIED_FEEDBACK_MS = 2000;
+
 /**
- * Briefly flip the button label to "Copied!" then restore it.
+ * Briefly flip the button label to the confirmation, then restore it.
  *
  * @param button - The copy button element.
  * @example
@@ -14,10 +20,10 @@ import type { Spa } from "@moku-labs/web";
  */
 function showCopied(button: Element): void {
   const original = button.textContent;
-  button.textContent = "Copied!";
+  button.textContent = COPIED_LABEL;
   setTimeout(() => {
     button.textContent = original;
-  }, 2000);
+  }, COPIED_FEEDBACK_MS);
 }
 
 /**

@@ -1,22 +1,34 @@
 /**
- * Bento grid container for the home page dashboard.
- * Renders article preview cards, a stats summary card, and pagination controls.
+ * @file Bento-grid container for the home dashboard — article preview cards, a stats summary card,
+ * and pagination. The stats metric labels are deliberately English UI chrome (locale-invariant).
  */
 
 import type { Content } from "@moku-labs/web";
 import { DashCard } from "./DashCard";
 import { Pagination } from "./Pagination";
 
+/** Props for {@link DashboardGrid}. */
 interface Props {
+  /** Articles on the current page (rendered as cards). */
   articles: Content.Article[];
+  /** Active locale (for tag links). */
   locale: string;
+  /** Total article count across all pages (for the stats card + pagination). */
   totalArticles?: number;
+  /** 1-based current page (enables pagination when set with `totalPages`/`baseUrl`). */
   currentPage?: number;
+  /** Total number of pages. */
   totalPages?: number;
+  /** Listing base URL without a trailing slash (e.g. `/en`). */
   baseUrl?: string;
 }
 
-/** Render the bento grid with article cards, stats summary, and pagination. */
+/**
+ * Render the bento grid with article cards, a stats summary, and pagination.
+ *
+ * @param props - Articles, locale, and pagination context.
+ * @returns The dashboard grid.
+ */
 export function DashboardGrid({
   articles,
   locale,

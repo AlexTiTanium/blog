@@ -6,26 +6,8 @@
  */
 import type { Spa } from "@moku-labs/web";
 
-let dialog: HTMLDialogElement | undefined;
-let dialogImage: HTMLImageElement | undefined;
-
-/**
- * Lazily create (once) the shared lightbox dialog and its scoped styles.
- *
- * @returns The shared lightbox `<dialog>` element.
- * @example
- * getDialog().showModal();
- */
-function getDialog(): HTMLDialogElement {
-  if (dialog) return dialog;
-
-  dialog = document.createElement("dialog");
-  dialog.dataset.lightbox = "";
-  dialogImage = document.createElement("img");
-  dialog.append(dialogImage);
-
-  const style = document.createElement("style");
-  style.textContent = `
+/** Scoped styles for the lightbox dialog, injected once when the dialog is first created. */
+const LIGHTBOX_STYLES = `
     dialog[data-lightbox] {
       border: none;
       background: none;
@@ -48,18 +30,55 @@ function getDialog(): HTMLDialogElement {
       border-radius: 4px;
     }
   `;
+
+let dialog: HTMLDialogElement | undefined;
+let dialogImage: HTMLImageElement | undefined;
+
+/**
+ * True when a click landed outside the dialog's box (i.e. on the `::backdrop`). A `<dialog>` fills
+ * the viewport for hit-testing, so a backdrop click still targets the dialog — we compare the
+ * pointer against the dialog's rendered rect instead.
+ *
+ * @param event - The click event on the dialog.
+ * @param rect - The dialog's bounding rect.
+ * @returns Whether the click was on the backdrop.
+ * @example
+ * if (isBackdropClick(event, dialog.getBoundingClientRect())) dialog.close();
+ */
+function isBackdropClick(event: MouseEvent, rect: DOMRect): boolean {
+  return (
+    event.clientX < rect.left ||
+    event.clientX > rect.right ||
+    event.clientY < rect.top ||
+    event.clientY > rect.bottom
+  );
+}
+
+/**
+ * Lazily create (once) the shared lightbox dialog and its scoped styles.
+ *
+ * @returns The shared lightbox `<dialog>` element.
+ * @example
+ * getDialog().showModal();
+ */
+function getDialog(): HTMLDialogElement {
+  if (dialog) return dialog;
+
+  dialog = document.createElement("dialog");
+  dialog.dataset.lightbox = "";
+  dialogImage = document.createElement("img");
+  dialog.append(dialogImage);
+
+  const style = document.createElement("style");
+  style.textContent = LIGHTBOX_STYLES;
   document.head.append(style);
   document.body.append(dialog);
 
+  // Close on a backdrop click or a click on the image itself.
   dialog.addEventListener("click", event => {
     const rect = dialog?.getBoundingClientRect();
     if (!rect) return;
-    const clickedBackdrop =
-      event.clientX < rect.left ||
-      event.clientX > rect.right ||
-      event.clientY < rect.top ||
-      event.clientY > rect.bottom;
-    if (clickedBackdrop || event.target === dialogImage) dialog?.close();
+    if (isBackdropClick(event, rect) || event.target === dialogImage) dialog?.close();
   });
 
   return dialog;

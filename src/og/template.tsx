@@ -9,6 +9,9 @@
  */
 import type { Build } from "@moku-labs/web";
 
+/** Maximum number of tags shown in the OG card footer (extras are dropped to keep one line). */
+const OG_MAX_TAGS = 4;
+
 /** Dev Dashboard Warm Syntax theme tokens (match the legacy OG card). */
 const COLORS = {
   bg: "#1c1917",
@@ -43,7 +46,7 @@ function formatDate(iso: string, locale: string): string {
  * OgTemplate({ title: "Hi", description: "", date: "2026-01-01", tags: ["x"], locale: "en", siteName: "Geek Life", size: { width: 1200, height: 630 } });
  */
 export function OgTemplate(input: Build.RichOgInput) {
-  const tagLine = input.tags.slice(0, 4).join(" · ");
+  const tagLine = input.tags.slice(0, OG_MAX_TAGS).join(" · ");
   return (
     <div
       style={{

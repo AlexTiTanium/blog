@@ -16,6 +16,24 @@ import { buildArticleHead, feedLink, jsonLd } from "@moku-labs/web/browser";
 import { SITE } from "../config";
 
 /**
+ * Compose a document title from the site name, an optional section label, and an optional 1-based
+ * page number — the single source for the listing-route titles so they stay consistent.
+ *
+ * @param section - Section label (e.g. "Archive"); omit for the home listing.
+ * @param page - 1-based page number; omit for the first page.
+ * @returns The composed title.
+ * @example
+ * pageTitle(); // "Geek Life"
+ * pageTitle(undefined, 2); // "Geek Life — Page 2"
+ * pageTitle("Archive"); // "Geek Life — Archive"
+ * pageTitle("Archive", 3); // "Geek Life — Archive Page 3"
+ */
+export function pageTitle(section?: string, page?: number): string {
+  const tail = [section, page === undefined ? undefined : `Page ${page}`].filter(Boolean).join(" ");
+  return tail ? `${SITE.name} — ${tail}` : SITE.name;
+}
+
+/**
  * Route context passed to the head builders (params + active locale).
  */
 type HeadContext = {

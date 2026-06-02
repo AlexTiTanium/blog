@@ -1,7 +1,6 @@
 /**
- * Full article view with split-pane layout.
- * Left pane: article header, body HTML, and tags.
- * Right pane: MetaPanel sidebar.
+ * @file Full article view in a split-pane layout — left pane: breadcrumb, header, body HTML, tags,
+ * and share bar; right pane: the {@link MetaPanel} sidebar.
  */
 
 import type { Content } from "@moku-labs/web";
@@ -12,16 +11,25 @@ import { GitTag } from "./GitTag";
 import { MetaPanel } from "./MetaPanel";
 import { ShareButtons } from "./ShareButtons";
 
+/** Props for {@link ArticleLayout}. */
 interface Props {
+  /** The article to render. */
   article: Content.Article;
+  /** Active locale (for breadcrumb/share links and the translation notice). */
   locale: Locale;
+  /** Recent articles for the sidebar. */
   recentArticles: Content.Article[];
 }
 
-/** Render the split-pane article view with content and sidebar. */
+/**
+ * Render the split-pane article view with content and sidebar.
+ *
+ * @param props - The article, active locale, and recent articles.
+ * @returns The article view.
+ */
 export function ArticleLayout({ article, locale, recentArticles }: Props) {
   const year = article.frontmatter.date.split("-")[0];
-  const author = article.frontmatter.author || "Alex Kucherenko";
+  const author = article.frontmatter.author || SITE.author;
 
   return (
     <div data-component="split-pane">

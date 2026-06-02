@@ -1,16 +1,20 @@
 /**
- * IDE status bar footer component.
- * Renders the bottom bar matching VS Code-style status bar.
+ * @file IDE status-bar footer — the bottom bar matching a VS Code-style status bar.
  */
+import { SITE } from "../config";
 
-/** Render the VS Code-style status bar footer. */
+/**
+ * Render the VS Code-style status-bar footer.
+ *
+ * @returns The footer chrome.
+ */
 export function Footer() {
   return (
     <footer data-component="footer">
       <div data-part="left">
         <span data-item>
           <span data-dot="green"></span>
-          Geek Life
+          {SITE.name}
         </span>
         <span data-item>main*</span>
       </div>

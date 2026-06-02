@@ -1,21 +1,80 @@
 /**
- * README-style about page content.
- * Hardcoded author profile matching the prototype's #about section.
+ * @file About page — a README-style author profile. The profile is described once as the {@link PROFILE}
+ * data object and rendered by mapping, so editing content never means touching JSX; identity fields
+ * (author, GitHub, email, domain) come from {@link SITE}. The markdown-flavored headings and footer are
+ * deliberately English UI chrome.
  */
 
+import type { VNode } from "preact";
+import { SITE } from "../config";
 import type { Locale } from "../i18n/index";
 import { homeUrl } from "../lib/urls";
 import { GitTag } from "./GitTag";
 
+/** Site domain shown in the contact list (derived from {@link SITE.url}). */
+const DOMAIN = new URL(SITE.url).hostname;
+
+/** Author profile content rendered by {@link AboutView}. */
+const PROFILE = {
+  /** Role line shown under the name. */
+  role: "Senior Developer",
+  /** Location shown under the name. */
+  location: "Kherson, Ukraine",
+  /** Status badges with their accent colors. */
+  badges: [
+    { label: "available for hire", color: "green" },
+    { label: "open source contributor", color: "amber" },
+    { label: "blog author", color: "coral" }
+  ],
+  /** Tech-stack definition list (term → detail). */
+  techStack: [
+    { term: "Languages", detail: "TypeScript, HTML, CSS" },
+    { term: "Frontend", detail: "Preact, CSS wizardry" },
+    { term: "Backend", detail: "Bun, Cloudflare Pages" },
+    { term: "Tools", detail: "Git (blame enthusiast), Bun bundler, Playwright" },
+    { term: "Editor", detail: "VS Code + vim keybindings (the worst of both worlds)" }
+  ],
+  /** Experience timeline (period → summary). */
+  experience: [
+    {
+      time: "2020–present",
+      text: "Senior Developer — building things, breaking things, writing about both"
+    },
+    { time: "2016–2020", text: "Full-stack Developer — survived three framework migrations" },
+    { time: "2013–2016", text: "Junior Developer — jQuery was still cool, and so was I" }
+  ],
+  /** Interest tags. */
+  interests: [
+    "systems-programming",
+    "static-site-generators",
+    "developer-experience",
+    "technical-writing",
+    "open-source",
+    "mechanical-keyboards"
+  ],
+  /** Contact rows (term → value). */
+  contact: [
+    { term: "GitHub", detail: SITE.github },
+    { term: "Email", detail: SITE.email },
+    { term: "Blog", detail: DOMAIN }
+  ],
+  /** Footer "last updated" comment line. */
+  lastUpdated: "// Last updated: 2026-02-13 · README.md · 1 contributor"
+} as const;
+
+/** Props for {@link AboutView}. */
 interface Props {
+  /** Active locale (for the breadcrumb home link). */
   locale: Locale;
 }
 
 /**
- * Render the about page with semantic HTML elements.
- * @returns README-style author profile section
+ * Render the README-style author profile from {@link PROFILE}.
+ *
+ * @param props - The active locale.
+ * @returns The about page content.
  */
-export function AboutView({ locale }: Props) {
+export function AboutView({ locale }: Props): VNode {
   return (
     <div data-component="about">
       <header>
@@ -26,20 +85,16 @@ export function AboutView({ locale }: Props) {
 
       <div data-body>
         <section>
-          <h1># Alex Kucherenko</h1>
+          <h1># {SITE.author}</h1>
           <p data-role>
-            Senior Developer <span data-sep>{"·"}</span> Kherson, Ukraine
+            {PROFILE.role} <span data-sep>·</span> {PROFILE.location}
           </p>
           <div data-badges>
-            <span data-badge data-color="green">
-              available for hire
-            </span>
-            <span data-badge data-color="amber">
-              open source contributor
-            </span>
-            <span data-badge data-color="coral">
-              blog author
-            </span>
+            {PROFILE.badges.map(badge => (
+              <span key={badge.label} data-badge data-color={badge.color}>
+                {badge.label}
+              </span>
+            ))}
           </div>
         </section>
 
@@ -59,81 +114,50 @@ export function AboutView({ locale }: Props) {
         <section>
           <h2>## Tech Stack</h2>
           <dl>
-            <div>
-              <dt>Languages</dt>
-              <dd>TypeScript, HTML, CSS</dd>
-            </div>
-            <div>
-              <dt>Frontend</dt>
-              <dd>Preact, CSS wizardry</dd>
-            </div>
-            <div>
-              <dt>Backend</dt>
-              <dd>Bun, Cloudflare Pages</dd>
-            </div>
-            <div>
-              <dt>Tools</dt>
-              <dd>Git (blame enthusiast), Bun bundler, Playwright</dd>
-            </div>
-            <div>
-              <dt>Editor</dt>
-              <dd>VS Code + vim keybindings (the worst of both worlds)</dd>
-            </div>
+            {PROFILE.techStack.map(item => (
+              <div key={item.term}>
+                <dt>{item.term}</dt>
+                <dd>{item.detail}</dd>
+              </div>
+            ))}
           </dl>
         </section>
 
         <section>
           <h2>## Experience Highlights</h2>
           <ol data-timeline>
-            <li>
-              <time>2020{"–"}present</time>
-              <span>
-                Senior Developer {"—"} building things, breaking things, writing about both
-              </span>
-            </li>
-            <li>
-              <time>2016{"–"}2020</time>
-              <span>Full-stack Developer {"—"} survived three framework migrations</span>
-            </li>
-            <li>
-              <time>2013{"–"}2016</time>
-              <span>Junior Developer {"—"} jQuery was still cool, and so was I</span>
-            </li>
+            {PROFILE.experience.map(item => (
+              <li key={item.time}>
+                <time>{item.time}</time>
+                <span>{item.text}</span>
+              </li>
+            ))}
           </ol>
         </section>
 
         <section>
           <h2>## Interests</h2>
           <div data-interests>
-            <GitTag tag="systems-programming" />
-            <GitTag tag="static-site-generators" />
-            <GitTag tag="developer-experience" />
-            <GitTag tag="technical-writing" />
-            <GitTag tag="open-source" />
-            <GitTag tag="mechanical-keyboards" />
+            {PROFILE.interests.map(tag => (
+              <GitTag key={tag} tag={tag} />
+            ))}
           </div>
         </section>
 
         <section>
           <h2>## Contact</h2>
           <dl>
-            <div>
-              <dt>GitHub</dt>
-              <dd>@alexkucherenko</dd>
-            </div>
-            <div>
-              <dt>Email</dt>
-              <dd>hello@geeklife.dev</dd>
-            </div>
-            <div>
-              <dt>Blog</dt>
-              <dd>geeklife.dev</dd>
-            </div>
+            {PROFILE.contact.map(item => (
+              <div key={item.term}>
+                <dt>{item.term}</dt>
+                <dd>{item.detail}</dd>
+              </div>
+            ))}
           </dl>
         </section>
 
         <footer>
-          <span data-comment>{"// Last updated: 2026-02-13 · README.md · 1 contributor"}</span>
+          <span data-comment>{PROFILE.lastUpdated}</span>
         </footer>
       </div>
     </div>

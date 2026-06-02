@@ -1,13 +1,20 @@
 /**
- * Build status indicators component.
- * Renders status dots on the home page (build, posts count, last commit).
+ * @file Build-status indicators for the home page (build / posts count / last commit). The labels
+ * are deliberately code/terminal-flavored English UI chrome (locale-invariant by design).
  */
 
+/** Props for {@link StatusBar}. */
 interface Props {
+  /** Total article count shown in the "posts" indicator. */
   articleCount: number;
 }
 
-/** Render build status indicators with article count. */
+/**
+ * Render the build-status indicators with the article count.
+ *
+ * @param props - The total article count.
+ * @returns The status-indicator row.
+ */
 export function StatusBar({ articleCount }: Props) {
   return (
     <div data-component="status">

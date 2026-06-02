@@ -1,42 +1,14 @@
 /**
- * @file lang-switcher island — repoints each locale link at the equivalent path in its locale after
- * SPA navigation (the header persists, so hrefs must be recomputed from the live URL). Mounts on
- * `[data-component="lang-switcher"]`.
+ * @file lang-switcher island — after a client navigation, repoints each locale link at the
+ * equivalent path in its locale and re-syncs `<html lang>` (the header persists across SPA nav, so
+ * both must be recomputed from the live URL). Mounts on `[data-component="lang-switcher"]`.
  */
 import type { Spa } from "@moku-labs/web";
-import { DEFAULT_LOCALE, LOCALES, type Locale } from "../i18n/index";
+import { LOCALES, type Locale } from "../i18n/index";
+import { localeFromPath, swapLocale } from "../lib/locale";
 
 /**
- * Resolve the active locale from the first path segment (falls back to the default locale).
- *
- * @param path - The current `location.pathname`.
- * @returns The active locale code.
- * @example
- * localeFromPath("/ru/about/"); // "ru"
- */
-function localeFromPath(path: string): Locale {
-  const segment = path.split("/").find(Boolean) ?? "";
-  return (LOCALES as readonly string[]).includes(segment) ? (segment as Locale) : DEFAULT_LOCALE;
-}
-
-/**
- * Swap the locale prefix of a path, preserving the rest.
- *
- * @param path - The current `location.pathname`.
- * @param target - The locale to switch to.
- * @returns The same path under the target locale.
- * @example
- * swapLocale("/en/archive/", "ru"); // "/ru/archive/"
- */
-function swapLocale(path: string, target: Locale): string {
-  const parts = path.split("/").filter(Boolean);
-  const first = parts[0] ?? "";
-  const rest = (LOCALES as readonly string[]).includes(first) ? parts.slice(1) : parts;
-  return rest.length > 0 ? `/${target}/${rest.join("/")}/` : `/${target}/`;
-}
-
-/**
- * Re-sync each locale link's href + active state from the live URL.
+ * Re-sync each locale link's href + active state, and the document language, from the live URL.
  *
  * @param element - The mounted lang-switcher element.
  * @example
@@ -45,9 +17,11 @@ function swapLocale(path: string, target: Locale): string {
 function sync(element: Element): void {
   const path = globalThis.location.pathname;
   const current = localeFromPath(path);
+
   // The SPA swaps only `main > section`, so `<html lang>` (persistent chrome) would otherwise keep
-  // the initial locale across a client-side locale switch. Re-sync it here (mount + every onNavEnd).
+  // the initial locale across a client-side switch. Re-sync it here (mount + every onNavEnd).
   globalThis.document.documentElement.setAttribute("lang", current);
+
   for (const link of element.querySelectorAll(":scope > a")) {
     const locale = link.textContent?.trim().toLowerCase() ?? "";
     if (!(LOCALES as readonly string[]).includes(locale)) continue;

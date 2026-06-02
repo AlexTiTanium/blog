@@ -1,6 +1,6 @@
 /**
- * Git-log style archive listing grouped by month.
- * Renders all articles in chronological groups with hash, date, title, reading time, tags, and pagination.
+ * @file Git-log style archive listing grouped by month — each article shows a pseudo-hash, date,
+ * title, reading time, and tags, followed by pagination. The "git log" framing is English UI chrome.
  */
 
 import type { Content } from "@moku-labs/web";
@@ -9,12 +9,19 @@ import { homeUrl } from "../lib/urls";
 import { GitTag } from "./GitTag";
 import { Pagination } from "./Pagination";
 
+/** Props for {@link ArchiveView}. */
 interface Props {
+  /** Articles on the current page. */
   articles: Content.Article[];
+  /** Active locale (for the breadcrumb home link). */
   locale: Locale;
+  /** Total article count across all pages (for the subtitle). */
   totalArticles?: number;
+  /** 1-based current page (enables pagination when set with `totalPages`/`baseUrl`). */
   currentPage?: number;
+  /** Total number of pages. */
   totalPages?: number;
+  /** Listing base URL without a trailing slash (e.g. `/en/archive`). */
   baseUrl?: string;
 }
 

@@ -23,7 +23,7 @@ const app = createApp({
     site: SITE,
     i18n: i18nConfig,
     router: { routes, mode: "hybrid" },
-    head: { titleTemplate: "%s — Geek Life" },
+    head: { titleTemplate: `%s — ${SITE.name}` },
     spa: { components: islands, viewTransitions: true, progressBar: true },
     data: { baseUrl: "/_data/" }
   }

@@ -1,18 +1,25 @@
 /**
- * Article preview card for the bento grid dashboard.
- * Renders a single article as a card with id, status, title, date, excerpt, and tags.
+ * @file Article preview card for the bento-grid dashboard — id, status, title, date, excerpt, tags.
  */
 
 import type { Content } from "@moku-labs/web";
 import { postId } from "../lib/articles";
 import { GitTag } from "./GitTag";
 
+/** Props for {@link DashCard}. */
 interface Props {
+  /** The article to preview. */
   article: Content.Article;
+  /** Active locale (for tag links). */
   locale: string;
 }
 
-/** Render a single article preview card in the dashboard grid. */
+/**
+ * Render a single article preview card in the dashboard grid.
+ *
+ * @param props - The article and active locale.
+ * @returns The article card.
+ */
 export function DashCard({ article, locale }: Props) {
   return (
     <article>

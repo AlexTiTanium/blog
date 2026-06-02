@@ -23,7 +23,7 @@ export const app = createApp({
     i18n: i18nConfig,
     content: { contentDir: "./content", shikiTheme: warmSyntaxTheme },
     router: { routes, mode: "hybrid" },
-    head: { titleTemplate: "%s — Geek Life", twitterCard: "summary_large_image" },
+    head: { titleTemplate: `%s — ${SITE.name}`, twitterCard: "summary_large_image" },
     build: {
       outDir: "dist",
       feeds: true,

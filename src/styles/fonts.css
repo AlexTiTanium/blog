@@ -3,11 +3,11 @@
    No external CDN dependency -- fonts served locally
    ============================================================ */
 
-/* IBM Plex Sans -- Variable weight (100-700) */
-@import "@fontsource-variable/ibm-plex-sans/wght.css";
+/* IBM Plex Sans -- Variable weight (100-700), self-hosted */
+@import "./ibm-plex-sans.css";
 
 /* IBM Plex Mono -- Self-hosted static weights for display/code UI */
 @import "./ibm-plex-mono.css";
 
-/* Fira Code -- Variable weight for code blocks */
-@import "@fontsource-variable/fira-code/wght.css";
+/* Fira Code -- Variable weight for code blocks, self-hosted */
+@import "./fira-code.css";
