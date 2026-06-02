@@ -161,12 +161,14 @@ export const routes = defineRoutes({
     .meta({ activeTab: "archive" }),
 
   // Article — pattern "/{lang:?}/{slug}/"  ·  e.g. "/en/hello-world/"
-  // generate: one page per REAL article (isFallback === false) → 22 en, 6 ru. head: articleHead.
+  // generate: one page per article in EVERY locale (22 en + 22 ru). Articles without a native
+  // translation fall back to the English body under the locale slug, flagged `isFallback` so the
+  // page shows a "not yet translated" notice — every article is reachable in both locales (legacy parity).
   article: route("/{lang:?}/{slug}/")
     .layout(layout)
     .generate(async locale => {
       const arts = await allArticles(locale);
-      return arts.filter(a => !a.isFallback).map(a => ({ lang: locale, slug: a.computed.slug }));
+      return arts.map(a => ({ lang: locale, slug: a.computed.slug }));
     })
     .load(async (p, locale) => ({
       article: await articleBySlug(p.slug, locale),
@@ -199,10 +201,14 @@ export const routes = defineRoutes({
     .meta({ activeTab: "none" }),
 
   // About — pattern "/{lang:?}/about/"  ·  e.g. "/en/about/"
-  // generate: one page per locale. No loader (static). render: AboutPage.
+  // generate: one page per locale. The page is static, but in hybrid mode the about nav link is on
+  // EVERY page, so the SPA prefetches its per-page JSON everywhere — without a loader that's a 404 on
+  // every page. An empty loader+parse emits `_data/{lang}/about/index.json` so data-nav resolves cleanly.
   about: route("/{lang:?}/about/")
     .layout(layout)
     .generate(locale => [{ lang: locale }])
+    .load(() => ({}))
+    .parse(() => ({}))
     .render(ctx => <AboutPage locale={ctx.locale} />)
     .head(ctx => pageHead(ctx, { title: "About", description: "About the author", path: "about/" }))
     .meta({ activeTab: "about" })

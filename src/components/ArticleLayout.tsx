@@ -6,7 +6,7 @@
 
 import type { Content } from "@moku-labs/web";
 import { SITE } from "../config";
-import type { Locale } from "../i18n/index";
+import { type Locale, t } from "../i18n/index";
 import { archiveUrl, articleUrl, homeUrl } from "../lib/urls";
 import { GitTag } from "./GitTag";
 import { MetaPanel } from "./MetaPanel";
@@ -39,6 +39,12 @@ export function ArticleLayout({ article, locale, recentArticles }: Props) {
               {article.computed.readingTime} min read
             </div>
           </header>
+
+          {article.isFallback && (
+            <div data-notice role="note">
+              {t(locale).noTranslation}
+            </div>
+          )}
 
           <div
             data-content

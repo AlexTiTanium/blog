@@ -26,8 +26,10 @@ const EN_ARTICLES = [
   "when-the-build-breaks"
 ];
 
-// Only these 6 have native Russian translations (rest fall back to EN, no /ru/ page).
-const RU_ARTICLES = [
+// Every article is reachable under /ru/ too (native translations + English fallbacks).
+const RU_ARTICLES = EN_ARTICLES;
+// The 6 with a native Russian translation (the other 16 fall back to the English body).
+const RU_NATIVE = [
   "bad-monday",
   "ball-factory",
   "descent-journeys-in-the-dark",
@@ -86,10 +88,29 @@ test.describe("Content", () => {
     }
   });
 
-  test("all 6 native Russian articles resolve (200)", async ({ page }) => {
+  test("all 22 Russian articles resolve (200) — native + English fallback", async ({ page }) => {
     for (const slug of RU_ARTICLES) {
       const res = await page.goto(`/ru/${slug}/`);
       expect(res?.status(), `RU ${slug}`).toBe(200);
+    }
+  });
+
+  test("fallback RU article shows the 'not translated' notice; native does not", async ({
+    page
+  }) => {
+    // test-literary-elements has no RU translation -> English fallback + notice.
+    await page.goto("/ru/test-literary-elements/");
+    await expect(page.locator("[data-notice]")).toBeVisible();
+
+    // hello-pipeline has a native RU translation -> no notice.
+    await page.goto("/ru/hello-pipeline/");
+    await expect(page.locator("[data-notice]")).toHaveCount(0);
+  });
+
+  test("native RU article slugs are a subset that resolve", async ({ page }) => {
+    for (const slug of RU_NATIVE) {
+      const res = await page.goto(`/ru/${slug}/`);
+      expect(res?.status(), `RU native ${slug}`).toBe(200);
     }
   });
 });
