@@ -45,6 +45,9 @@ function swapLocale(path: string, target: Locale): string {
 function sync(element: Element): void {
   const path = globalThis.location.pathname;
   const current = localeFromPath(path);
+  // The SPA swaps only `main > section`, so `<html lang>` (persistent chrome) would otherwise keep
+  // the initial locale across a client-side locale switch. Re-sync it here (mount + every onNavEnd).
+  globalThis.document.documentElement.setAttribute("lang", current);
   for (const link of element.querySelectorAll(":scope > a")) {
     const locale = link.textContent?.trim().toLowerCase() ?? "";
     if (!(LOCALES as readonly string[]).includes(locale)) continue;
