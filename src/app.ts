@@ -36,7 +36,31 @@ export const app = createApp({
       ogImage: {
         fontDir: "assets/fonts/og",
         render: OgTemplate,
-        fonts: [{ name: "IBM Plex Mono", path: "assets/fonts/og/mono-700.ttf", weight: 700 }]
+        // Satori-supported woff subsets (latin + cyrillic, 400/700) so EN + RU OG titles render —
+        // mirrors the legacy fontDir coverage. All share family "IBM Plex Mono"; Satori falls
+        // through entries to find glyph coverage per weight.
+        fonts: [
+          {
+            name: "IBM Plex Mono",
+            path: "assets/fonts/og/ibm-plex-mono-latin-400-normal.woff",
+            weight: 400
+          },
+          {
+            name: "IBM Plex Mono",
+            path: "assets/fonts/og/ibm-plex-mono-latin-700-normal.woff",
+            weight: 700
+          },
+          {
+            name: "IBM Plex Mono",
+            path: "assets/fonts/og/ibm-plex-mono-cyrillic-400-normal.woff",
+            weight: 400
+          },
+          {
+            name: "IBM Plex Mono",
+            path: "assets/fonts/og/ibm-plex-mono-cyrillic-700-normal.woff",
+            weight: 700
+          }
+        ]
       }
     },
     spa: { components: islands, viewTransitions: true, progressBar: true },

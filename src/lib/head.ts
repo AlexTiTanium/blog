@@ -12,7 +12,7 @@
  */
 
 import type { Content, Head } from "@moku-labs/web";
-import { buildArticleHead, feedLink, jsonLd } from "@moku-labs/web";
+import { buildArticleHead, feedLink, jsonLd } from "@moku-labs/web/browser";
 import { SITE } from "../config";
 
 /**

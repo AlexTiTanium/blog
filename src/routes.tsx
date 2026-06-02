@@ -14,7 +14,7 @@
  */
 
 import type { Content } from "@moku-labs/web";
-import { defineRoutes, route } from "@moku-labs/web";
+import { defineRoutes, route } from "@moku-labs/web/browser";
 import type { ComponentChildren, VNode } from "preact";
 import { SITE } from "./config";
 import type { Locale } from "./i18n/index";

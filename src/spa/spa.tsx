@@ -9,7 +9,7 @@
  * out. The tests/unit/bundle-safety gate asserts the emitted bundle is free of
  * node:/satori/resvg/shiki/gray-matter/feed references.
  */
-import { createApp, dataPlugin } from "@moku-labs/web";
+import { createApp, dataPlugin } from "@moku-labs/web/browser";
 import { SITE } from "../config";
 import { i18nConfig } from "../i18n/index";
 import { islands } from "../islands";
