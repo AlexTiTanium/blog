@@ -1,0 +1,43 @@
+import { expect, test } from "@playwright/test";
+
+// Golden-file visual baselines. Playwright auto-suffixes snapshot names with the
+// platform (e.g. `-darwin`, `-linux`), so macOS and the pinned Linux Docker image
+// each keep their own baseline set. Regenerate with:
+//   bun run test:e2e:update          (macOS)
+//   bun run test:e2e:update:linux    (pinned Linux Docker)
+const pages = [
+  { name: "home-en", path: "/en/" },
+  { name: "home-ru", path: "/ru/" },
+  { name: "article-en-hello-pipeline", path: "/en/hello-pipeline/" },
+  { name: "article-ru-hello-pipeline", path: "/ru/hello-pipeline/" },
+  { name: "article-en-bad-monday", path: "/en/bad-monday/" },
+  { name: "article-ru-bad-monday", path: "/ru/bad-monday/" },
+  { name: "archive-en", path: "/en/archive/" },
+  { name: "archive-ru", path: "/ru/archive/" },
+  { name: "about-en", path: "/en/about/" },
+  { name: "about-ru", path: "/ru/about/" }
+];
+
+for (const { name, path } of pages) {
+  test(`baseline: ${name}`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page).toHaveScreenshot(`${name}.png`, {
+      fullPage: true,
+      maxDiffPixelRatio: 0.02
+    });
+  });
+}
+
+test.describe("mobile", () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  for (const { name, path } of pages) {
+    test(`baseline: ${name}`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page).toHaveScreenshot(`${name}-mobile.png`, {
+        fullPage: true,
+        maxDiffPixelRatio: 0.02
+      });
+    });
+  }
+});
