@@ -5,6 +5,14 @@ import { expect, test } from "@playwright/test";
 // each keep their own baseline set. Regenerate with:
 //   bun run test:e2e:update          (macOS)
 //   bun run test:e2e:update:linux    (pinned Linux Docker)
+
+// Freeze the clock so the title-bar dev-quote (pickQuote(), seeded by date+hour) is
+// deterministic. Otherwise a longer quote wraps on the 375px mobile viewport and adds
+// ~21px to every page, making the baselines drift hour-to-hour.
+test.beforeEach(async ({ page }) => {
+  await page.clock.setFixedTime(new Date("2026-06-01T12:00:00Z"));
+});
+
 const pages = [
   { name: "home-en", path: "/en/" },
   { name: "home-ru", path: "/ru/" },

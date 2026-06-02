@@ -116,4 +116,36 @@ test.describe("SPA client navigation — no failed requests through a click path
 
     expect(failures, failures.join("\n")).toEqual([]);
   });
+
+  test("CONSECUTIVE same-route navs keep content (no blank swap region)", async ({ page }) => {
+    // Regression: two client navs in a row into the same route used to render an empty
+    // swap region (Preact vdom desynced from the DOM). Walk the home pagination and
+    // assert cards render on EACH page, then round-trip the about locale.
+    await page.goto("/en/");
+    await expect(
+      page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
+    ).toHaveCount(10);
+
+    await page.click('[data-component="pagination"] [data-next]:not([data-hidden])');
+    await page.waitForURL(/\/en\/page\/2\//);
+    await expect(
+      page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
+    ).toHaveCount(10);
+
+    await page.click('[data-component="pagination"] [data-next]:not([data-hidden])');
+    await page.waitForURL(/\/en\/page\/3\//);
+    // page 3 (2 articles) — must NOT be empty.
+    await expect(
+      page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
+    ).toHaveCount(2);
+
+    // About locale round-trip (en -> ru -> en) — content must persist each time.
+    await page.goto("/en/about/");
+    await page.click('[data-component="lang-switcher"] a[href^="/ru/"]');
+    await page.waitForURL(/\/ru\/about\//);
+    await expect(page.locator('[data-component="about"]')).toBeVisible();
+    await page.click('[data-component="lang-switcher"] a[href^="/en/"]');
+    await page.waitForURL(/\/en\/about\//);
+    await expect(page.locator('[data-component="about"]')).toBeVisible();
+  });
 });
