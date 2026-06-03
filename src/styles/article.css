@@ -10,7 +10,7 @@
     font-size: 1rem;
     line-height: 1.8;
     color: var(--text-body);
-    max-width: 70ch;
+    max-width: 80ch;
     overflow-wrap: break-word;
     word-break: break-word;
     overflow: hidden;
