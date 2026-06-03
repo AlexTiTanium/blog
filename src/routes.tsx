@@ -15,56 +15,16 @@
  */
 
 import { defineRoutes, route } from "@moku-labs/web/browser";
-import type { ComponentChildren, VNode } from "preact";
 import { SITE } from "./config";
-import type { Locale } from "./i18n/index";
-import { SiteLayout } from "./layouts/SiteLayout";
 import { allArticles, articleBySlug, byTag, paginate } from "./lib/articles";
 import { articleHead, pageHead, pageTitle } from "./lib/head";
 import { asArticleData, asPaginated, asTagData } from "./lib/payloads";
+import { layout, pagedRouteParams } from "./lib/route-helpers";
 import { AboutPage } from "./pages/AboutPage";
 import { ArchivePage } from "./pages/ArchivePage";
 import { ArticlePage } from "./pages/ArticlePage";
 import { HomePage } from "./pages/HomePage";
 import { TagPage } from "./pages/TagPage";
-
-/**
- * Shared `.layout()` wrapper — frames a route's rendered page in {@link SiteLayout}, reading the
- * active locale and the route's `.meta().activeTab` for the highlighted nav tab. Typed to the fields
- * it reads; the framework's full `LayoutContext` is assignable to it.
- *
- * @param ctx - Layout context (active locale + the route's `.meta()` bag).
- * @param children - The rendered page content (the `main > section` swap region's children).
- * @returns The page wrapped in site chrome.
- */
-const layout = (
-  ctx: { locale: string; meta: Record<string, unknown> },
-  children: ComponentChildren
-): VNode => (
-  <SiteLayout
-    locale={ctx.locale as Locale}
-    activeTab={typeof ctx.meta.activeTab === "string" ? ctx.meta.activeTab : "none"}
-  >
-    {children}
-  </SiteLayout>
-);
-
-/**
- * Param sets for the paged variant of a listing (pages 2..N for a locale; page 1 is the base route).
- * Shared by the home and archive paged routes so the pagination math lives in one place.
- *
- * @param locale - Locale to enumerate pages for.
- * @returns One `{ lang, page }` param set per page after the first.
- * @example
- * await pagedRouteParams("en"); // [{ lang: "en", page: "2" }, { lang: "en", page: "3" }]
- */
-async function pagedRouteParams(locale: string): Promise<{ lang: string; page: string }[]> {
-  const { totalPages } = paginate(await allArticles(locale), 1);
-  return Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => ({
-    lang: locale,
-    page: String(i + 2)
-  }));
-}
 
 export const routes = defineRoutes({
   // ── Home ──────────────────────────────────────────────────────────────────
