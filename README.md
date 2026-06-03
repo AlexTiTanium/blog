@@ -81,5 +81,4 @@ tests/              unit + integration (vitest), e2e (playwright)
 ## Deploy
 
 Gated until framework Cloudflare support is finalized. `scripts/deploy.ts` scaffolds `wrangler.jsonc`
-via `app.deploy.init()`; the actual `app.deploy.run()` is guarded behind `DEPLOY_ENABLED=true`. The
-production origin can be overridden at build time with the `SITE_URL` env var.
+via `app.deploy.init()`; the actual `app.deploy.run()` is guarded behind `DEPLOY_ENABLED=true`.
