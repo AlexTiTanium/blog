@@ -1,11 +1,11 @@
 /**
- * @file Route-table helpers used by `src/routes.tsx` — the shared `.layout()` wrapper and the
- * paged-listing param generator. Kept out of the route table so it reads as pure routing.
+ * @file Route-table helper used by `src/routes.tsx` + `src/routes.build.tsx` — the shared `.layout()`
+ * wrapper. Browser-safe (no content import): it frames a page in chrome and reads only locale + meta.
+ * The paged-listing param generator now lives in `./content` (it needs the content plugin).
  */
 import type { ComponentChildren, VNode } from "preact";
 import type { Locale } from "../i18n/index";
 import { SiteLayout } from "../layouts/SiteLayout";
-import { allArticles, paginate } from "./articles";
 
 /**
  * Shared `.layout()` wrapper — frames a route's rendered page in {@link SiteLayout}, reading the
@@ -29,20 +29,3 @@ export const layout = (
     {children}
   </SiteLayout>
 );
-
-/**
- * Param sets for the paged variant of a listing (pages 2..N for a locale; page 1 is the base route).
- * Shared by the home and archive paged routes so the pagination math lives in one place.
- *
- * @param locale - Locale to enumerate pages for.
- * @returns One `{ lang, page }` param set per page after the first.
- * @example
- * await pagedRouteParams("en"); // [{ lang: "en", page: "2" }, { lang: "en", page: "3" }]
- */
-export async function pagedRouteParams(locale: string): Promise<{ lang: string; page: string }[]> {
-  const { totalPages } = paginate(await allArticles(locale), 1);
-  return Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => ({
-    lang: locale,
-    page: String(i + 2)
-  }));
-}

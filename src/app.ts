@@ -9,20 +9,18 @@ import { buildPlugin, contentPlugin, createApp, dataPlugin, deployPlugin } from 
 import { SITE } from "./config";
 import { i18nConfig } from "./i18n/index";
 import { islands } from "./islands";
-import { bindContent } from "./lib/articles";
 import { warmSyntaxTheme } from "./lib/shiki-theme";
-import { bindRouter } from "./lib/urls";
 import { OgTemplate } from "./og/template";
-import { routes } from "./routes";
+import { routes } from "./routes.build";
 
 export const app = createApp({
   plugins: [contentPlugin, buildPlugin, deployPlugin, dataPlugin],
-  config: { mode: "production" },
+  config: { mode: "hybrid" },
   pluginConfigs: {
     site: SITE,
     i18n: i18nConfig,
     content: { contentDir: "./content", shikiTheme: warmSyntaxTheme },
-    router: { routes, mode: "hybrid" },
+    router: { routes },
     head: { titleTemplate: `%s — ${SITE.name}`, twitterCard: "summary_large_image" },
     build: {
       outDir: "dist",
@@ -69,8 +67,3 @@ export const app = createApp({
     deploy: { target: "cloudflare-pages", outDir: "dist", productionBranch: "main", ci: true }
   }
 });
-
-// Break the createApp ↔ routes cycles: give loaders the cached content API and components the
-// router URL builder (both are referenced by routes/components imported above createApp).
-bindContent(app.content);
-bindRouter(app.router);

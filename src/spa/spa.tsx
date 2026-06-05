@@ -13,24 +13,20 @@ import { createApp, dataPlugin } from "@moku-labs/web/browser";
 import { SITE } from "../config";
 import { i18nConfig } from "../i18n/index";
 import { islands } from "../islands";
-import { bindRouter } from "../lib/urls";
 import { routes } from "../routes";
 
 const app = createApp({
   plugins: [dataPlugin],
-  config: { mode: "production" },
+  config: { mode: "hybrid" },
   pluginConfigs: {
     site: SITE,
     i18n: i18nConfig,
-    router: { routes, mode: "hybrid" },
+    router: { routes },
     head: { titleTemplate: `%s — ${SITE.name}` },
     spa: { components: islands, viewTransitions: true, progressBar: true },
     data: { baseUrl: "/_data/" }
   }
 });
-
-// Give components (rendered into the swap region on client navigation) the router URL builder.
-bindRouter(app.router);
 
 // Boots kernel: nav interception + scan [data-component] + hydrate.
 // Errors surfaced, not swallowed (spec/11 §1.13).

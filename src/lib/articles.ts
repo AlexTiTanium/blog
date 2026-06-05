@@ -1,27 +1,9 @@
 /**
- * @file Content-cache accessor. ONE memoized loadAll() → loaders never re-parse markdown (N×N guard).
+ * @file Pure article helpers + page-data types. NO content-plugin import → browser-safe: shared by
+ * components, pages, the route shells (`src/routes.tsx`), AND the node loaders alike. Content access
+ * (which needs the node-only content plugin) lives in `./content`, imported only by `src/routes.build`.
  */
 import type { Content } from "@moku-labs/web";
-
-/**
- * Structural subset of the content plugin API used by the loaders.
- */
-type ContentApi = {
-  /**
-   * Load every article across all active locales.
-   *
-   * @returns Locale-keyed map of date-descending articles.
-   */
-  loadAll(): Promise<Map<string, Content.Article[]>>;
-  /**
-   * Resolve a single article for a locale.
-   *
-   * @param slug - Article directory name.
-   * @param locale - Requested locale code.
-   * @returns The resolved article.
-   */
-  load(slug: string, locale: string): Promise<Content.Article>;
-};
 
 /** Articles per archive/home page. */
 export const PER_PAGE = 10;
@@ -40,49 +22,21 @@ export type Paginated = {
   totalPages: number;
 };
 
-let api: ContentApi | undefined;
-let cache: Map<string, Content.Article[]> | undefined;
+/** Article-route page data: the resolved article plus the recent-articles sidebar list. */
+export type ArticleData = {
+  /** The resolved article. */
+  article: Content.Article;
+  /** Recent articles for the sidebar. */
+  recent: Content.Article[];
+};
 
-/**
- * Wire the content-plugin API after createApp (called once in src/app.ts).
- *
- * @param content - The app's content plugin API (`app.content`).
- * @example
- * bindContent(app.content);
- */
-export function bindContent(content: ContentApi): void {
-  api = content;
-}
-
-/**
- * All articles for a locale, from a single memoized loadAll().
- *
- * @param locale - Locale code.
- * @returns Date-descending articles for the locale (empty if none).
- * @throws {Error} When the content API has not been bound.
- * @example
- * const posts = await allArticles("en");
- */
-export async function allArticles(locale: string): Promise<Content.Article[]> {
-  if (!api) throw new Error("content not bound — call bindContent(app.content) first");
-  cache ??= await api.loadAll();
-  return cache.get(locale) ?? [];
-}
-
-/**
- * Resolve a single article (the content plugin caches internally).
- *
- * @param slug - Article slug.
- * @param locale - Locale code.
- * @returns The resolved article.
- * @throws {Error} When the content API has not been bound.
- * @example
- * const post = await articleBySlug("hello", "en");
- */
-export async function articleBySlug(slug: string, locale: string): Promise<Content.Article> {
-  if (!api) throw new Error("content not bound — call bindContent(app.content) first");
-  return api.load(slug, locale);
-}
+/** Tag-route page data: a tag name plus the articles carrying it. */
+export type TagData = {
+  /** The tag name. */
+  tag: string;
+  /** Articles tagged with `tag`. */
+  articles: Content.Article[];
+};
 
 /**
  * Paginate a locale's articles into a 1-based page slice.

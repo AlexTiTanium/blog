@@ -1,15 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-import {
-  allArticles,
-  articleBySlug,
-  bindContent,
-  byTag,
-  PER_PAGE,
-  paginate
-} from "../../src/lib/articles";
+import { describe, expect, it } from "vitest";
+import { byTag, PER_PAGE, paginate } from "../../src/lib/articles";
 import { makeArticle } from "./_factory";
-
-type ContentApiArg = Parameters<typeof bindContent>[0];
 
 describe("paginate", () => {
   const arts = Array.from({ length: 25 }, (_, index) => makeArticle({ slug: `a-${index}` }));
@@ -65,43 +56,5 @@ describe("byTag", () => {
 
   it("returns an empty list when no article matches", () => {
     expect(byTag(arts, "missing")).toEqual([]);
-  });
-});
-
-describe("content binding", () => {
-  it("allArticles rejects before bindContent", async () => {
-    await expect(allArticles("en")).rejects.toThrow(/not bound/);
-  });
-
-  it("articleBySlug rejects before bindContent", async () => {
-    await expect(articleBySlug("hello", "en")).rejects.toThrow(/not bound/);
-  });
-
-  it("allArticles returns a locale slice and memoizes loadAll", async () => {
-    const en = [makeArticle({ slug: "a" }), makeArticle({ slug: "b" })];
-    const ru = [makeArticle({ slug: "a", locale: "ru" })];
-    const loadAll = vi.fn().mockResolvedValue(
-      new Map([
-        ["en", en],
-        ["ru", ru]
-      ])
-    );
-    const load = vi.fn();
-    bindContent({ loadAll, load } as unknown as ContentApiArg);
-
-    expect(await allArticles("en")).toHaveLength(2);
-    expect(await allArticles("ru")).toHaveLength(1);
-    expect(await allArticles("de")).toEqual([]);
-    expect(loadAll).toHaveBeenCalledTimes(1);
-  });
-
-  it("articleBySlug delegates to content.load", async () => {
-    const article = makeArticle({ slug: "hello" });
-    const load = vi.fn().mockResolvedValue(article);
-    const loadAll = vi.fn().mockResolvedValue(new Map());
-    bindContent({ loadAll, load } as unknown as ContentApiArg);
-
-    expect(await articleBySlug("hello", "en")).toBe(article);
-    expect(load).toHaveBeenCalledWith("hello", "en");
   });
 });
