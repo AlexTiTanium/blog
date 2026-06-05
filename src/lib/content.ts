@@ -1,13 +1,14 @@
 /**
- * @file Content access for route loaders (NODE-only). `allArticles`/`articleBySlug` take the
- * loader/generate `ctx` and resolve the content plugin spec-exactly via `ctx.require(contentPlugin)`
- * — so the route table never imports the node-only content plugin directly. Imported ONLY by
- * `src/routes.build.tsx` (the SSG route table); never by `src/routes.tsx` (the browser shells) or
- * any browser module, keeping the client bundle free of node/native code.
+ * @file Content access for route loaders. `allArticles`/`articleBySlug` take the loader/generate
+ * `ctx` and resolve content spec-exactly via `ctx.require(contentPlugin)`. `contentPlugin` is the
+ * browser-safe SHELL (imported from `@moku-labs/web/browser`); the node Markdown source is the
+ * `fileSystemContent` provider composed in `src/app.ts`. Loaders run BUILD-ONLY, so even though this
+ * module ships to the client (it's reachable from `src/routes`), the closures never execute there
+ * and the shell carries no node code — the client bundle stays clean.
  */
 
-import type { Content, Router } from "@moku-labs/web";
-import { contentPlugin } from "@moku-labs/web";
+import type { Content, Router } from "@moku-labs/web/browser";
+import { contentPlugin } from "@moku-labs/web/browser";
 import { paginate } from "./articles";
 
 /** Minimal loader/generate context surface these helpers read: active locale + the spec `require`. */

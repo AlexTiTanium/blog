@@ -1,17 +1,20 @@
 /**
- * @file Route SHELLS — the browser-safe route table (patterns + render/head/meta/layout, NO loaders).
+ * @file The blog's SINGLE route table — used by the SSG build, the SPA, and link building.
  *
- * Imported by the browser (`src/spa/spa.tsx`) and the link builder (`src/lib/urls.ts`), so it must
- * stay free of the node-only content plugin: it declares NO `.load`/`.generate` and imports no
- * content. On a client DATA navigation the framework feeds the fetched per-page JSON in as `ctx.data`
- * (typed here via a cast to the route's data shape) and runs the SAME `render` the SSG build used.
+ * One source of truth. Loaders read content via `src/lib/content` (which resolves the content
+ * plugin with `ctx.require(contentPlugin)`); `contentPlugin` is the browser-safe SHELL (the node
+ * Markdown source is the `fileSystemContent` provider composed in `src/app.ts`), so this module
+ * imports zero node code and ships to the client cleanly. Loaders run BUILD-ONLY; on a client DATA
+ * navigation the framework feeds the persisted JSON in as `ctx.data` and runs the same `render`.
  *
- * The SSG build registers the fuller table in `src/routes.build.tsx` (these shells + the loaders).
+ * Links: `urls` (a pure `createUrls(routes)` builder) is exported here and wrapped by
+ * `src/lib/urls`; co-locating it with `routes` keeps the link builder free of an import cycle.
  * The optional `{lang:?}` segment yields a bare default-locale path (`/`) plus explicit `/en/`, `/ru/`.
  */
-import { defineRoutes, route } from "@moku-labs/web/browser";
+import { createUrls, defineRoutes, route } from "@moku-labs/web/browser";
 import { SITE } from "./config";
-import type { ArticleData, Paginated, TagData } from "./lib/articles";
+import { byTag, paginate } from "./lib/articles";
+import { allArticles, articleBySlug, pagedRouteParameters } from "./lib/content";
 import { articleHead, pageHead, pageTitle } from "./lib/head";
 import { layout } from "./lib/route-helpers";
 import { AboutPage } from "./pages/AboutPage";
@@ -24,18 +27,22 @@ export const routes = defineRoutes({
   // ── Home ──────────────────────────────────────────────────────────────────
   home: route("/{lang:?}/")
     .layout(layout)
-    .render(ctx => <HomePage page={ctx.data as Paginated} locale={ctx.locale} />)
+    .generate(ctx => [{ lang: ctx.locale }])
+    .load(async ctx => paginate(await allArticles(ctx), 1))
+    .render(ctx => <HomePage page={ctx.data} locale={ctx.locale} />)
     .head(ctx => pageHead(ctx, { title: pageTitle(), description: SITE.description, isHome: true }))
     .meta({ activeTab: "home" }),
 
   homePaged: route("/{lang:?}/page/{page}/")
     .layout(layout)
-    .render(ctx => <HomePage page={ctx.data as Paginated} locale={ctx.locale} />)
+    .generate(pagedRouteParameters)
+    .load(async ctx => paginate(await allArticles(ctx), Number(ctx.params.page)))
+    .render(ctx => <HomePage page={ctx.data} locale={ctx.locale} />)
     .head(ctx =>
       pageHead(ctx, {
-        title: pageTitle(undefined, (ctx.data as Paginated).page),
+        title: pageTitle(undefined, ctx.data.page),
         description: SITE.description,
-        path: `page/${(ctx.data as Paginated).page}/`
+        path: `page/${ctx.data.page}/`
       })
     )
     .meta({ activeTab: "home" }),
@@ -43,7 +50,9 @@ export const routes = defineRoutes({
   // ── Archive ───────────────────────────────────────────────────────────────
   archive: route("/{lang:?}/archive/")
     .layout(layout)
-    .render(ctx => <ArchivePage page={ctx.data as Paginated} locale={ctx.locale} />)
+    .generate(ctx => [{ lang: ctx.locale }])
+    .load(async ctx => paginate(await allArticles(ctx), 1))
+    .render(ctx => <ArchivePage page={ctx.data} locale={ctx.locale} />)
     .head(ctx =>
       pageHead(ctx, {
         title: pageTitle("Archive"),
@@ -55,12 +64,14 @@ export const routes = defineRoutes({
 
   archivePaged: route("/{lang:?}/archive/page/{page}/")
     .layout(layout)
-    .render(ctx => <ArchivePage page={ctx.data as Paginated} locale={ctx.locale} />)
+    .generate(pagedRouteParameters)
+    .load(async ctx => paginate(await allArticles(ctx), Number(ctx.params.page)))
+    .render(ctx => <ArchivePage page={ctx.data} locale={ctx.locale} />)
     .head(ctx =>
       pageHead(ctx, {
-        title: pageTitle("Archive", (ctx.data as Paginated).page),
+        title: pageTitle("Archive", ctx.data.page),
         description: SITE.description,
-        path: `archive/page/${(ctx.data as Paginated).page}/`
+        path: `archive/page/${ctx.data.page}/`
       })
     )
     .meta({ activeTab: "archive" }),
@@ -68,32 +79,53 @@ export const routes = defineRoutes({
   // ── Content (article + tag) ────────────────────────────────────────────────
   article: route("/{lang:?}/{slug}/")
     .layout(layout)
-    .render(ctx => {
-      const data = ctx.data as ArticleData;
-      return <ArticlePage article={data.article} recent={data.recent} locale={ctx.locale} />;
-    })
-    .head(ctx => articleHead(ctx, (ctx.data as ArticleData).article))
+    .generate(async ctx =>
+      (await allArticles(ctx)).map(a => ({ lang: ctx.locale, slug: a.computed.slug }))
+    )
+    .load(async ctx => ({
+      article: await articleBySlug(ctx),
+      recent: (await allArticles(ctx)).slice(0, 5)
+    }))
+    .render(ctx => (
+      <ArticlePage article={ctx.data.article} recent={ctx.data.recent} locale={ctx.locale} />
+    ))
+    .head(ctx => articleHead(ctx, ctx.data.article))
     .meta({ activeTab: "none" }),
 
   tag: route("/{lang:?}/tags/{tag}/")
     .layout(layout)
-    .render(ctx => {
-      const data = ctx.data as TagData;
-      return <TagPage tag={data.tag} articles={data.articles} locale={ctx.locale} />;
+    .generate(async ctx => {
+      const tags = new Set((await allArticles(ctx)).flatMap(a => a.frontmatter.tags));
+      return [...tags].map(tag => ({ lang: ctx.locale, tag }));
     })
+    .load(async ctx => ({
+      tag: ctx.params.tag,
+      articles: byTag(await allArticles(ctx), ctx.params.tag)
+    }))
+    .render(ctx => <TagPage tag={ctx.data.tag} articles={ctx.data.articles} locale={ctx.locale} />)
     .head(ctx =>
       pageHead(ctx, {
-        title: `Tag: ${(ctx.data as TagData).tag}`,
-        description: `Articles tagged "${(ctx.data as TagData).tag}"`,
-        path: `tags/${(ctx.data as TagData).tag}/`
+        title: `Tag: ${ctx.data.tag}`,
+        description: `Articles tagged "${ctx.data.tag}"`,
+        path: `tags/${ctx.data.tag}/`
       })
     )
     .meta({ activeTab: "none" }),
 
   // ── About ─────────────────────────────────────────────────────────────────
+  // Empty loader emits `_data/{lang}/about/index.json` so hybrid data-nav resolves cleanly.
   about: route("/{lang:?}/about/")
     .layout(layout)
+    .generate(ctx => [{ lang: ctx.locale }])
+    .load(() => ({}))
     .render(ctx => <AboutPage locale={ctx.locale} />)
     .head(ctx => pageHead(ctx, { title: "About", description: "About the author", path: "about/" }))
     .meta({ activeTab: "about" })
 });
+
+/**
+ * Pure name→URL builder over {@link routes} (no running app/router needed). Co-located with the
+ * route table so the link builder shares its one source of truth without an import cycle; wrapped by
+ * the per-route helpers in `src/lib/urls`. Also usable directly from islands.
+ */
+export const urls = createUrls(routes);

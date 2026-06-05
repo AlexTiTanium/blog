@@ -6,7 +6,7 @@
  * Uses only `contentPlugin` on the isomorphic defaults — no `buildPlugin`, so the OG `fontDir`
  * validation (a Phase D concern) doesn't run here.
  */
-import { contentPlugin, createApp } from "@moku-labs/web";
+import { contentPlugin, createApp, fileSystemContent } from "@moku-labs/web";
 import { beforeAll, describe, expect, it } from "vitest";
 import { SITE } from "../../src/config";
 import { i18nConfig } from "../../src/i18n/index";
@@ -18,7 +18,7 @@ const app = createApp({
     site: SITE,
     i18n: i18nConfig,
     router: { routes },
-    content: { contentDir: "./content" }
+    content: { providers: [fileSystemContent({ contentDir: "./content" })] }
   }
 });
 

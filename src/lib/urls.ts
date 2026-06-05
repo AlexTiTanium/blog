@@ -1,15 +1,10 @@
 /**
- * @file Internal-link helpers. Built on the framework's pure `createUrls(routes)` — a name→URL builder
- * that needs NO running app/router (it substitutes params into the route patterns the consumer already
- * holds), so pure SSG/SPA components build canonical hrefs without an `app` reference and without the
- * old `bindRouter` module-global. Reuses the SAME route map as the app, so links always match the
- * generated page paths and the i18n bare-path redirects.
+ * @file Internal-link helpers. Thin wrappers over the pure `urls` builder co-located with the route
+ * table (`src/routes`), so pure SSG/SPA components build canonical hrefs without an `app` reference.
+ * Importing the already-built `urls` (rather than building it here) keeps these helpers out of a
+ * module-initialization cycle with the route table's page/layout imports.
  */
-import { createUrls } from "@moku-labs/web/browser";
-import { routePatterns } from "./route-patterns";
-
-/** Pure name→URL builder over the pattern-only route map (no app/router instance, no import cycle). */
-const urls = createUrls(routePatterns);
+import { urls } from "../routes";
 
 /**
  * URL of the home page for a locale.

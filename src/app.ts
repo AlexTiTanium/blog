@@ -1,17 +1,24 @@
 /**
- * @file SSG composition (Node side). Opts in the Node-only plugins (content/build/deploy/data)
- * on top of `@moku-labs/web`'s browser-safe defaults (site/i18n/router/head/spa), and binds the
- * content cache so route loaders never re-parse markdown. Driven by scripts/build.ts via
- * app.build.run(). The browser entry (src/spa/spa.tsx) omits these Node-only plugins so the
- * client bundle tree-shakes them out (package sideEffects:false).
+ * @file SSG composition (Node side). Opts in the Node-only plugins (build/deploy/data) on top of
+ * `@moku-labs/web`'s browser-safe defaults (site/i18n/router/head/spa/content shell), and composes
+ * the node `fileSystemContent` provider so route loaders read Markdown via `ctx.require(contentPlugin)`.
+ * Driven by scripts/build.ts via app.build.run(). The browser entry (src/spa/spa.tsx) omits the
+ * Node-only plugins + the provider, so the client bundle stays free of node/native code.
  */
-import { buildPlugin, contentPlugin, createApp, dataPlugin, deployPlugin } from "@moku-labs/web";
+import {
+  buildPlugin,
+  contentPlugin,
+  createApp,
+  dataPlugin,
+  deployPlugin,
+  fileSystemContent
+} from "@moku-labs/web";
 import { SITE } from "./config";
 import { i18nConfig } from "./i18n/index";
 import { islands } from "./islands";
 import { warmSyntaxTheme } from "./lib/shiki-theme";
 import { OgTemplate } from "./og/template";
-import { routes } from "./routes.build";
+import { routes } from "./routes";
 
 export const app = createApp({
   plugins: [contentPlugin, buildPlugin, deployPlugin, dataPlugin],
@@ -19,7 +26,9 @@ export const app = createApp({
   pluginConfigs: {
     site: SITE,
     i18n: i18nConfig,
-    content: { contentDir: "./content", shikiTheme: warmSyntaxTheme },
+    content: {
+      providers: [fileSystemContent({ contentDir: "./content", shikiTheme: warmSyntaxTheme })]
+    },
     router: { routes },
     head: { titleTemplate: `%s — ${SITE.name}`, twitterCard: "summary_large_image" },
     build: {
