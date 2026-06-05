@@ -18,7 +18,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : [["list"]],
   webServer: {
-    command: "bun scripts/serve.ts",
+    command: "bun scripts/preview.ts",
     port: 4173,
     reuseExistingServer: !process.env.CI
   },

@@ -1,12 +1,14 @@
 /**
- * @file SSG composition (Node side). Opts in the Node-only plugins (build/deploy/data) on top of
+ * @file SSG composition (Node side). Opts in the Node-only plugins (build/deploy/data/cli) on top of
  * `@moku-labs/web`'s browser-safe defaults (site/i18n/router/head/spa/content shell), and composes
  * the node `fileSystemContent` provider so route loaders read Markdown via `ctx.require(contentPlugin)`.
- * Driven by scripts/build.ts via app.build.run(). The browser entry (src/spa/spa.tsx) omits the
- * Node-only plugins + the provider, so the client bundle stays free of node/native code.
+ * Driven by the thin `scripts/{build,serve,preview,deploy}.ts` entries via `app.cli.*`. The browser
+ * entry (src/spa/spa.tsx) omits the Node-only plugins + the provider, so the client bundle stays free
+ * of node/native code.
  */
 import {
   buildPlugin,
+  cliPlugin,
   contentPlugin,
   createApp,
   dataPlugin,
@@ -21,7 +23,7 @@ import { OgTemplate } from "./og/template";
 import { routes } from "./routes";
 
 export const app = createApp({
-  plugins: [contentPlugin, buildPlugin, deployPlugin, dataPlugin],
+  plugins: [contentPlugin, buildPlugin, deployPlugin, dataPlugin, cliPlugin],
   config: { mode: "hybrid" },
   pluginConfigs: {
     site: SITE,
@@ -73,6 +75,11 @@ export const app = createApp({
     },
     spa: { components: islands, viewTransitions: true, progressBar: true },
     data: { outputDir: "_data", baseUrl: "/_data/" },
-    deploy: { target: "cloudflare-pages", outDir: "dist", productionBranch: "main", ci: true }
+    deploy: { target: "cloudflare-pages", outDir: "dist", productionBranch: "main", ci: true },
+    // serve/preview/deploy all act on the same "dist" output as build + deploy (stated explicitly so
+    // the linkage is visible, not coincidental). port 4173 = the Playwright webServer port; honor a
+    // PORT override. The remaining cli defaults already match the old hand-rolled scripts: watchDirs
+    // ["content","src"], debounceMs 150, notFoundFile "404.html", liveReload.
+    cli: { outDir: "dist", port: Number(process.env.PORT ?? 4173) }
   }
 });

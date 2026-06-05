@@ -28,7 +28,7 @@ bun run dev      # build once, watch content/ + src/, serve at http://localhost:
 | `bun run test:e2e` | Playwright functional + visual baselines |
 | `bun run test:e2e:update` | Regenerate visual baselines (macOS) |
 | `bun run lint` / `bun run format` | Biome + ESLint / Biome format |
-| `bun run deploy` | Cloudflare Pages deploy (**gated** — set `DEPLOY_ENABLED=true`) |
+| `bun run deploy` | Cloudflare Pages deploy via `app.cli.deploy()` (confirms on a TTY, auto-proceeds in CI) |
 
 Use **bun** exclusively — never npm/yarn/pnpm.
 
@@ -36,21 +36,21 @@ Use **bun** exclusively — never npm/yarn/pnpm.
 
 ```
 src/
-  app.ts            SSG composition (Node plugins: content/build/deploy/data) — driven by scripts/build.ts
+  app.ts            SSG composition (Node plugins: content/build/deploy/data/cli) — drives the thin scripts/* via app.cli.*
   spa/spa.tsx       Browser boot (island hydration + intercepted nav); src/main.ts is the bundle entry
-  routes.tsx        Typed route table (generate / load / parse / render / head / layout)
+  routes.tsx        Typed route table (generate / load / render / head / layout)
   config.ts         SITE identity (name, url, author, description, email, github) — single source of truth
   i18n/             Locales (en, ru), UI strings, and the i18n plugin config
   layouts/          SiteLayout — the persistent page chrome
   pages/            One inner-content component per route
   components/       Preact view components (SSG markup)
   islands/          Vanilla-TS islands hydrated after navigation (tab-nav, lang-switcher, …)
-  lib/              Pure helpers: articles (content cache), urls, head, payloads, locale, quotes, shiki-theme
+  lib/              Pure helpers: articles + content (ctx.require loaders), urls, head, locale, quotes, shiki-theme
   og/template.tsx   Open Graph card renderer (Satori)
   styles/           CSS entry (main.css) + tokens, components, and self-hosted @font-face
 assets/fonts/       Vendored woff2 (IBM Plex Mono/Sans + Fira Code) — no font npm deps
 content/            Markdown articles (per-locale)
-scripts/            build / dev / serve / deploy (+ shared _log, _config helpers)
+scripts/            Thin `app.cli.*` entries: build / serve (dev watch) / preview (static) / deploy
 tests/              unit + integration (vitest), e2e (playwright)
 ```
 
@@ -63,12 +63,13 @@ tests/              unit + integration (vitest), e2e (playwright)
   all node/native code. Both share `src/routes.tsx`. The
   [`bundle-safety`](tests/integration/bundle-safety.test.ts) test asserts the client bundle carries no
   `node:`/`satori`/`resvg`/`shiki`/`gray-matter`/`feed` references.
-- **Cycle-break injection.** `routes.tsx` references loaders (`lib/articles`) and link builders
-  (`lib/urls`) at module top level, but `app.content`/`app.router` only exist after `createApp`. The
-  app injects them once after creation (`bindContent` / `bindRouter`), keeping `routes.tsx` and the
-  shared helpers free of any concrete-app import (required for browser bundle safety).
-- **Content cache.** Route loaders read only the memoized cache in `src/lib/articles.ts` — they never
-  re-parse markdown.
+- **No app-global injection.** `routes.tsx` and the shared `lib/` helpers never import the concrete
+  app. Loaders reach content the spec way — `ctx.require(contentPlugin)` (the browser-safe shell; the
+  node `fileSystemContent` provider is composed only in `src/app.ts`) — and links come from the pure
+  `createUrls(routes)` builder, so there are no `app.*` module globals to bind (required for browser
+  bundle safety).
+- **Content cache.** Route loaders read content via `ctx.require(contentPlugin)` in `src/lib/content.ts`;
+  the content plugin memoizes `loadAll()` internally, so markdown is parsed once.
 - **Head.** `build.injectAssets` injects the bundled `main.{css,js}` tags, so `src/lib/head.ts` owns
   SEO metadata only (feed link, JSON-LD, article OG tags); the `head` plugin auto-composes the base
   set (title/description/canonical/hreflang/OG/Twitter).
@@ -80,5 +81,7 @@ tests/              unit + integration (vitest), e2e (playwright)
 
 ## Deploy
 
-Gated until framework Cloudflare support is finalized. `scripts/deploy.ts` scaffolds `wrangler.jsonc`
-via `app.deploy.init()`; the actual `app.deploy.run()` is guarded behind `DEPLOY_ENABLED=true`.
+`bun run deploy` runs `app.cli.deploy()` (the framework `cli` plugin): it deploys the built `dist/`
+to Cloudflare Pages — prompting for a y/N confirmation on an interactive terminal, and auto-proceeding
+in CI / non-TTY. The target lives in `pluginConfigs.deploy` (`target: "cloudflare-pages"`,
+`productionBranch: "main"`). Nothing in CI invokes `bun run deploy`; it stays a manual command.

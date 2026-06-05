@@ -113,11 +113,11 @@ export const routes = defineRoutes({
     .meta({ activeTab: "none" }),
 
   // ── About ─────────────────────────────────────────────────────────────────
-  // Empty loader emits `_data/{lang}/about/index.json` so hybrid data-nav resolves cleanly.
+  // No `.load()` — a static page. `build` still emits an empty `{}` sidecar at
+  // `_data/{lang}/about/index.json`, so hybrid data-nav to /about/ resolves cleanly.
   about: route("/{lang:?}/about/")
     .layout(layout)
     .generate(ctx => [{ lang: ctx.locale }])
-    .load(() => ({}))
     .render(ctx => <AboutPage locale={ctx.locale} />)
     .head(ctx => pageHead(ctx, { title: "About", description: "About the author", path: "about/" }))
     .meta({ activeTab: "about" })

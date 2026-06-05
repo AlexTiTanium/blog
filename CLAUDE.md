@@ -34,8 +34,9 @@ This is a **Layer 3 consumer app** in the three-layer Moku model:
 2. This app is Layer 3: it imports `createApp` from `@moku-labs/web` and supplies
    plugin config overrides.
 
-Entry points: `src/app.ts` calls `createApp({ ... })` for the SSG build (driven by
-`scripts/build.ts`); `src/main.ts` → `src/spa/spa.tsx` is the browser bundle (imports from
+Entry points: `src/app.ts` calls `createApp({ ... })` for the SSG build and composes the `cli`
+plugin, so the thin `scripts/{build,serve,preview,deploy}.ts` entries are one-liners that call
+`app.cli.*`; `src/main.ts` → `src/spa/spa.tsx` is the browser bundle (imports from
 `@moku-labs/web/browser` and omits the Node-only plugins). Both share `src/routes.tsx`. This app
 does NOT define core config or plugins, and must NOT depend on `@moku-labs/core` directly — only on
 the framework package.
@@ -54,8 +55,11 @@ the framework package.
   so. A fast pre-check: `bun run build` then diff `dist/**/*.html` (ignoring the non-deterministic
   `build-id` meta) against a pre-change build.
 - **Client bundle must stay node/native-free.** `routes.tsx` and the shared `lib/` helpers are in the
-  browser graph, so they must not import the concrete SSG app. `app.content`/`app.router` are injected
-  once after `createApp` via `bindContent`/`bindRouter`. The `bundle-safety` test enforces this.
+  browser graph, so they must not import the concrete SSG app or any Node-only plugin. Route loaders
+  reach the content API the spec way — `ctx.require(contentPlugin)` (the browser-safe shell; the node
+  `fileSystemContent` provider is composed only in `src/app.ts`) — and links come from the pure
+  `createUrls(routes)` builder, so there are no `app.*` module globals to bind. The `bundle-safety`
+  test enforces this.
 - **Fonts are vendored** under `assets/fonts/` with local `@font-face` (`src/styles/*.css`) — no
   font npm dependencies.
 

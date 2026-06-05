@@ -1,5 +1,5 @@
 /**
- * @file Route-table helper used by `src/routes.tsx` + `src/routes.build.tsx` — the shared `.layout()`
+ * @file Route-table helper used by `src/routes.tsx` — the shared `.layout()`
  * wrapper. Browser-safe (no content import): it frames a page in chrome and reads only locale + meta.
  * The paged-listing param generator now lives in `./content` (it needs the content plugin).
  */

@@ -1,7 +1,7 @@
 /**
  * @file Pure article helpers + page-data types. NO content-plugin import → browser-safe: shared by
  * components, pages, the route shells (`src/routes.tsx`), AND the node loaders alike. Content access
- * (which needs the node-only content plugin) lives in `./content`, imported only by `src/routes.build`.
+ * (which needs the node-only content plugin) lives in `./content`, imported by `src/routes.tsx`.
  */
 import type { Content } from "@moku-labs/web";
 
