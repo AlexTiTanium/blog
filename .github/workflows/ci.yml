@@ -17,6 +17,12 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: .bun-version
+      # vitest runs under `node` (its bin shebang), and the framework's route
+      # compiler relies on the `URLPattern` global, which only exists on Node 24+
+      # (matching engines.node). Without this the runner's stock Node lacks it.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: bun install --frozen-lockfile
       - run: bun run lint
       - run: bunx tsc --noEmit
