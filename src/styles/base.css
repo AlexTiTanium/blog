@@ -31,6 +31,20 @@ main {
   padding: 0 1.5rem 3rem;
 }
 
+/* Tighten the side gutter on small screens (desktop stays 1.5rem) — mirrors the
+   card padding that already steps down at these breakpoints. */
+@media (max-width: 600px) {
+  main {
+    padding-inline: 1rem;
+  }
+}
+
+@media (max-width: 375px) {
+  main {
+    padding-inline: 0.75rem;
+  }
+}
+
 img {
   max-width: 100%;
   height: auto;
