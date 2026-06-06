@@ -45,6 +45,15 @@ export const app = createApp({
       notFound: true,
       localeRedirects: true,
       clientEntry: "src/spa.tsx",
+      // App-owned document shell — src/index.html controls the scaffold the
+      // framework would otherwise hardcode (charset, viewport, <html lang>, plus
+      // anything global: theme-color, preconnect, favicon, CSP meta, …). Edit that
+      // file directly. It MUST keep the four build-substituted placeholders:
+      //   <!--moku:lang-->   page locale for <html lang> (en/ru/uk/es)
+      //   <!--moku:head-->   composed <head> (title/OG/canonical/hreflang/JSON-LD/…)
+      //   <!--moku:assets--> bundled <link>/<script> tags
+      //   <!--moku:body-->   server-rendered page body
+      template: "src/index.html",
       ogImage: {
         fontDir: "assets/fonts/og",
         render: OgTemplate,
