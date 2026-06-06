@@ -1,4 +1,4 @@
-# blog — Geek Life
+# Geek Life
 
 A bilingual (en/ru) literary dev blog, built as a **Layer-3 consumer app** on
 [`@moku-labs/web`](https://github.com/moku-labs/web). It imports `createApp`, configures the
