@@ -1,8 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { articleHead, pageHead } from "../../src/lib/head";
+import { articleHead, pageHead, pageTitle } from "../../src/lib/head";
 import { makeArticle } from "./_factory";
 
 const ctx = { params: {}, locale: "en" };
+
+describe("pageTitle", () => {
+  it("returns the bare site name when no section or page is given", () => {
+    expect(pageTitle()).toBe("Geek Life");
+  });
+
+  it("appends only the page number when a page but no section is given", () => {
+    expect(pageTitle(undefined, 2)).toBe("Geek Life — Page 2");
+  });
+
+  it("appends only the section when a section but no page is given", () => {
+    expect(pageTitle("Archive")).toBe("Geek Life — Archive");
+  });
+
+  it("appends both section and page when both are given", () => {
+    expect(pageTitle("Archive", 3)).toBe("Geek Life — Archive Page 3");
+  });
+});
 
 describe("pageHead", () => {
   it("returns title + description with a feed-link element", () => {

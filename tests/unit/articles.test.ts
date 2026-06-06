@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { byTag, PER_PAGE, paginate } from "../../src/lib/articles";
+import { byTag, PER_PAGE, paginate, postId } from "../../src/lib/articles";
 import { makeArticle } from "./_factory";
+
+/** Clone a factory article, overriding its computed.contentId (the only field postId reads). */
+function withContentId(contentId: string) {
+  const article = makeArticle();
+  return { ...article, computed: { ...article.computed, contentId } };
+}
 
 describe("paginate", () => {
   const arts = Array.from({ length: 25 }, (_, index) => makeArticle({ slug: `a-${index}` }));
@@ -56,5 +62,45 @@ describe("byTag", () => {
 
   it("returns an empty list when no article matches", () => {
     expect(byTag(arts, "missing")).toEqual([]);
+  });
+
+  it("returns an empty list for an empty input", () => {
+    expect(byTag([], "typescript")).toEqual([]);
+  });
+});
+
+describe("paginate beyond range", () => {
+  const arts = Array.from({ length: 25 }, (_, index) => makeArticle({ slug: `a-${index}` }));
+
+  it("yields no articles past the last page but keeps the totals", () => {
+    const result = paginate(arts, 4);
+    expect(result.articles).toEqual([]);
+    expect(result.totalArticles).toBe(25);
+    expect(result.totalPages).toBe(3);
+    expect(result.page).toBe(4);
+  });
+});
+
+describe("postId", () => {
+  it("formats the 1-based, zero-padded id from the contentId index segment", () => {
+    // contentId index 4 → 0-based rank, so the label is 4 + 1 = 5, padded to 3 digits.
+    expect(postId(withContentId("en:4:some-slug"))).toBe("post/005");
+  });
+
+  it("zero-pads single-digit indices to three digits", () => {
+    expect(postId(withContentId("en:0:first"))).toBe("post/001");
+  });
+
+  it("does not truncate indices wider than three digits", () => {
+    expect(postId(withContentId("ru:122:big"))).toBe("post/123");
+  });
+
+  it("falls back to post/001 when the index segment is missing", () => {
+    // The factory default contentId is just the slug — no colon-delimited index.
+    expect(postId(makeArticle())).toBe("post/001");
+  });
+
+  it("falls back to post/001 when the index segment is non-numeric", () => {
+    expect(postId(withContentId("en:abc:slug"))).toBe("post/001");
   });
 });

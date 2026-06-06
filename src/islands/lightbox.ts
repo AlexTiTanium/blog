@@ -4,7 +4,7 @@
  * singleton reused across article views; the click handler is a shared module function, so the
  * same reference mounts/unmounts cleanly across navigations.
  */
-import type { Spa } from "@moku-labs/web";
+import { createComponent } from "@moku-labs/web/browser";
 
 /** Scoped styles for the lightbox dialog, injected once when the dialog is first created. */
 const LIGHTBOX_STYLES = `
@@ -19,7 +19,7 @@ const LIGHTBOX_STYLES = `
       inset: 0;
     }
     dialog[data-lightbox]::backdrop {
-      background: rgba(0, 0, 0, 0.8);
+      background: color-mix(in srgb, black 80%, transparent);
       cursor: pointer;
     }
     dialog[data-lightbox] img {
@@ -105,28 +105,25 @@ function openImage(event: Event): void {
 }
 
 /** Lightbox island: article image click → full-size dialog overlay. */
-export const lightbox: Spa.ComponentDef = {
-  name: "lightbox",
-  hooks: {
-    /**
-     * Bind the image-click handler when the article body mounts.
-     *
-     * @param context - The island lifecycle context.
-     * @example
-     * onMount(context);
-     */
-    onMount(context) {
-      context.el.addEventListener("click", openImage);
-    },
-    /**
-     * Remove the image-click handler when the article body is destroyed.
-     *
-     * @param context - The island lifecycle context.
-     * @example
-     * onDestroy(context);
-     */
-    onDestroy(context) {
-      context.el.removeEventListener("click", openImage);
-    }
+export const lightbox = createComponent("lightbox", {
+  /**
+   * Bind the image-click handler when the article body mounts.
+   *
+   * @param context - The island lifecycle context.
+   * @example
+   * onMount(context);
+   */
+  onMount(context) {
+    context.el.addEventListener("click", openImage);
+  },
+  /**
+   * Remove the image-click handler when the article body is destroyed.
+   *
+   * @param context - The island lifecycle context.
+   * @example
+   * onDestroy(context);
+   */
+  onDestroy(context) {
+    context.el.removeEventListener("click", openImage);
   }
-};
+});

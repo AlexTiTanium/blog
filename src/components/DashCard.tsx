@@ -1,5 +1,9 @@
 /**
  * @file Article preview card for the bento-grid dashboard — id, status, title, date, excerpt, tags.
+ * Styling is intentionally provided by the parent dashboard grid scope
+ * (`@scope ([data-component="dashboard"])` in DashboardGrid.css), which styles its card children as
+ * descendants — card layout is inseparable from the grid (grid-area, accent borders, stagger), so
+ * DashCard has no separate stylesheet by design.
  */
 
 import type { Content } from "@moku-labs/web";

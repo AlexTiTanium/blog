@@ -48,19 +48,25 @@ function groupByMonth(
 ): { label: string; articles: Content.Article[] }[] {
   const groups = new Map<string, { label: string; articles: Content.Article[] }>();
 
+  // Bucket each article under its year-month key
   for (const article of articles) {
+    // Derive the year-month key
     const date = new Date(`${article.frontmatter.date}T00:00:00`);
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
-    let group = groups.get(key);
-    if (!group) {
+    // Create the month group on first sight
+    const group = groups.get(key);
+    const isFirstInMonth = group === undefined;
+    if (isFirstInMonth) {
       const label = date.toLocaleDateString("en", { month: "long", year: "numeric" });
-      group = { label, articles: [] };
-      groups.set(key, group);
+      groups.set(key, { label, articles: [article] });
+      continue;
     }
+
     group.articles.push(article);
   }
 
+  // Return month groups in first-seen order
   return [...groups.values()];
 }
 

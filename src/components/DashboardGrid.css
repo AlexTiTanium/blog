@@ -1,4 +1,7 @@
-/* Dashboard Bento Grid -- colocated from components.css */
+/* Dashboard Bento Grid -- colocated from components.css.
+   This @scope intentionally styles its DashCard children (article + header/h2/time/tags) as
+   descendants: card layout is inseparable from the bento grid (grid-area placement, cycling accent
+   borders, stagger animation), so DashCard has no separate stylesheet by design. */
 
 @scope ([data-component="dashboard"]) {
   :scope {

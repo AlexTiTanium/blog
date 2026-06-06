@@ -31,5 +31,7 @@ export function pickQuote(): string {
     (now.getMonth() + 1) * 10_000 +
     now.getDate() * 100 +
     now.getHours();
+
+  // `seed % length` is always in [0, length) for the dense pool; the ?? default only satisfies noUncheckedIndexedAccess.
   return QUOTES[seed % QUOTES.length] ?? "// TODO: write actual code";
 }

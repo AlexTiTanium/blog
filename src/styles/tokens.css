@@ -18,6 +18,7 @@
      -------------------------------------------------------- */
 
   /* Colors: Stone (warm neutrals) */
+  --color-stone-975: #181412;
   --color-stone-950: #1c1917;
   --color-stone-900: #231f1b;
   --color-stone-850: #292420;
@@ -26,6 +27,7 @@
   --color-stone-500: #8a7e72;
   --color-stone-300: #d4c8b8;
   --color-stone-200: #ede4d8;
+  --color-stone-150: #f0ece6;
   --color-stone-100: #f5efe8;
 
   /* Colors: Accents */
@@ -97,7 +99,7 @@
   --surface-page: light-dark(var(--color-stone-100), var(--color-stone-950));
   --surface-elevated: light-dark(var(--color-stone-200), var(--color-stone-900));
   --surface-card: light-dark(var(--color-stone-300), var(--color-stone-850));
-  --surface-code: light-dark(#f0ece6, #181412);
+  --surface-code: light-dark(var(--color-stone-150), var(--color-stone-975));
 
   /* Borders */
   --border-default: var(--color-stone-800);
@@ -124,5 +126,5 @@
 
   /* Interactive */
   --focus-ring: var(--color-amber-500);
-  --hover-glow: rgba(245, 158, 11, 0.04);
+  --hover-glow: color-mix(in srgb, var(--color-amber-500) 4%, transparent);
 }

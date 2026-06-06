@@ -66,7 +66,7 @@
     font-family: var(--font-code);
     font-size: 0.875em;
     color: var(--accent-success);
-    background: rgba(132, 204, 22, 0.08);
+    background: color-mix(in srgb, var(--accent-success) 8%, transparent);
     padding: 0.1rem 0.3rem;
     border-radius: 2px;
   }
@@ -99,7 +99,7 @@
     margin: var(--space-10) auto;
     border: 1px solid var(--border-default);
     border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px color-mix(in srgb, black 15%, transparent);
     cursor: pointer;
   }
 

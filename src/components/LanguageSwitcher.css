@@ -31,7 +31,7 @@
 
     &[aria-current="true"] {
       color: var(--accent-primary);
-      background: rgba(245, 158, 11, 0.1);
+      background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
     }
   }
 }

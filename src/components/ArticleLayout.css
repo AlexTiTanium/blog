@@ -1,11 +1,5 @@
 /* ArticleLayout -- split-pane layout + article section padding */
 
-/* --- Article Section Padding --- */
-[data-component="split-pane"] {
-  padding: 1rem 0 3rem;
-  min-width: 0;
-}
-
 /* --- Split Pane (article layout) --- */
 @scope ([data-component="split-pane"]) {
   :scope {
@@ -15,6 +9,7 @@
     border: 1px solid var(--border-default);
     background: var(--surface-card);
     min-width: 0;
+    padding: 1rem 0 3rem;
   }
 
   main {
@@ -35,9 +30,9 @@
   [data-notice] {
     margin-bottom: 1.5rem;
     padding: 0.6rem 0.9rem;
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
     border-left: 3px solid var(--accent-primary);
-    background: rgba(245, 158, 11, 0.08);
+    background: color-mix(in srgb, var(--accent-primary) 8%, transparent);
     font-family: var(--font-display);
     font-size: 0.8rem;
     color: var(--text-secondary);

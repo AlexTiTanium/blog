@@ -13,4 +13,8 @@ describe("quotes", () => {
   it("is deterministic within the same hour", () => {
     expect(pickQuote()).toBe(pickQuote());
   });
+
+  it("returns a non-empty string", () => {
+    expect(pickQuote().length).toBeGreaterThan(0);
+  });
 });

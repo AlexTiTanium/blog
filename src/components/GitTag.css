@@ -1,12 +1,15 @@
-/* Git Tag Badge -- colocated from components.css */
+/* Git Tag Badge -- colocated from components.css.
+   `data-tag` is GitTag's own leaf-atom hook (no other component uses it), so these
+   rules are intentionally global rather than @scope-wrapped: the badge must render
+   identically wherever it is embedded (about, archive, meta panel, dashboard, article). */
 
 [data-tag] {
   font-family: var(--font-code);
   font-size: 0.6rem;
   padding: 0.15rem 0.5rem;
-  background: rgba(132, 204, 22, 0.1);
+  background: color-mix(in srgb, var(--accent-success) 10%, transparent);
   color: var(--accent-success);
-  border: 1px solid rgba(132, 204, 22, 0.25);
+  border: 1px solid color-mix(in srgb, var(--accent-success) 25%, transparent);
   display: flex;
   align-items: center;
   gap: 0.3rem;
@@ -26,8 +29,8 @@
 }
 
 a[data-tag]:hover {
-  background: rgba(132, 204, 22, 0.2);
-  border-color: rgba(132, 204, 22, 0.4);
+  background: color-mix(in srgb, var(--accent-success) 20%, transparent);
+  border-color: color-mix(in srgb, var(--accent-success) 40%, transparent);
 }
 
 @media (max-width: 320px) {

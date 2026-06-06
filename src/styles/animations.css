@@ -60,7 +60,7 @@
 @media (hover: hover) and (pointer: fine) {
   [data-component="tab-nav"] a:hover {
     color: var(--text-secondary);
-    background: rgba(245, 158, 11, 0.05);
+    background: color-mix(in srgb, var(--accent-primary) 5%, transparent);
   }
 
   /* Enhanced card hover: lift + stronger shadow */
@@ -68,8 +68,8 @@
     border-color: var(--border-hover);
     transform: translateY(-2px);
     box-shadow:
-      0 4px 24px rgba(0, 0, 0, 0.5),
-      0 0 60px rgba(245, 158, 11, 0.04);
+      0 4px 24px color-mix(in srgb, black 50%, transparent),
+      0 0 60px color-mix(in srgb, var(--accent-primary) 4%, transparent);
   }
 
   /* Card title hover: amber underline */
@@ -109,8 +109,8 @@
 
   [data-tag]:hover {
     transform: translateY(-1px);
-    background: rgba(132, 204, 22, 0.2);
-    border-color: rgba(132, 204, 22, 0.4);
+    background: color-mix(in srgb, var(--accent-success) 20%, transparent);
+    border-color: color-mix(in srgb, var(--accent-success) 40%, transparent);
   }
 
   /* File tree item hover: brighten text + icon */
@@ -148,7 +148,7 @@
 }
 
 [data-component="tab-nav"] a:active {
-  background: rgba(245, 158, 11, 0.1);
+  background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
 }
 
 [data-component="dashboard"] h2 a:active {

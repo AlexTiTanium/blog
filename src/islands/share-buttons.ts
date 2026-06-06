@@ -3,7 +3,7 @@
  * `[data-component="share"]`. The click handler is a shared module function, so the same reference
  * mounts/unmounts cleanly across navigations.
  */
-import type { Spa } from "@moku-labs/web";
+import { createComponent } from "@moku-labs/web/browser";
 
 /** Confirmation label shown on the copy button after a successful copy. */
 const COPIED_LABEL = "Copied!";
@@ -70,30 +70,25 @@ function handleCopyClick(event: Event): void {
 }
 
 /** Share-buttons island: wires the copy-link button to the Clipboard API (with a legacy fallback). */
-export const shareButtons: Spa.ComponentDef = {
-  name: "share",
-  hooks: {
-    /**
-     * Bind the copy-link click handler when the share bar mounts.
-     *
-     * @param context - The island lifecycle context.
-     * @example
-     * onMount(context);
-     */
-    onMount(context) {
-      context.el.querySelector('[data-share="copy"]')?.addEventListener("click", handleCopyClick);
-    },
-    /**
-     * Remove the copy-link click handler when the share bar is destroyed.
-     *
-     * @param context - The island lifecycle context.
-     * @example
-     * onDestroy(context);
-     */
-    onDestroy(context) {
-      context.el
-        .querySelector('[data-share="copy"]')
-        ?.removeEventListener("click", handleCopyClick);
-    }
+export const shareButtons = createComponent("share", {
+  /**
+   * Bind the copy-link click handler when the share bar mounts.
+   *
+   * @param context - The island lifecycle context.
+   * @example
+   * onMount(context);
+   */
+  onMount(context) {
+    context.el.querySelector('[data-share="copy"]')?.addEventListener("click", handleCopyClick);
+  },
+  /**
+   * Remove the copy-link click handler when the share bar is destroyed.
+   *
+   * @param context - The island lifecycle context.
+   * @example
+   * onDestroy(context);
+   */
+  onDestroy(context) {
+    context.el.querySelector('[data-share="copy"]')?.removeEventListener("click", handleCopyClick);
   }
-};
+});

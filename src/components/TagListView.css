@@ -52,7 +52,7 @@
     align-items: center;
     gap: 1rem;
     padding: 0.6rem 2rem;
-    border-bottom: 1px solid rgba(61, 53, 48, 0.4);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-stone-800) 40%, transparent);
     cursor: pointer;
     transition: background var(--duration-fast);
     font-family: var(--font-display);
@@ -65,7 +65,7 @@
     }
 
     &:hover {
-      background: rgba(245, 158, 11, 0.03);
+      background: color-mix(in srgb, var(--accent-primary) 3%, transparent);
 
       [data-title] {
         color: var(--accent-primary);

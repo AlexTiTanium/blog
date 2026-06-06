@@ -34,7 +34,7 @@
     display: flex;
     justify-content: space-between;
     padding: 0.3rem 0;
-    border-bottom: 1px solid rgba(61, 53, 48, 0.5);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-stone-800) 50%, transparent);
 
     &:last-child {
       border-bottom: none;
@@ -116,7 +116,7 @@
       padding: 0.35rem 0;
       font-size: 0.72rem;
       color: var(--text-body);
-      border-bottom: 1px solid rgba(61, 53, 48, 0.4);
+      border-bottom: 1px solid color-mix(in srgb, var(--color-stone-800) 40%, transparent);
       line-height: 1.4;
 
       &:last-child {
