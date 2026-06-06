@@ -13,7 +13,9 @@ import {
   createApp,
   dataPlugin,
   deployPlugin,
-  fileSystemContent
+  dotenv,
+  fileSystemContent,
+  processEnv
 } from "@moku-labs/web";
 import { SITE } from "./config";
 import { i18nConfig } from "./i18n/index";
@@ -80,6 +82,13 @@ export const app = createApp({
     // the linkage is visible, not coincidental). port 4173 = the Playwright webServer port; honor a
     // PORT override. The remaining cli defaults already match the old hand-rolled scripts: watchDirs
     // ["content","src"], debounceMs 150, notFoundFile "404.html", liveReload.
-    cli: { outDir: "dist", port: Number(process.env.PORT ?? 4173) }
+    cli: { outDir: "dist", port: Number(process.env.PORT ?? 4173) },
+    // Wire the Node env providers so `ctx.env.require(...)` (used by deploy to read
+    // CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID) returns real values — process.env
+    // first so CI-injected secrets win, .env (gitignored) is the local fallback.
+    // `env` is a core plugin: @moku-labs/core's createApp `pluginConfigs` type omits
+    // core-plugin keys, though the runtime merges them (see core's initCorePlugins).
+    // @ts-expect-error -- core-plugin config key intentionally absent from createApp's type; runtime-supported
+    env: { providers: [processEnv(), dotenv(".env")] }
   }
 });
