@@ -1,6 +1,6 @@
 /**
  * @file i18n config — single source of truth for supported locales, default locale, locale names,
- * OG locale map, and translation assembly. Consumed by src/app.ts and src/spa/spa.tsx via
+ * OG locale map, and translation assembly. Consumed by src/app.ts and src/spa.tsx via
  * `i18nConfig`; individual constants are reused by islands and head builders in the build phase.
  */
 import { en } from "./en";

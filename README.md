@@ -37,7 +37,7 @@ Use **bun** exclusively — never npm/yarn/pnpm.
 ```
 src/
   app.ts            SSG composition (Node plugins: content/build/deploy/data/cli) — drives the thin scripts/* via app.cli.*
-  spa/spa.tsx       Browser boot (island hydration + intercepted nav); src/main.ts is the bundle entry
+  spa.tsx           Browser boot + client bundle entry (island hydration + intercepted nav)
   routes.tsx        Typed route table (generate / load / render / head / layout)
   config.ts         SITE identity (name, url, author, description, email, github) — single source of truth
   i18n/             Locales (en, ru), UI strings, and the i18n plugin config
@@ -58,7 +58,7 @@ tests/              unit + integration (vitest), e2e (playwright)
 
 - **Three layers.** Layer 1 (`createCoreConfig`) and Layer 2 (`createCore` + plugins) live inside
   `@moku-labs/web`. This app is Layer 3: it calls `createApp` and supplies plugin config overrides.
-- **Two entries, one route table.** `src/app.ts` (SSG) opts in the Node-only plugins; `src/spa/spa.tsx`
+- **Two entries, one route table.** `src/app.ts` (SSG) opts in the Node-only plugins; `src/spa.tsx`
   (browser) imports from `@moku-labs/web/browser` and omits them, so the client bundle tree-shakes out
   all node/native code. Both share `src/routes.tsx`. The
   [`bundle-safety`](tests/integration/bundle-safety.test.ts) test asserts the client bundle carries no

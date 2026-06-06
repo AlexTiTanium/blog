@@ -3,7 +3,7 @@
  *
  * The SPA composes the app from `@moku-labs/web/browser` — the framework's dedicated browser-safe
  * entry (added in 0.5.0) whose static import graph provably contains ZERO node/native code. So the
- * client bundle (`src/main.ts` → `src/spa/spa.tsx` → `@moku-labs/web/browser`) builds for
+ * client bundle (`src/spa.tsx` → `@moku-labs/web/browser`) builds for
  * `--target browser` with NO externals and carries no `node:*` builtin and no native OG deps
  * (`@resvg/resvg-js`, `satori`) or Node-only content libs (`shiki`, `gray-matter`, `feed`).
  *
@@ -39,7 +39,7 @@ describe("client bundle browser-safety", () => {
     execFileSync(
       // eslint-disable-next-line sonarjs/no-os-command-from-path -- fixed `bun build` invocation in a test, no user input
       "bun",
-      ["build", "src/main.ts", "--target", "browser", "--outfile", outfile],
+      ["build", "src/spa.tsx", "--target", "browser", "--outfile", outfile],
       { stdio: "pipe" }
     );
 

@@ -36,8 +36,8 @@ This is a **Layer 3 consumer app** in the three-layer Moku model:
 
 Entry points: `src/app.ts` calls `createApp({ ... })` for the SSG build and composes the `cli`
 plugin, so the thin `scripts/{build,serve,preview,deploy}.ts` entries are one-liners that call
-`app.cli.*`; `src/main.ts` → `src/spa/spa.tsx` is the browser bundle (imports from
-`@moku-labs/web/browser` and omits the Node-only plugins). Both share `src/routes.tsx`. This app
+`app.cli.*`; `src/spa.tsx` is the browser bundle entry (imports from `@moku-labs/web/browser` and
+omits the Node-only plugins, wired via `build.clientEntry`). Both share `src/routes.tsx`. This app
 does NOT define core config or plugins, and must NOT depend on `@moku-labs/core` directly — only on
 the framework package.
 

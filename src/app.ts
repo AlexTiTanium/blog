@@ -3,7 +3,7 @@
  * `@moku-labs/web`'s browser-safe defaults (site/i18n/router/head/spa/content shell), and composes
  * the node `fileSystemContent` provider so route loaders read Markdown via `ctx.require(contentPlugin)`.
  * Driven by the thin `scripts/{build,serve,preview,deploy}.ts` entries via `app.cli.*`. The browser
- * entry (src/spa/spa.tsx) omits the Node-only plugins + the provider, so the client bundle stays free
+ * entry (src/spa.tsx) omits the Node-only plugins + the provider, so the client bundle stays free
  * of node/native code.
  */
 import {
@@ -42,7 +42,7 @@ export const app = createApp({
       publicDir: "public",
       notFound: true,
       localeRedirects: true,
-      clientEntry: "src/main.ts",
+      clientEntry: "src/spa.tsx",
       ogImage: {
         fontDir: "assets/fonts/og",
         render: OgTemplate,
