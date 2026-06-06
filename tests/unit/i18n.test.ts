@@ -26,7 +26,7 @@ const KEYS: (keyof UIStrings)[] = [
 
 describe("i18n", () => {
   it("declares the supported locales with en as default", () => {
-    expect(LOCALES).toEqual(["en", "ru", "uk", "es"]);
+    expect(LOCALES).toEqual(["en", "uk", "ru", "es"]);
     expect(DEFAULT_LOCALE).toBe("en");
   });
 
@@ -51,8 +51,8 @@ describe("i18n", () => {
   });
 
   it("assembles the i18n plugin config", () => {
-    expect(i18nConfig.locales).toEqual(["en", "ru", "uk", "es"]);
+    expect(i18nConfig.locales).toEqual(["en", "uk", "ru", "es"]);
     expect(i18nConfig.defaultLocale).toBe("en");
-    expect(Object.keys(i18nConfig.translations)).toEqual(["en", "ru", "uk", "es"]);
+    expect(Object.keys(i18nConfig.translations)).toEqual(["en", "uk", "ru", "es"]);
   });
 });

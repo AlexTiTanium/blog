@@ -32,7 +32,7 @@ export type UIStrings = {
 };
 
 /** Supported locales, in display order. */
-export const LOCALES: readonly Locale[] = ["en", "ru", "uk", "es"];
+export const LOCALES: readonly Locale[] = ["en", "uk", "ru", "es"];
 
 /** Default locale — drives bare-path output and fallback. */
 export const DEFAULT_LOCALE: Locale = "en";
@@ -40,16 +40,16 @@ export const DEFAULT_LOCALE: Locale = "en";
 /** Human-readable locale names (for the language switcher). */
 export const LOCALE_NAMES: Record<Locale, string> = {
   en: "English",
-  ru: "Russian",
   uk: "Ukrainian",
+  ru: "Russian",
   es: "Spanish"
 };
 
 /** Open Graph locale codes per locale (`og:locale`). */
 export const OG_LOCALE_MAP: Record<Locale, string> = {
   en: "en_US",
-  ru: "ru_RU",
   uk: "uk_UA",
+  ru: "ru_RU",
   es: "es_ES"
 };
 
@@ -59,11 +59,11 @@ export const i18nConfig = {
   defaultLocale: DEFAULT_LOCALE,
   localeNames: LOCALE_NAMES,
   ogLocaleMap: OG_LOCALE_MAP,
-  translations: { en, ru, uk, es }
+  translations: { en, uk, ru, es }
 };
 
 /** All UI-string sets keyed by locale. */
-const strings: Record<Locale, UIStrings> = { en, ru, uk, es };
+const strings: Record<Locale, UIStrings> = { en, uk, ru, es };
 
 /**
  * Resolve the full UI-string set for a locale (components read `t(locale).home`, etc.).
