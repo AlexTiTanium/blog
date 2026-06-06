@@ -2,7 +2,9 @@
 
 @scope ([data-component="meta-panel"]) {
   :scope {
-    padding: 0;
+    /* Top breathing room lives inside the panel so it's filled by the elevated
+       background (flush to the card's top edge) — not a card-colored gap above it. */
+    padding: 1rem 0 0;
     background: var(--surface-elevated);
     border-left: 1px solid var(--border-default);
     font-family: var(--font-display);

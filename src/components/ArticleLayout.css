@@ -9,11 +9,13 @@
     border: 1px solid var(--border-default);
     background: var(--surface-card);
     min-width: 0;
-    padding: 1rem 0 3rem;
+    /* No vertical padding on the container: both panes run flush to the card's
+       top/bottom edges so the elevated sidebar reads as a full-height pane.
+       Vertical breathing room lives on the content column (`main`) instead. */
   }
 
   main {
-    padding: 2rem;
+    padding: 2rem 2rem 3rem;
     margin: 0;
     max-width: none;
     min-width: 0;
