@@ -40,7 +40,7 @@ src/
   spa.tsx           Browser boot + client bundle entry (island hydration + intercepted nav)
   routes.tsx        Typed route table (generate / load / render / head / layout)
   config.ts         SITE identity (name, url, author, description, email, github) — single source of truth
-  i18n/             Locales (en, ru), UI strings, and the i18n plugin config
+  i18n/             Locales (en, ru, uk, es), UI strings, and the i18n plugin config
   layouts/          SiteLayout — the persistent page chrome
   pages/            One inner-content component per route
   components/       Preact view components (SSG markup)

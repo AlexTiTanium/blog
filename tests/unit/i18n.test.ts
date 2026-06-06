@@ -25,14 +25,19 @@ const KEYS: (keyof UIStrings)[] = [
 ];
 
 describe("i18n", () => {
-  it("declares en and ru locales with en as default", () => {
-    expect(LOCALES).toEqual(["en", "ru"]);
+  it("declares the supported locales with en as default", () => {
+    expect(LOCALES).toEqual(["en", "ru", "uk", "es"]);
     expect(DEFAULT_LOCALE).toBe("en");
   });
 
   it("maps locale display names and og:locale codes", () => {
-    expect(LOCALE_NAMES).toEqual({ en: "English", ru: "Russian" });
-    expect(OG_LOCALE_MAP).toEqual({ en: "en_US", ru: "ru_RU" });
+    expect(LOCALE_NAMES).toEqual({
+      en: "English",
+      ru: "Russian",
+      uk: "Ukrainian",
+      es: "Spanish"
+    });
+    expect(OG_LOCALE_MAP).toEqual({ en: "en_US", ru: "ru_RU", uk: "uk_UA", es: "es_ES" });
   });
 
   it("resolves a complete UI-string set per locale", () => {
@@ -46,8 +51,8 @@ describe("i18n", () => {
   });
 
   it("assembles the i18n plugin config", () => {
-    expect(i18nConfig.locales).toEqual(["en", "ru"]);
+    expect(i18nConfig.locales).toEqual(["en", "ru", "uk", "es"]);
     expect(i18nConfig.defaultLocale).toBe("en");
-    expect(Object.keys(i18nConfig.translations)).toEqual(["en", "ru"]);
+    expect(Object.keys(i18nConfig.translations)).toEqual(["en", "ru", "uk", "es"]);
   });
 });

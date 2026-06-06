@@ -9,7 +9,8 @@
  *
  * Links: `urls` (a pure `createUrls(routes)` builder) is exported here and wrapped by
  * `src/lib/urls`; co-locating it with `routes` keeps the link builder free of an import cycle.
- * The optional `{lang:?}` segment yields a bare default-locale path (`/`) plus explicit `/en/`, `/ru/`.
+ * The optional `{lang:?}` segment yields a bare default-locale path (`/`) plus explicit per-locale
+ * paths (`/en/`, `/ru/`, `/uk/`, `/es/`).
  */
 import { createUrls, defineRoutes, route } from "@moku-labs/web/browser";
 import { SITE } from "./config";

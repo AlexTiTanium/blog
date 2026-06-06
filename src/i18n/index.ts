@@ -4,10 +4,12 @@
  * `i18nConfig`; individual constants are reused by islands and head builders in the build phase.
  */
 import { en } from "./en";
+import { es } from "./es";
 import { ru } from "./ru";
+import { uk } from "./uk";
 
 /** Supported locale codes for the blog. */
-export type Locale = "en" | "ru";
+export type Locale = "en" | "ru" | "uk" | "es";
 
 /**
  * UI chrome strings (typed keys for autocomplete + compile-time checking). A `type` alias (not an
@@ -30,16 +32,26 @@ export type UIStrings = {
 };
 
 /** Supported locales, in display order. */
-export const LOCALES: readonly Locale[] = ["en", "ru"];
+export const LOCALES: readonly Locale[] = ["en", "ru", "uk", "es"];
 
 /** Default locale — drives bare-path output and fallback. */
 export const DEFAULT_LOCALE: Locale = "en";
 
 /** Human-readable locale names (for the language switcher). */
-export const LOCALE_NAMES: Record<Locale, string> = { en: "English", ru: "Russian" };
+export const LOCALE_NAMES: Record<Locale, string> = {
+  en: "English",
+  ru: "Russian",
+  uk: "Ukrainian",
+  es: "Spanish"
+};
 
 /** Open Graph locale codes per locale (`og:locale`). */
-export const OG_LOCALE_MAP: Record<Locale, string> = { en: "en_US", ru: "ru_RU" };
+export const OG_LOCALE_MAP: Record<Locale, string> = {
+  en: "en_US",
+  ru: "ru_RU",
+  uk: "uk_UA",
+  es: "es_ES"
+};
 
 /** Assembled i18n plugin config — passed to `pluginConfigs.i18n`. */
 export const i18nConfig = {
@@ -47,11 +59,11 @@ export const i18nConfig = {
   defaultLocale: DEFAULT_LOCALE,
   localeNames: LOCALE_NAMES,
   ogLocaleMap: OG_LOCALE_MAP,
-  translations: { en, ru }
+  translations: { en, ru, uk, es }
 };
 
 /** All UI-string sets keyed by locale. */
-const strings: Record<Locale, UIStrings> = { en, ru };
+const strings: Record<Locale, UIStrings> = { en, ru, uk, es };
 
 /**
  * Resolve the full UI-string set for a locale (components read `t(locale).home`, etc.).

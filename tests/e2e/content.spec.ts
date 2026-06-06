@@ -150,11 +150,13 @@ test.describe("Structure", () => {
     await expect(page.locator('[data-component="footer"]')).toBeVisible();
   });
 
-  test("language switcher shows EN and RU", async ({ page }) => {
+  test("language switcher shows all supported locales", async ({ page }) => {
     await page.goto("/en/");
     const langItems = page.locator('[data-component="lang-switcher"] a');
-    await expect(langItems).toHaveCount(2);
+    await expect(langItems).toHaveCount(4);
     await expect(langItems.nth(0)).toHaveText("EN");
     await expect(langItems.nth(1)).toHaveText("RU");
+    await expect(langItems.nth(2)).toHaveText("UK");
+    await expect(langItems.nth(3)).toHaveText("ES");
   });
 });

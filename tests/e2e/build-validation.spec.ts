@@ -7,16 +7,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(__dirname, "../../dist");
 
 // ---------------------------------------------------------------
-// 0.5.x output shape (migrated to @moku-labs/web):
-//   - 22 articles in EACH locale. EN are all native; the 16 RU articles without a native
-//     translation fall back to the English body under the /ru/ slug (flagged isFallback,
-//     shown with a "not translated" notice) — so every article is reachable in both locales.
+// Output shape (4 locales: en, ru, uk, es):
+//   - 22 articles in EACH locale. EN are all native; articles without a native translation
+//     in a given locale fall back to the English body under that locale's slug (flagged
+//     isFallback, shown with a "not translated" notice) — so every article is reachable in
+//     every locale. Native translations: en (22); ru/uk/es (6 each); the rest fall back to en.
 //   - 14 tags per locale
 //   - Pagination: page/2, page/3 + archive/page/2, archive/page/3 per locale
 //
 //   Locale-prefixed pages (per locale):
 //     index + about + archive + 2 archive-pages + 2 home-pages + 22 articles + 14 tags = 43
-//     Total real pages: 86 (43 EN + 43 RU)
+//     Total real pages: 172 (43 × 4 locales)
 // ---------------------------------------------------------------
 
 const EN_ARTICLES = [
@@ -44,8 +45,10 @@ const EN_ARTICLES = [
   "when-the-build-breaks"
 ];
 
-// Every article is emitted in RU too (native translations + English fallbacks).
+// Every article is emitted in every locale (native translations + English fallbacks).
 const RU_ARTICLES = EN_ARTICLES;
+const UK_ARTICLES = EN_ARTICLES;
+const ES_ARTICLES = EN_ARTICLES;
 
 const TAGS = [
   "ball-factory",
@@ -79,12 +82,17 @@ function localePages(locale: string, articles: string[]): string[] {
   ];
 }
 
-const EXPECTED_PAGES = [...localePages("en", EN_ARTICLES), ...localePages("ru", RU_ARTICLES)];
+const EXPECTED_PAGES = [
+  ...localePages("en", EN_ARTICLES),
+  ...localePages("ru", RU_ARTICLES),
+  ...localePages("uk", UK_ARTICLES),
+  ...localePages("es", ES_ARTICLES)
+];
 
 test.describe("Build Validation", () => {
-  test("emits exactly 86 locale-prefixed pages", () => {
-    // 43 EN + 43 RU
-    expect(EXPECTED_PAGES).toHaveLength(86);
+  test("emits exactly 172 locale-prefixed pages", () => {
+    // 43 pages × 4 locales (en, ru, uk, es)
+    expect(EXPECTED_PAGES).toHaveLength(172);
   });
 
   test("all expected HTML pages exist after build", () => {
