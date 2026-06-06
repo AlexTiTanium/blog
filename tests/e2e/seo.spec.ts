@@ -1,10 +1,15 @@
 import { expect, test } from "@playwright/test";
+import { SITE } from "../../src/config";
+
+// Identity is sourced from SITE (single source of truth) so these assertions
+// track config.ts rather than hardcoding the host/author.
+const SITE_HOST = new URL(SITE.url).host;
 
 test.describe("SEO & Metadata", () => {
   test("home page has canonical and hreflang tags", async ({ page }) => {
     await page.goto("/en/");
     const canonical = page.locator('link[rel="canonical"]');
-    await expect(canonical).toHaveAttribute("href", /geeklife\.dev\/en\//);
+    await expect(canonical).toHaveAttribute("href", `${SITE.url}/en/`);
 
     await expect(page.locator('link[hreflang="en"]')).toHaveAttribute("href", /\/en\//);
     await expect(page.locator('link[hreflang="ru"]')).toHaveAttribute("href", /\/ru\//);
@@ -24,7 +29,7 @@ test.describe("SEO & Metadata", () => {
     const ldBlocks = await page.locator('script[type="application/ld+json"]').allTextContents();
     const ldJoined = ldBlocks.join("\n");
     expect(ldJoined).toContain("BlogPosting");
-    expect(ldJoined).toContain("Alex Kucherenko");
+    expect(ldJoined).toContain(SITE.author);
   });
 
   test("article page has description meta tag", async ({ page }) => {
@@ -67,7 +72,8 @@ test.describe("SEO: All pages", () => {
   for (const { name, path } of ALL_PAGES) {
     test(`${name}: has canonical tag with site domain`, async ({ page }) => {
       await page.goto(path);
-      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /geeklife\.dev/);
+      const href = await page.locator('link[rel="canonical"]').getAttribute("href");
+      expect(href).toContain(SITE_HOST);
     });
 
     test(`${name}: has hreflang tags for en and ru`, async ({ page }) => {

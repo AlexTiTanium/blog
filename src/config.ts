@@ -5,13 +5,13 @@ export const SITE = {
   /** Display name (also drives the `head` title template). */
   name: "Geek Life",
   /** Canonical origin. */
-  url: "https://geeklife.dev",
+  url: "https://geeklife.in.ua",
   /** Default article author (frontmatter `author` overrides per-article). */
-  author: "Alex Kucherenko",
+  author: "Oleksandr Kucherenko",
   /** Tagline used for the home hero and meta description. */
   description: "A literary, self-ironic dev blog",
   /** Contact email shown on the About page. */
-  email: "hello@geeklife.dev",
+  email: "kucherenko.email@gmail.com",
   /** GitHub handle shown on the About page. */
-  github: "@alexkucherenko"
+  github: "@AlexTiTanium"
 } as const;

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { SITE } from "../../src/config";
 
 // All 22 English article slugs (native translations).
 const EN_ARTICLES = [
@@ -59,7 +60,7 @@ test.describe("Content", () => {
       "Hello, Pipeline!"
     );
     await expect(page.locator("[data-meta]")).toContainText("2026-01-15");
-    await expect(page.locator("[data-meta]")).toContainText("Alex Kucherenko");
+    await expect(page.locator("[data-meta]")).toContainText(SITE.author);
     await expect(page.locator("[data-content]")).toBeVisible();
   });
 

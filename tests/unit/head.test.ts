@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { SITE } from "../../src/config";
 import { articleHead, pageHead, pageTitle } from "../../src/lib/head";
 import { makeArticle } from "./_factory";
 
@@ -66,6 +67,6 @@ describe("articleHead", () => {
   it("falls back to the site author when frontmatter omits one", () => {
     const article = makeArticle({ slug: "no-author" });
     const head = articleHead(ctx, article);
-    expect(JSON.stringify(head.elements)).toContain("Alex Kucherenko");
+    expect(JSON.stringify(head.elements)).toContain(SITE.author);
   });
 });
