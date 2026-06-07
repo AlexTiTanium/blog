@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#020617">
+    <meta name="robots" content="noindex">
+    <!-- Title/footer identity mirror SITE in src/config.ts — a static page can't import it. -->
+    <title>404 — Geek Life</title>
+    <!-- The standalone 404 page owns its own <head>; link the stable site bundle directly for
+         tokens, fonts, and chrome (404-specific rules live in src/styles/not-found.css). -->
+    <link rel="stylesheet" href="/assets/main.css">
+  </head>
+  <body>
+    <main>
+      <header data-sticky>
+        <div data-component="titlebar">
+          <span data-title>~/blog — git checkout: pathspec did not match any route</span>
+          <div data-dots>
+            <span data-dot="red"></span>
+            <span data-dot="yellow"></span>
+            <span data-dot="green"></span>
+          </div>
+        </div>
+        <nav data-component="tab-nav">
+          <a href="/"><span data-icon>~</span> Home</a>
+          <a href="/archive/"><span data-icon>[]</span> Archive</a>
+          <a href="/about/"><span data-icon>@</span> About</a>
+          <div data-component="lang-switcher">
+            <a href="/" aria-current="true" title="English">EN</a>
+            <a href="/uk/" title="Ukrainian">UK</a>
+            <a href="/ru/" title="Russian">RU</a>
+            <a href="/es/" title="Spanish">ES</a>
+          </div>
+        </nav>
+      </header>
+
+      <section>
+        <div data-component="not-found">
+          <p data-eyebrow><span data-syntax="comment">// HTTP 404 · resource not found</span></p>
+
+          <h1 data-glitch aria-label="404">404</h1>
+
+          <div data-errbox role="status" aria-live="polite">
+            <span data-line><span data-prompt>$</span> git checkout <span data-path>"/…"</span></span>
+            <span data-line data-err>error: pathspec <span data-path>"/…"</span> did not match any route known to blog<span data-cursor>|</span></span>
+          </div>
+
+          <p data-quip>This page isn't on this branch — maybe it was never committed.</p>
+
+          <nav data-actions aria-label="Recovery">
+            <a href="/" data-action data-primary><span data-icon>~</span> cd&nbsp;~/</a>
+            <a href="/archive/" data-action><span data-icon>[]</span> ls&nbsp;archive/</a>
+            <a href="/about/" data-action><span data-icon>@</span> whoami</a>
+          </nav>
+        </div>
+      </section>
+
+      <footer data-component="footer">
+        <div data-part="left">
+          <span data-item><span data-dot="green"></span>Geek Life</span>
+          <span data-item>main*</span>
+        </div>
+        <div data-part="right">
+          <span data-item>Ln 404, Col 4</span>
+          <span data-item>UTF-8</span>
+          <span data-item>TypeScript</span>
+        </div>
+      </footer>
+    </main>
+
+    <script>
+      // Fill in the path the visitor actually hit (textContent — injection-safe), and
+      // tint the error panel's accent line with a random color from the dashboard-card palette.
+      (() => {
+        const attempted = location.pathname + location.search;
+        document.querySelectorAll("[data-path]").forEach((el) => {
+          el.textContent = `"${attempted}"`;
+        });
+
+        const accents = [
+          "--accent-primary",
+          "--accent-success",
+          "--accent-secondary",
+          "--accent-danger",
+          "--accent-function",
+          "--accent-type",
+          "--accent-soft"
+        ];
+        const pick = accents[Math.floor(Math.random() * accents.length)];
+        const box = document.querySelector("[data-errbox]");
+        if (box) box.style.borderLeftColor = `var(${pick})`;
+      })();
+    </script>
+  </body>
+</html>

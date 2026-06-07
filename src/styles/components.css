@@ -28,3 +28,6 @@
 
 /* Hero section */
 @import "./hero.css";
+
+/* Standalone 404 page */
+@import "./not-found.css";

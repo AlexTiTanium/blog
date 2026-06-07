@@ -52,7 +52,9 @@ export const app = createApp({
       images: true,
       injectAssets: true,
       publicDir: "public",
-      notFound: true,
+      // Custom 404 — `path` to a complete, app-owned page emitted verbatim as dist/404.html
+      // (links /assets/main.css itself, since the 404 page gets no asset injection). See src/404.html.
+      notFound: { path: "src/404.html" },
       localeRedirects: true,
       clientEntry: "src/spa.tsx",
       // App-owned document shell — src/index.html controls the scaffold the

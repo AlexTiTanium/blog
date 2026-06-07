@@ -1,0 +1,175 @@
+/* 404 / Not Found — the "route not found" centerpiece for the standalone error page.
+   Bundled into main.css (via components.css) and linked by dist/404.html (see src/not-found.ts),
+   so it inherits tokens, fonts, and page chrome. Reuses the hero's [data-syntax]/[data-cursor]
+   vocabulary; only the error-screen layout lives here. */
+
+[data-component="not-found"] {
+  /* Fill the gap between the sticky header and the footer, and center the payload. */
+  min-height: clamp(420px, 64vh, 720px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  text-align: center;
+  padding: 3rem 0;
+}
+
+@scope ([data-component="not-found"]) {
+  /* Dim source-comment eyebrow above the glyph. */
+  [data-eyebrow] {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  /* The 404 glyph: oversized mono with a soft chromatic-aberration split + a rare twitch. */
+  [data-glitch] {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(4.5rem, 19vw, 11rem);
+    line-height: 0.9;
+    letter-spacing: 0.06em;
+    color: var(--text-primary);
+    text-shadow:
+      0.035em 0 color-mix(in srgb, var(--accent-danger) 55%, transparent),
+      -0.035em 0 color-mix(in srgb, var(--accent-primary) 55%, transparent);
+    animation: nf-twitch 6s steps(1, end) infinite;
+  }
+
+  /* The thrown-error panel — a slab of "terminal" that failed to resolve the path. */
+  [data-errbox] {
+    width: min(100%, 540px);
+    text-align: left;
+    font-family: var(--font-code);
+    font-size: var(--text-sm);
+    line-height: 1.9;
+    background: var(--surface-code);
+    border: 1px solid var(--border-default);
+    /* Accent line mirrors the dashboard cards (3px); the inline script in src/404.html
+       randomizes the color per visit from the same palette. --accent-danger is the no-JS default. */
+    border-left: 3px solid var(--accent-danger);
+    padding: 0.9rem 1.1rem;
+    overflow-x: auto;
+  }
+
+  [data-line] {
+    display: block;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  [data-prompt] {
+    color: var(--accent-primary);
+  }
+
+  [data-err] {
+    color: var(--accent-danger);
+  }
+
+  /* The attempted path (filled by the inline script). */
+  [data-path] {
+    color: var(--accent-success);
+  }
+
+  /* Human, self-ironic aside. */
+  [data-quip] {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    color: var(--text-body);
+    max-width: 44ch;
+  }
+
+  /* Recovery actions — terminal-flavored buttons echoing the nav glyphs (~ [] @). */
+  [data-actions] {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+  }
+
+  [data-action] {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    transition:
+      color var(--duration-fast),
+      border-color var(--duration-fast),
+      background var(--duration-fast),
+      transform var(--duration-fast) var(--ease-out-back);
+  }
+
+  [data-action] [data-icon] {
+    color: var(--accent-primary);
+  }
+
+  [data-action][data-primary] {
+    border-color: color-mix(in srgb, var(--accent-primary) 45%, transparent);
+  }
+}
+
+/* Hover gating — desktop only (mirrors animations.css). */
+@media (hover: hover) and (pointer: fine) {
+  [data-component="not-found"] [data-action]:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: color-mix(in srgb, var(--accent-primary) 8%, transparent);
+    transform: translateY(-2px);
+  }
+}
+
+[data-component="not-found"] [data-action]:active {
+  transform: scale(0.98);
+}
+
+[data-component="not-found"] [data-action]:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* A brief horizontal twitch every few seconds — life without distraction. */
+@keyframes nf-twitch {
+  0%,
+  95%,
+  100% {
+    transform: translateX(0);
+  }
+  96% {
+    transform: translateX(-2px);
+  }
+  98% {
+    transform: translateX(2px);
+  }
+  99% {
+    transform: translateX(-1px);
+  }
+}
+
+/* Respect reduced-motion: drop the split + twitch, keep it crisp. */
+@media (prefers-reduced-motion: reduce) {
+  [data-component="not-found"] [data-glitch] {
+    text-shadow: none;
+    animation: none;
+  }
+}
+
+/* Small screens. */
+@media (max-width: 600px) {
+  [data-component="not-found"] {
+    min-height: clamp(360px, 58vh, 600px);
+    gap: 1rem;
+  }
+
+  [data-component="not-found"] [data-errbox] {
+    font-size: var(--text-xs);
+    padding: 0.75rem 0.85rem;
+  }
+}
