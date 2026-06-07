@@ -56,6 +56,57 @@ export function paginate(arts: Content.Article[], page: number, per = PER_PAGE):
 }
 
 /**
+ * Inclusive integer range `[start, end]` (empty when `end < start`).
+ *
+ * @param start - First value.
+ * @param end - Last value (inclusive).
+ * @returns The ascending list of integers.
+ * @example
+ * range(2, 5); // [2, 3, 4, 5]
+ */
+function range(start: number, end: number): number[] {
+  // A negative length is clamped to 0 by Array.from, so `end < start` yields an empty list.
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+}
+
+/**
+ * Build the windowed page list for the pagination UI: always the first and last page, the current
+ * page with `siblings` neighbours on each side, and an `"ellipsis"` marker wherever a run of pages
+ * is collapsed. Ranges short enough to show in full (≤ `siblings * 2 + 5`) get every page, no ellipsis.
+ *
+ * @param current - 1-based current page.
+ * @param total - Total number of pages.
+ * @param siblings - Pages shown on each side of the current page (default 1).
+ * @returns Ordered page numbers interleaved with `"ellipsis"` markers.
+ * @example
+ * pageWindow(5, 11); // [1, "ellipsis", 4, 5, 6, "ellipsis", 11]
+ * pageWindow(1, 3); // [1, 2, 3]
+ */
+export function pageWindow(current: number, total: number, siblings = 1): (number | "ellipsis")[] {
+  // first + last + current + 2·siblings + 2 ellipsis slots; at/under this, show every page.
+  const maxSlots = siblings * 2 + 5;
+  if (total <= maxSlots) return range(1, total);
+
+  const left = Math.max(current - siblings, 1);
+  const right = Math.min(current + siblings, total);
+  const showLeftEllipsis = left > 2;
+  const showRightEllipsis = right < total - 1;
+
+  // Near the start: 1 2 … last
+  if (!showLeftEllipsis && showRightEllipsis) {
+    return [...range(1, siblings * 2 + 3), "ellipsis", total];
+  }
+
+  // Near the end: 1 … (final run)
+  if (showLeftEllipsis && !showRightEllipsis) {
+    return [1, "ellipsis", ...range(total - (siblings * 2 + 2), total)];
+  }
+
+  // Middle: 1 … left..right … last
+  return [1, "ellipsis", ...range(left, right), "ellipsis", total];
+}
+
+/**
  * Filter articles by tag.
  *
  * @param arts - Articles to filter.

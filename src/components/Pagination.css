@@ -20,6 +20,7 @@
     text-decoration: none;
     cursor: pointer;
     line-height: 1.4;
+    white-space: nowrap;
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -33,6 +34,13 @@
       color: var(--accent-primary);
       border-color: var(--accent-primary);
     }
+  }
+
+  /* Collapsed-run marker */
+  [data-ellipsis] {
+    padding: 0.25rem 0.3rem;
+    color: var(--text-muted);
+    user-select: none;
   }
 
   /* Active page indicator */
@@ -59,6 +67,7 @@
 
   @media (max-width: 600px) {
     :scope {
+      flex-wrap: wrap;
       gap: 0.3rem;
     }
 

@@ -1,8 +1,11 @@
 /**
- * @file Reusable pagination — prev/next links plus numbered page links in the terminal aesthetic.
- * Page 1 uses the clean `baseUrl` (no `/page/1/` suffix). The `< prev` / `next >` glyphs are
- * deliberately code-flavored English UI chrome.
+ * @file Reusable pagination — prev/next links plus a windowed set of numbered page links (with
+ * `…` ellipses for collapsed runs, so a large page count stays compact). Page 1 uses the clean
+ * `baseUrl` (no `/page/1/` suffix). The `< prev` / `next >` glyphs are deliberately code-flavored
+ * English UI chrome.
  */
+
+import { pageWindow } from "../lib/articles";
 
 /** Props for {@link Pagination}. */
 interface PaginationProps {
@@ -37,11 +40,10 @@ function pageUrl(baseUrl: string, page: number): string {
 export function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const items = pageWindow(currentPage, totalPages);
 
   return (
     <nav data-component="pagination" aria-label="Pagination">
-      {/* biome-ignore lint/a11y/useAnchorContent: aria-label provides the accessible name; conditional aria-disabled is intentional for the shown-but-disabled state */}
       <a
         data-prev
         href={currentPage > 1 ? pageUrl(baseUrl, currentPage - 1) : undefined}
@@ -52,18 +54,23 @@ export function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps
         {"< prev"}
       </a>
 
-      {pages.map(page => (
-        <a
-          key={page}
-          data-page
-          href={pageUrl(baseUrl, page)}
-          {...(page === currentPage ? { "aria-current": "page", "data-active": true } : {})}
-        >
-          {page}
-        </a>
-      ))}
+      {items.map((item, index) =>
+        item === "ellipsis" ? (
+          <span key={`ellipsis-${index}`} data-ellipsis aria-hidden="true">
+            …
+          </span>
+        ) : (
+          <a
+            key={item}
+            data-page
+            href={pageUrl(baseUrl, item)}
+            {...(item === currentPage ? { "aria-current": "page", "data-active": true } : {})}
+          >
+            {item}
+          </a>
+        )
+      )}
 
-      {/* biome-ignore lint/a11y/useAnchorContent: aria-label provides the accessible name; conditional aria-disabled is intentional for the shown-but-disabled state */}
       <a
         data-next
         href={currentPage < totalPages ? pageUrl(baseUrl, currentPage + 1) : undefined}
