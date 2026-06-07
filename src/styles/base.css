@@ -36,6 +36,7 @@ main {
 @media (max-width: 600px) {
   main {
     padding-inline: 1rem;
+    padding-bottom: 0.8rem;
   }
 }
 

@@ -141,6 +141,12 @@
     }
   }
 
+  /* Pagination sits inside the bordered archive card — give it bottom breathing room.
+     Scoped here (not on the shared Pagination component) so it only affects the archive. */
+  [data-component="pagination"] {
+    margin-bottom: 1rem;
+  }
+
   /* Responsive */
   @media (max-width: 900px) {
     [data-entry] {
@@ -172,6 +178,7 @@
 
     header {
       padding: 1rem;
+      padding-top: 0.75rem;
     }
 
     h2 {

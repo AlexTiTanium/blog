@@ -2,7 +2,7 @@
 
 /* --- Home Hero (site header) --- */
 [data-hero] {
-  padding: 2rem 0 1rem;
+  padding: 1.5rem 0 1rem;
 
   [data-title] {
     font-family: var(--font-display);

@@ -6,9 +6,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-    padding: 1rem 0;
+    margin-top: 1rem;
     font-family: var(--font-code);
     font-size: 0.75rem;
   }
@@ -52,16 +50,16 @@
     }
   }
 
-  /* Hidden prev/next -- keep layout stable */
+  /* Disabled prev/next -- shown but greyed out and non-interactive */
   [data-hidden] {
-    visibility: hidden;
+    opacity: 0.4;
     pointer-events: none;
+    cursor: default;
   }
 
   @media (max-width: 600px) {
     :scope {
       gap: 0.3rem;
-      font-size: 0.7rem;
     }
 
     a {

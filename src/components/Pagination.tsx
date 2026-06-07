@@ -1,6 +1,6 @@
 /**
  * @file Reusable pagination — prev/next links plus numbered page links in the terminal aesthetic.
- * Page 1 uses the clean `baseUrl` (no `/page/1/` suffix). The `<< prev` / `next >>` glyphs are
+ * Page 1 uses the clean `baseUrl` (no `/page/1/` suffix). The `< prev` / `next >` glyphs are
  * deliberately code-flavored English UI chrome.
  */
 
@@ -41,15 +41,15 @@ export function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps
 
   return (
     <nav data-component="pagination" aria-label="Pagination">
-      {/* biome-ignore lint/a11y/useAnchorContent: aria-label provides the accessible name; conditional aria-hidden is intentional for disabled state */}
+      {/* biome-ignore lint/a11y/useAnchorContent: aria-label provides the accessible name; conditional aria-disabled is intentional for the shown-but-disabled state */}
       <a
         data-prev
         href={currentPage > 1 ? pageUrl(baseUrl, currentPage - 1) : undefined}
-        aria-hidden={currentPage <= 1 ? true : undefined}
+        aria-disabled={currentPage <= 1 ? true : undefined}
         data-hidden={currentPage <= 1 ? true : undefined}
         aria-label="Previous page"
       >
-        {"<< prev"}
+        {"< prev"}
       </a>
 
       {pages.map(page => (
@@ -63,15 +63,15 @@ export function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps
         </a>
       ))}
 
-      {/* biome-ignore lint/a11y/useAnchorContent: aria-label provides the accessible name; conditional aria-hidden is intentional for disabled state */}
+      {/* biome-ignore lint/a11y/useAnchorContent: aria-label provides the accessible name; conditional aria-disabled is intentional for the shown-but-disabled state */}
       <a
         data-next
         href={currentPage < totalPages ? pageUrl(baseUrl, currentPage + 1) : undefined}
-        aria-hidden={currentPage >= totalPages ? true : undefined}
+        aria-disabled={currentPage >= totalPages ? true : undefined}
         data-hidden={currentPage >= totalPages ? true : undefined}
         aria-label="Next page"
       >
-        {"next >>"}
+        {"next >"}
       </a>
     </nav>
   );

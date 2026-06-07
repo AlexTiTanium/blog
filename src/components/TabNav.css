@@ -37,3 +37,54 @@
     font-size: 0.8rem;
   }
 }
+
+/* ── Mobile (<=600px): let the tabs recede when the language selector expands
+   (see LanguageSwitcher.css + the lang-switcher island). Tabs may yield width so the
+   right-pinned language pill is never pushed off-screen. Desktop/tablet keep the full
+   row above. ── */
+@media (max-width: 600px) {
+  /* Tabs grow to fill the row (no empty gap before the pill) and can shrink/clip so the
+     language pill always stays visible. */
+  [data-component="tab-nav"] > a {
+    flex-grow: 1;
+    min-width: 0;
+    max-width: 12rem;
+    overflow: hidden;
+    transition:
+      max-width var(--duration-normal) var(--ease-out-expo),
+      padding var(--duration-normal) var(--ease-out-expo),
+      opacity var(--duration-normal),
+      transform var(--duration-normal) var(--ease-out-expo),
+      color var(--duration-normal),
+      background var(--duration-normal);
+  }
+
+  /* Expanded: clip and slide the tabs out to the left to make room for the codes. */
+  [data-component="tab-nav"]:has([data-component="lang-switcher"][data-expanded]) {
+    overflow: hidden;
+  }
+
+  [data-component="tab-nav"]:has([data-component="lang-switcher"][data-expanded]) > a {
+    max-width: 0;
+    padding-inline: 0;
+    border-right-width: 0;
+    opacity: 0;
+    transform: translateX(-0.75rem);
+    pointer-events: none;
+  }
+}
+
+/* Tighten the tab padding on the narrowest phones so the collapsed row fits. */
+@media (max-width: 375px) {
+  [data-component="tab-nav"] > a {
+    padding: 0.5rem 0.7rem;
+  }
+}
+
+@media (max-width: 320px) {
+  [data-component="tab-nav"] > a {
+    padding: 0.45rem 0.5rem;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+  }
+}

@@ -4,7 +4,6 @@
   :scope {
     display: flex;
     align-items: center;
-    gap: 0.125rem;
     margin-left: auto;
     padding: 0 0.5rem;
     overflow-x: auto;
@@ -33,5 +32,51 @@
       color: var(--accent-primary);
       background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
     }
+  }
+}
+
+/* ── Mobile (<=600px): collapse to ONLY the current language; tapping the pill
+   expands the rest. The lang-switcher island toggles [data-expanded]; the non-current
+   codes animate their width/opacity so the switcher grows leftward while the nav tabs
+   recede (TabNav.css). Desktop/tablet (>600px) keep the full four-code row above. ── */
+@media (max-width: 600px) {
+  [data-component="lang-switcher"] {
+    flex-shrink: 0;
+    gap: 0;
+    overflow: visible;
+    /* The divider lives on the last tab's right edge (TabNav.css); drop the switcher's
+       own border-left so the two don't read as a double divider. */
+    border-left: none;
+  }
+
+  [data-component="lang-switcher"] > a {
+    transition:
+      max-width var(--duration-normal) var(--ease-out-expo),
+      padding var(--duration-normal) var(--ease-out-expo),
+      opacity var(--duration-normal),
+      color var(--duration-normal),
+      background var(--duration-normal);
+  }
+
+  /* Collapsed: every non-current code is hidden (zero box, not focusable). */
+  [data-component="lang-switcher"] > a:not([aria-current="true"]) {
+    max-width: 0;
+    padding-inline: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* Expanded: reveal the other codes. */
+  [data-component="lang-switcher"][data-expanded] > a:not([aria-current="true"]) {
+    max-width: 3rem;
+    padding-inline: 0.4rem;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* The current code is the tappable pill. */
+  [data-component="lang-switcher"] > a[aria-current="true"] {
+    padding: 0.3rem 0.45rem;
   }
 }
