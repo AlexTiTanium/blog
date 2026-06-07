@@ -21,6 +21,7 @@ import { SITE } from "./config";
 import { i18nConfig } from "./i18n/index";
 import { islands } from "./islands";
 import { warmSyntaxTheme } from "./lib/shiki-theme";
+import { OgDefaultCard } from "./og/default-card";
 import { OgTemplate } from "./og/template";
 import { routes } from "./routes";
 
@@ -34,7 +35,16 @@ export const app = createApp({
       providers: [fileSystemContent({ contentDir: "./content", shikiTheme: warmSyntaxTheme })]
     },
     router: { routes },
-    head: { titleTemplate: `%s — ${SITE.name}`, twitterCard: "summary_large_image" },
+    // `defaultOgImage` is the site-wide `og:image`/`twitter:image` fallback for every route that does
+    // NOT set its own (home, archive, about, tags, paged listings, + the bare-domain redirect via
+    // `head.siteHead`) — articles still win with their per-article card. The card itself is generated
+    // by `build.ogImage.defaultCard` below (framework-rendered to `/og-default.png`). The framework
+    // absolutizes this relative path against `SITE.url`.
+    head: {
+      titleTemplate: `%s — ${SITE.name}`,
+      twitterCard: "summary_large_image",
+      defaultOgImage: "/og-default.png"
+    },
     build: {
       outDir: "dist",
       feeds: true,
@@ -57,6 +67,11 @@ export const app = createApp({
       ogImage: {
         fontDir: "assets/fonts/og",
         render: OgTemplate,
+        // Render our branded site card (the home-hero `const GeekLife = {}` motif) to `/og-default.png`
+        // — the `head.defaultOgImage` fallback for every non-article page — reusing the fonts below.
+        // We pass only the template VNode; the framework renders it (same Satori pipeline as `render`),
+        // so the app ships no renderer of its own.
+        defaultCard: OgDefaultCard,
         // Satori-supported woff subsets (latin + cyrillic, 400/700) so EN + RU OG titles render —
         // mirrors the legacy fontDir coverage. All share family "IBM Plex Mono"; Satori falls
         // through entries to find glyph coverage per weight.
