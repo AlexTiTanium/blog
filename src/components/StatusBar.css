@@ -13,7 +13,8 @@
   [data-item] {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    /* Dot↔label spacing on the dot's margin, not flex `gap` — see DashboardGrid.css
+       (real-Safari flex-gap label-position quirk). */
     font-family: var(--font-display);
     font-size: 0.6rem;
     color: var(--text-muted);
@@ -23,6 +24,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
+    margin-inline-end: 0.4rem;
   }
 
   [data-dot="green"] {
