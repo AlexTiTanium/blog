@@ -3,29 +3,21 @@
  * supply its own (home, archive, about, tags, paged listings) and for the bare-domain redirect.
  * Passed to `build.ogImage.defaultCard` in `src/app.ts`; the framework renders it ONCE per build to
  * `dist/og-default.png` (same Satori → resvg pipeline + fonts as the per-article `OgTemplate`), so the
- * app ships NO renderer of its own. Reproduces the home hero (`const GeekLife = {}` + tagline) in the
- * Dev Dashboard Warm Syntax theme — identity comes from the framework-supplied `siteName`/`description`
- * (sourced from the `site` plugin), never hardcoded. Pure Preact — Satori consumes the VNode directly.
+ * app ships NO renderer of its own. A mini terminal window (shared chrome in ./chrome): a left accent
+ * bar + a `$ <quote>` titlebar (the rotating dev quote, exactly like the live site's title bar) +
+ * traffic-light dots, the home-hero `const GeekLife = {}` motif, and the tagline. The quote rotates
+ * build-to-build via {@link pickQuote} (same pool as the title bar) and also seeds the accent color.
+ * Identity comes from the framework-supplied `siteName`/`description`, never hardcoded.
  */
 import type { Build } from "@moku-labs/web";
+import { pickQuote } from "../lib/quotes";
+import { AccentBar, OG_COLORS, pickAccent, TrafficDots } from "./chrome";
 
 /**
- * Warm Syntax theme tokens mirrored from `src/styles/tokens.css` + `hero.css` so the card matches the
- * live home hero: keyword=orange, function=amber, string=lime, comment=dim lime.
- */
-const COLORS = {
-  bg: "#1c1917", // --color-stone-950
-  accent: "#f59e0b", // --accent-primary / hero "function" (amber-500)
-  keyword: "#f97316", // --accent-secondary / hero "keyword" (orange-500)
-  string: "#84cc16", // --accent-success / hero "string" (lime-500)
-  comment: "rgba(132, 204, 22, 0.7)", // hero "comment" — dim lime
-  muted: "#8a7e72", // --color-stone-500
-  border: "#292524"
-} as const;
-
-/**
- * Render the site-default OG card (1200×630) — the home-hero code motif with the site name and
- * tagline taken from the framework-supplied {@link Build.RichOgInput}.
+ * Render the site-default OG card (1200×630): a terminal window with a left accent bar, a `$ <quote>`
+ * titlebar + traffic-light dots, the home-hero code motif, and the tagline. Identity (`siteName`,
+ * `description`) comes from the framework-supplied {@link Build.RichOgInput}; the quote rotates per
+ * build via {@link pickQuote} (the same pool the title bar shows) and seeds the accent color.
  *
  * @param input - The rich OG input; `siteName` + `description` carry the site identity.
  * @returns A Preact VNode describing the card, consumed by Satori.
@@ -35,62 +27,74 @@ const COLORS = {
 export function OgDefaultCard(input: Build.RichOgInput) {
   // Home-hero identifier: the site name with whitespace stripped (e.g. "Geek Life" → "GeekLife").
   const identifier = input.siteName.replace(/\s+/g, "");
+  const quote = pickQuote();
   return (
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
         width: "100%",
         height: "100%",
-        backgroundColor: COLORS.bg,
-        padding: "60px",
+        backgroundColor: OG_COLORS.bg,
         fontFamily: "IBM Plex Mono"
       }}
     >
-      {/* Top: blog name in amber — mirrors the article card header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          fontSize: "28px",
-          color: COLORS.accent,
-          letterSpacing: "0.05em"
-        }}
-      >
-        {`// ${input.siteName}`}
-      </div>
-      {/* Decorative border line */}
-      <div
-        style={{
-          display: "flex",
-          width: "100%",
-          height: "2px",
-          backgroundColor: COLORS.border,
-          marginTop: "24px"
-        }}
-      />
-      {/* Middle: the home-hero code motif `const GeekLife = {}` */}
-      <div
-        style={{
-          display: "flex",
-          flex: 1,
-          alignItems: "center",
-          fontSize: "72px",
-          fontWeight: 700
-        }}
-      >
-        <span style={{ display: "flex", color: COLORS.keyword }}>const</span>
-        <span style={{ display: "flex", color: COLORS.accent, marginLeft: "24px" }}>
-          {identifier}
-        </span>
-        <span style={{ display: "flex", color: COLORS.muted, marginLeft: "24px" }}>=</span>
-        <span style={{ display: "flex", color: COLORS.string, marginLeft: "24px" }}>{"{}"}</span>
-      </div>
-      {/* Bottom: tagline as a code comment */}
-      <div
-        style={{ display: "flex", alignItems: "center", fontSize: "26px", color: COLORS.comment }}
-      >
-        {`// ${input.description}`}
+      {AccentBar(pickAccent(quote))}
+
+      {/* Content column */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "56px 60px" }}>
+        {/* Terminal titlebar: the rotating dev quote (like the live title bar) + traffic-light dots */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", fontSize: "24px" }}>
+            <span style={{ display: "flex", color: OG_COLORS.string }}>$</span>
+            <span style={{ display: "flex", color: OG_COLORS.muted, marginLeft: "14px" }}>
+              {quote}
+            </span>
+          </div>
+          {TrafficDots()}
+        </div>
+
+        {/* Decorative border line */}
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            height: "2px",
+            backgroundColor: OG_COLORS.border,
+            marginTop: "24px"
+          }}
+        />
+
+        {/* Middle: the home-hero code motif `const GeekLife = {}` */}
+        <div
+          style={{
+            display: "flex",
+            flex: 1,
+            alignItems: "center",
+            fontSize: "72px",
+            fontWeight: 700
+          }}
+        >
+          <span style={{ display: "flex", color: OG_COLORS.keyword }}>const</span>
+          <span style={{ display: "flex", color: OG_COLORS.accent, marginLeft: "24px" }}>
+            {identifier}
+          </span>
+          <span style={{ display: "flex", color: OG_COLORS.muted, marginLeft: "24px" }}>=</span>
+          <span style={{ display: "flex", color: OG_COLORS.string, marginLeft: "24px" }}>
+            {"{}"}
+          </span>
+        </div>
+
+        {/* Tagline as a code comment */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            fontSize: "26px",
+            color: OG_COLORS.comment
+          }}
+        >
+          {`// ${input.description}`}
+        </div>
       </div>
     </div>
   );

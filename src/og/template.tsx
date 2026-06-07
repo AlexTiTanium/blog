@@ -1,25 +1,31 @@
 /**
- * @file OG card renderer — returns a Preact VNode consumed by `build.ogImage.render`
- * (@moku-labs/web@0.4.1 casts the VNode to Satori's input at its single render boundary).
- *
- * Ports the legacy rich card (blog name + title + date + tags) in the Dev Dashboard Warm
- * Syntax theme. Satori requires an explicit `display: "flex"` on every node that has
- * children, so each wrapper sets it. Fonts (IBM Plex Mono latin+cyrillic 400/700) are loaded
- * once per build from `build.ogImage.fonts`.
+ * @file Per-article OG card renderer — returns a Preact VNode consumed by `build.ogImage.render`
+ * (@moku-labs/web casts the VNode to Satori's input at its single render boundary). A terminal window
+ * in the Dev Dashboard Warm Syntax theme sharing the chrome (left accent bar + traffic-light dots)
+ * with the site default card (./default-card, ./chrome): a `● published` status + dots titlebar, the
+ * article title, and a date + tags footer. Fonts (IBM Plex Mono latin+cyrillic 400/700) are loaded
+ * once per build from `build.ogImage.fonts`. Satori requires `display:flex` on every node with children.
  */
 import type { Build } from "@moku-labs/web";
+import { AccentBar, OG_COLORS, pickAccent, TrafficDots } from "./chrome";
 
 /** Maximum number of tags shown in the OG card footer (extras are dropped to keep one line). */
 const OG_MAX_TAGS = 4;
 
-/** Dev Dashboard Warm Syntax theme tokens (match the legacy OG card). */
-const COLORS = {
-  bg: "#1c1917",
-  text: "#f5efe8",
-  accent: "#f59e0b",
-  muted: "#8a7e72",
-  border: "#292524"
-} as const;
+/** Maximum description length on the card before it is truncated with an ellipsis (keeps ~2 lines). */
+const OG_MAX_DESCRIPTION = 120;
+
+/**
+ * Truncate a description to {@link OG_MAX_DESCRIPTION} chars, appending an ellipsis when cut, so a long
+ * summary stays to ~2 lines on the card.
+ *
+ * @param text - The article description.
+ * @returns The original text, or a trimmed prefix + "…" when it exceeds the limit.
+ */
+function shorten(text: string): string {
+  if (text.length <= OG_MAX_DESCRIPTION) return text;
+  return `${text.slice(0, OG_MAX_DESCRIPTION - 1).trimEnd()}…`;
+}
 
 /**
  * Format an ISO publication date for the card footer, localized to the active locale.
@@ -38,7 +44,8 @@ function formatDate(iso: string, locale: string): string {
 }
 
 /**
- * Render the OG card for one article.
+ * Render the OG card for one article: a `● published` + dots titlebar, the article title, and a
+ * date + tags footer, framed by the shared left accent bar.
  *
  * @param input - Rich OG input (title/description/date/tags/author/locale/siteName/size).
  * @returns A Preact VNode describing the card (1200×630 by default).
@@ -51,64 +58,106 @@ export function OgTemplate(input: Build.RichOgInput) {
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
         width: "100%",
         height: "100%",
-        backgroundColor: COLORS.bg,
-        padding: "60px",
+        backgroundColor: OG_COLORS.bg,
         fontFamily: "IBM Plex Mono"
       }}
     >
-      {/* Top: blog name in amber */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          fontSize: "24px",
-          color: COLORS.accent,
-          letterSpacing: "0.05em"
-        }}
-      >
-        {`// ${input.siteName}`}
-      </div>
-      {/* Decorative border line */}
-      <div
-        style={{
-          display: "flex",
-          width: "100%",
-          height: "2px",
-          backgroundColor: COLORS.border,
-          marginTop: "24px"
-        }}
-      />
-      {/* Middle: article title */}
-      <div
-        style={{
-          display: "flex",
-          flex: 1,
-          alignItems: "center",
-          fontSize: "48px",
-          fontWeight: 700,
-          color: COLORS.text,
-          lineHeight: 1.3,
-          marginTop: "20px"
-        }}
-      >
-        {input.title}
-      </div>
-      {/* Bottom: date + tags in muted color */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "16px",
-          fontSize: "20px",
-          color: COLORS.muted
-        }}
-      >
-        <span style={{ display: "flex" }}>{formatDate(input.date, input.locale)}</span>
-        {tagLine ? <span style={{ display: "flex", color: COLORS.border }}>|</span> : null}
-        {tagLine ? <span style={{ display: "flex" }}>{tagLine}</span> : null}
+      {AccentBar(pickAccent(input.title))}
+
+      {/* Content column */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "56px 60px" }}>
+        {/* Terminal titlebar: "● published" status (left) + traffic-light dots (right) */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                width: "14px",
+                height: "14px",
+                borderRadius: "50%",
+                backgroundColor: OG_COLORS.green
+              }}
+            />
+            <span
+              style={{
+                display: "flex",
+                marginLeft: "14px",
+                fontSize: "24px",
+                color: OG_COLORS.muted,
+                letterSpacing: "0.05em"
+              }}
+            >
+              published
+            </span>
+          </div>
+          {TrafficDots()}
+        </div>
+
+        {/* Decorative border line */}
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            height: "2px",
+            backgroundColor: OG_COLORS.border,
+            marginTop: "24px"
+          }}
+        />
+
+        {/* Middle: article title + short description, vertically centered */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            justifyContent: "center",
+            marginTop: "20px"
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              fontSize: "48px",
+              fontWeight: 700,
+              color: OG_COLORS.text,
+              lineHeight: 1.3
+            }}
+          >
+            {input.title}
+          </div>
+          {input.description ? (
+            <div
+              style={{
+                display: "flex",
+                marginTop: "22px",
+                maxWidth: "980px",
+                fontSize: "24px",
+                color: OG_COLORS.muted,
+                lineHeight: 1.4
+              }}
+            >
+              {shorten(input.description)}
+            </div>
+          ) : null}
+        </div>
+
+        {/* Bottom: date + tags in muted color */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            fontSize: "20px",
+            color: OG_COLORS.muted
+          }}
+        >
+          <span style={{ display: "flex" }}>{formatDate(input.date, input.locale)}</span>
+          {tagLine ? (
+            <span style={{ display: "flex", color: OG_COLORS.border, marginLeft: "16px" }}>|</span>
+          ) : null}
+          {tagLine ? <span style={{ display: "flex", marginLeft: "16px" }}>{tagLine}</span> : null}
+        </div>
       </div>
     </div>
   );
