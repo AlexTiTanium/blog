@@ -61,9 +61,7 @@ Pero, ¿sinceramente? Cadillac mejora y mejora, y los Aston empeoran y empeoran,
 
 ## Lo que Mónaco necesita de verdad
 
-:::pullquote
-Todos suplican más adelantamientos en Mónaco. Curan lo que no es. No queremos más adelantamientos — queremos más carnicería. Y este año Mónaco la sirvió.
-:::
+> Todos suplican más adelantamientos en Mónaco. Curan lo que no es. No queremos más adelantamientos — queremos más carnicería. Y este año Mónaco la sirvió.
 
 Esta es mi opinión impopular, y mi mujer la firma conmigo. La gente se queja de que Mónaco necesita ocho adelantamientos, diez, quince, el número que sea que haga sonreír a una hoja de cálculo. Otros piden que vuelvan los V8, como si el rugido del motor hubiera decidido alguna vez una carrera. Me da exactamente igual todo eso. Dadnos drama. Dadnos un coche roto en el podio, dos héroes en el mismo muro, seis multas por velocidad y un primer punto que sabe a trofeo.
 
