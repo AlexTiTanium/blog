@@ -35,6 +35,20 @@ export default defineConfig({
       maxDiffPixelRatio: 0.02
     }
   },
+  // One project per browser engine. Playwright suffixes every snapshot with the
+  // project name (e.g. `home-en-chromium-darwin.png`), so each engine keeps its own
+  // golden set — cross-engine pixel rendering differs (fonts, sub-pixel, form
+  // controls), so they cannot share baselines.
+  //
+  // Engine matrix by value:
+  //   - chromium runs the FULL suite (functional logic is engine-agnostic, so one
+  //     engine is sufficient for it; chromium also tracks Navigation-API URL changes,
+  //     which WebKit's Playwright driver does not).
+  //   - webkit + firefox run only the specs with genuine per-engine value: the visual
+  //     baselines (rendering differs per engine) and the JS-boot guard (the URLPattern
+  //     class of Safari/Firefox-only crashes). They are scoped via `testMatch`.
+  // WebKit is Safari's engine — the one that catches Safari-only regressions the
+  // Chromium-only matrix silently missed.
   projects: [
     {
       name: "chromium",
@@ -44,6 +58,22 @@ export default defineConfig({
         launchOptions: {
           args: ["--font-render-hinting=none", "--force-color-profile=srgb"]
         }
+      }
+    },
+    {
+      name: "webkit",
+      testMatch: /(baseline|no-js-errors)\.spec\.ts$/,
+      use: {
+        browserName: "webkit",
+        contextOptions: { reducedMotion: "reduce" }
+      }
+    },
+    {
+      name: "firefox",
+      testMatch: /(baseline|no-js-errors)\.spec\.ts$/,
+      use: {
+        browserName: "firefox",
+        contextOptions: { reducedMotion: "reduce" }
       }
     }
   ]
