@@ -14,15 +14,15 @@ test.beforeEach(async ({ page }) => {
 });
 
 const pages = [
-  { name: "home-en", path: "/en/" },
+  { name: "home-en", path: "/" },
   { name: "home-ru", path: "/ru/" },
-  { name: "article-en-hello-pipeline", path: "/en/hello-pipeline/" },
+  { name: "article-en-hello-pipeline", path: "/hello-pipeline/" },
   { name: "article-ru-hello-pipeline", path: "/ru/hello-pipeline/" },
-  { name: "article-en-bad-monday", path: "/en/bad-monday/" },
+  { name: "article-en-bad-monday", path: "/bad-monday/" },
   { name: "article-ru-bad-monday", path: "/ru/bad-monday/" },
-  { name: "archive-en", path: "/en/archive/" },
+  { name: "archive-en", path: "/archive/" },
   { name: "archive-ru", path: "/ru/archive/" },
-  { name: "about-en", path: "/en/about/" },
+  { name: "about-en", path: "/about/" },
   { name: "about-ru", path: "/ru/about/" }
 ];
 

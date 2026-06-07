@@ -2,32 +2,32 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Navigation", () => {
   test("home page loads with correct title", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     await expect(page).toHaveTitle(/Geek Life/);
   });
 
   test("all nav links work", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
 
-    await page.click('a[href="/en/archive/"]');
-    await expect(page).toHaveURL(/\/en\/archive\//);
+    await page.click('a[href="/archive/"]');
+    await expect(page).toHaveURL(/\/archive\//);
 
-    await page.click('a[href="/en/about/"]');
-    await expect(page).toHaveURL(/\/en\/about\//);
+    await page.click('a[href="/about/"]');
+    await expect(page).toHaveURL(/\/about\//);
 
-    await page.click('a[href="/en/"]');
-    await expect(page).toHaveURL(/\/en\//);
+    await page.click('[data-component="tab-nav"] a[href="/"]');
+    await expect(page).toHaveURL(/\/$/);
   });
 
   test("language switcher works", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     await page.click('[data-component="lang-switcher"] a[href="/ru/"]');
     await expect(page).toHaveURL(/\/ru\//);
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
   });
 
   test("article links from home page work", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     const firstArticleLink = page.locator('[data-component="dashboard"] h2 a').first();
     const href = await firstArticleLink.getAttribute("href");
     await firstArticleLink.click();
@@ -38,12 +38,12 @@ test.describe("Navigation", () => {
 
 test.describe("SPA Navigation", () => {
   test("preserves shell and swaps content on navigation", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
     await expect(page.locator('[data-component="footer"]')).toBeVisible();
 
-    await page.click('a[href="/en/archive/"]');
-    await page.waitForURL(/\/en\/archive\//);
+    await page.click('a[href="/archive/"]');
+    await page.waitForURL(/\/archive\//);
 
     await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
     await expect(page.locator('[data-component="footer"]')).toBeVisible();
@@ -51,34 +51,34 @@ test.describe("SPA Navigation", () => {
   });
 
   test("back button restores previous page", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
 
-    await page.click('a[href="/en/archive/"]');
-    await page.waitForURL(/\/en\/archive\//);
+    await page.click('a[href="/archive/"]');
+    await page.waitForURL(/\/archive\//);
     await expect(page.locator('[data-component="archive"]')).toBeVisible();
 
     await page.goBack();
-    await page.waitForURL(/\/en\/$/);
+    await page.waitForURL(/\/$/);
     await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
   });
 
   test("forward button after back restores navigated page", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
 
-    await page.click('a[href="/en/archive/"]');
-    await page.waitForURL(/\/en\/archive\//);
+    await page.click('a[href="/archive/"]');
+    await page.waitForURL(/\/archive\//);
 
     await page.goBack();
-    await page.waitForURL(/\/en\/$/);
+    await page.waitForURL(/\/$/);
 
     await page.goForward();
-    await page.waitForURL(/\/en\/archive\//);
+    await page.waitForURL(/\/archive\//);
     await expect(page.locator('[data-component="archive"]')).toBeVisible();
   });
 
   test("deep link loads article page directly", async ({ page }) => {
-    await page.goto("/en/hello-pipeline/");
+    await page.goto("/hello-pipeline/");
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toHaveText(
       "Hello, Pipeline!"
     );
@@ -94,7 +94,7 @@ test.describe("SPA Navigation", () => {
   });
 
   test("language switch updates html lang attribute via SPA navigation", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
 
     await page.click('[data-component="lang-switcher"] a[href="/ru/"]');
@@ -105,30 +105,30 @@ test.describe("SPA Navigation", () => {
   });
 
   test("SPA navigation through multiple pages in sequence", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
 
-    await page.click('a[href="/en/archive/"]');
-    await page.waitForURL(/\/en\/archive\//);
+    await page.click('a[href="/archive/"]');
+    await page.waitForURL(/\/archive\//);
     await expect(page.locator('[data-component="archive"]')).toBeVisible();
 
-    await page.click('a[href="/en/about/"]');
-    await page.waitForURL(/\/en\/about\//);
+    await page.click('a[href="/about/"]');
+    await page.waitForURL(/\/about\//);
 
-    await page.click('a[href="/en/"]');
-    await page.waitForURL(/\/en\/$/);
+    await page.click('[data-component="tab-nav"] a[href="/"]');
+    await page.waitForURL(/\/$/);
     await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
   });
 
   test("tab-nav active state updates on SPA navigation", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     const tabNav = page.locator('[data-component="tab-nav"]');
 
-    await expect(tabNav.locator('a[href="/en/"][aria-current="page"]')).toBeVisible();
+    await expect(tabNav.locator('a[href="/"][aria-current="page"]')).toBeVisible();
 
-    await page.click('a[href="/en/archive/"]');
-    await page.waitForURL(/\/en\/archive\//);
+    await page.click('a[href="/archive/"]');
+    await page.waitForURL(/\/archive\//);
 
-    await expect(tabNav.locator('a[href="/en/archive/"][aria-current="page"]')).toBeVisible();
+    await expect(tabNav.locator('a[href="/archive/"][aria-current="page"]')).toBeVisible();
   });
 });
 
@@ -164,8 +164,9 @@ test.describe("SPA Navigation - Russian locale", () => {
     await page.goto("/ru/");
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
 
-    await page.click('[data-component="lang-switcher"] a[href="/en/"]');
-    await page.waitForURL(/\/en\//);
+    // The EN lang-switcher link now points at the bare default-locale url.
+    await page.click('[data-component="lang-switcher"] a[href="/"]');
+    await page.waitForURL(/\/$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });
 });

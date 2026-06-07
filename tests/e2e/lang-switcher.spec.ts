@@ -54,7 +54,7 @@ for (const phone of PHONES) {
     test.use({ viewport: { width: phone.width, height: phone.height } });
 
     test("collapses to only the current language and does not overflow", async ({ page }) => {
-      await page.goto("/en/");
+      await page.goto("/");
 
       // Only the current locale shows; the other three are collapsed away.
       await expect(currentLink(page)).toBeVisible();
@@ -68,7 +68,7 @@ for (const phone of PHONES) {
     });
 
     test("tapping the pill expands all four options within the viewport", async ({ page }) => {
-      await page.goto("/en/");
+      await page.goto("/");
       await currentLink(page).click();
 
       await expect(switcher(page)).toHaveAttribute("data-expanded", "true");
@@ -80,7 +80,7 @@ for (const phone of PHONES) {
     });
 
     test("picking a language navigates and collapses to the chosen one", async ({ page }) => {
-      await page.goto("/en/");
+      await page.goto("/");
       await currentLink(page).click();
 
       await localeLinks(page).filter({ hasText: "RU" }).click();
@@ -93,32 +93,32 @@ for (const phone of PHONES) {
     });
 
     test("expanding hides the nav tabs; tapping the nav area collapses", async ({ page }) => {
-      await page.goto("/en/");
+      await page.goto("/");
       await currentLink(page).click();
       await expect(switcher(page)).toHaveAttribute("data-expanded", "true");
 
       // The push design recedes the tabs while expanded — they are not interactive.
-      await expect(page.locator('[data-component="tab-nav"] > a[href="/en/about/"]')).toBeHidden();
+      await expect(page.locator('[data-component="tab-nav"] > a[href="/about/"]')).toBeHidden();
 
       // Tapping the (now-vacated) nav area collapses without navigating.
       await page.locator('[data-component="tab-nav"]').click({ position: { x: 6, y: 6 } });
       await expect(switcher(page)).not.toHaveAttribute("data-expanded", "true");
-      await expect(page).toHaveURL(/\/en\/$/);
+      await expect(page).toHaveURL(/\/$/);
     });
 
     test("clicking outside collapses without navigating", async ({ page }) => {
-      await page.goto("/en/");
+      await page.goto("/");
       await currentLink(page).click();
       await expect(switcher(page)).toHaveAttribute("data-expanded", "true");
 
       // The title bar is in-header but outside the switcher and is not a link.
       await page.click('[data-component="titlebar"]');
       await expect(switcher(page)).not.toHaveAttribute("data-expanded", "true");
-      await expect(page).toHaveURL(/\/en\/$/);
+      await expect(page).toHaveURL(/\/$/);
     });
 
     test("Escape collapses the selector", async ({ page }) => {
-      await page.goto("/en/");
+      await page.goto("/");
       await currentLink(page).click();
       await expect(switcher(page)).toHaveAttribute("data-expanded", "true");
 
@@ -129,7 +129,8 @@ for (const phone of PHONES) {
     for (const locale of ["en", "ru"] as const) {
       test(`visual: collapsed + expanded header (${locale})`, async ({ page }) => {
         const header = page.locator("header[data-sticky]");
-        await page.goto(`/${locale}/`);
+        // The default locale (en) is served at the bare path; ru stays prefixed.
+        await page.goto(locale === "en" ? "/" : `/${locale}/`);
 
         await expect(header).toHaveScreenshot(`lang-${phone.id}-${locale}-collapsed.png`);
 
@@ -147,7 +148,7 @@ for (const screen of WIDE) {
     test.use({ viewport: { width: screen.width, height: screen.height } });
 
     test("all four language links are visible and on-screen", async ({ page }) => {
-      await page.goto("/en/");
+      await page.goto("/");
 
       await expect(localeLinks(page)).toHaveCount(4);
       for (let i = 0; i < 4; i++) {
@@ -159,7 +160,7 @@ for (const screen of WIDE) {
     });
 
     test("visual: header keeps the four-code row", async ({ page }) => {
-      await page.goto("/en/");
+      await page.goto("/");
       await expect(page.locator("header[data-sticky]")).toHaveScreenshot(
         `lang-${screen.id}-en.png`
       );

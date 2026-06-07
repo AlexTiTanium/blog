@@ -43,4 +43,15 @@ describe("swapLocale", () => {
   it("prefixes the target locale for the bare root path", () => {
     expect(swapLocale("/", "ru")).toBe("/ru/");
   });
+
+  it("swaps a prefixed path to BARE when switching to the default locale", () => {
+    expect(swapLocale("/ru/archive/", "en")).toBe("/archive/");
+    expect(swapLocale("/ru/hello-pipeline/", "en")).toBe("/hello-pipeline/");
+    expect(swapLocale("/ru/", "en")).toBe("/");
+  });
+
+  it("keeps an already-bare default-locale path bare", () => {
+    expect(swapLocale("/archive/", "en")).toBe("/archive/");
+    expect(swapLocale("/", "en")).toBe("/");
+  });
 });

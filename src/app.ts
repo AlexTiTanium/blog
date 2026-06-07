@@ -55,7 +55,9 @@ export const app = createApp({
       // Custom 404 — `path` to a complete, app-owned page emitted verbatim as dist/404.html
       // (links /assets/main.css itself, since the 404 page gets no asset injection). See src/404.html.
       notFound: { path: "src/404.html" },
-      localeRedirects: true,
+      // No redirect pages: the default locale (English) is served at bare paths directly (and also
+      // at /en/ as a content-identical alias), so there is nothing to redirect.
+      localeRedirects: false,
       clientEntry: "src/spa.tsx",
       // App-owned document shell — src/index.html controls the scaffold the
       // framework would otherwise hardcode (charset, viewport, <html lang>, plus

@@ -13,22 +13,25 @@ interface PaginationProps {
   currentPage: number;
   /** Total number of pages. */
   totalPages: number;
-  /** Listing base URL without a trailing slash (e.g. `/en` or `/en/archive`). */
+  /** The listing's page-1 URL (with trailing slash), e.g. `/`, `/ru/`, or `/archive/`. */
   baseUrl: string;
 }
 
 /**
- * Build the URL for a given page number (page 1 = the clean base, others get `/page/N/`).
+ * Build the URL for a given page number: page 1 is the listing's `baseUrl`; later pages append
+ * `page/N/`. `baseUrl` already carries its trailing slash, so the helpers (`homeUrl`/`archiveUrl`)
+ * feed straight in — no string surgery, and the default locale stays bare automatically.
  *
- * @param baseUrl - Listing base URL without a trailing slash.
+ * @param baseUrl - The listing's page-1 URL (with trailing slash).
  * @param page - 1-based page number.
  * @returns The page URL.
  * @example
- * pageUrl("/en/archive", 2); // "/en/archive/page/2/"
+ * pageUrl("/archive/", 2); // "/archive/page/2/"
+ * pageUrl("/", 2); // "/page/2/"
  */
 function pageUrl(baseUrl: string, page: number): string {
-  if (page === 1) return `${baseUrl}/`;
-  return `${baseUrl}/page/${page}/`;
+  if (page === 1) return baseUrl;
+  return `${baseUrl}page/${page}/`;
 }
 
 /**

@@ -7,16 +7,19 @@ const SITE_HOST = new URL(SITE.url).host;
 
 test.describe("SEO & Metadata", () => {
   test("home page has canonical and hreflang tags", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     const canonical = page.locator('link[rel="canonical"]');
-    await expect(canonical).toHaveAttribute("href", `${SITE.url}/en/`);
+    // Bare (default-locale) home canonical is the origin, no trailing slash.
+    await expect(canonical).toHaveAttribute("href", SITE.url);
 
-    await expect(page.locator('link[hreflang="en"]')).toHaveAttribute("href", /\/en\//);
+    // The default-locale hreflang (en) points at the bare url, so a /en/ regex no longer
+    // matches — assert it exists exactly once instead. ru stays prefixed.
+    await expect(page.locator('link[hreflang="en"]')).toHaveCount(1);
     await expect(page.locator('link[hreflang="ru"]')).toHaveAttribute("href", /\/ru\//);
   });
 
   test("article page has OG tags and JSON-LD", async ({ page }) => {
-    await page.goto("/en/hello-pipeline/");
+    await page.goto("/hello-pipeline/");
 
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
       "content",
@@ -33,21 +36,22 @@ test.describe("SEO & Metadata", () => {
   });
 
   test("article page has description meta tag", async ({ page }) => {
-    await page.goto("/en/hello-pipeline/");
+    await page.goto("/hello-pipeline/");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
   });
 
   test("OG image url is slug-named and matches an emitted PNG", async ({ page }) => {
-    await page.goto("/en/hello-pipeline/");
+    await page.goto("/hello-pipeline/");
     const content = await page.locator('meta[property="og:image"]').getAttribute("content");
     expect(content).toMatch(/\/og\/hello-pipeline\.png$/);
   });
 
   test("RSS feed link exists", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
+    // Feeds live at the root now (locale-agnostic): the RSS link is /feed.xml.
     await expect(page.locator('link[type="application/rss+xml"]')).toHaveAttribute(
       "href",
-      /feed\.xml/
+      "/feed.xml"
     );
   });
 
@@ -58,13 +62,13 @@ test.describe("SEO & Metadata", () => {
 });
 
 const ALL_PAGES = [
-  { name: "home-en", path: "/en/", isArticle: false },
+  { name: "home-en", path: "/", isArticle: false },
   { name: "home-ru", path: "/ru/", isArticle: false },
-  { name: "archive-en", path: "/en/archive/", isArticle: false },
+  { name: "archive-en", path: "/archive/", isArticle: false },
   { name: "archive-ru", path: "/ru/archive/", isArticle: false },
-  { name: "about-en", path: "/en/about/", isArticle: false },
+  { name: "about-en", path: "/about/", isArticle: false },
   { name: "about-ru", path: "/ru/about/", isArticle: false },
-  { name: "article-en", path: "/en/hello-pipeline/", isArticle: true },
+  { name: "article-en", path: "/hello-pipeline/", isArticle: true },
   { name: "article-ru", path: "/ru/hello-pipeline/", isArticle: true }
 ];
 

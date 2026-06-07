@@ -6,6 +6,7 @@ import type { VNode } from "preact";
 import { ArchiveView } from "../components/ArchiveView";
 import type { Locale } from "../i18n/index";
 import type { Paginated } from "../lib/articles";
+import { archiveUrl } from "../lib/urls";
 
 /**
  * Archive page: paginated, month-grouped list of all articles.
@@ -21,7 +22,7 @@ export function ArchivePage({ page, locale }: { page: Paginated; locale: string 
       totalArticles={page.totalArticles}
       currentPage={page.page}
       totalPages={page.totalPages}
-      baseUrl={`/${locale}/archive`}
+      baseUrl={archiveUrl(locale)}
     />
   );
 }
