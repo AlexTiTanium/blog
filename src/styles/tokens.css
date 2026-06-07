@@ -72,8 +72,13 @@
   --tracking-wide: 0.1em;
   --tracking-widest: 0.15em;
 
-  /* Motion: Easing */
+  /* Motion: Easing.
+     Pair by direction: --ease-out-expo decelerates things INTO place (the satisfying
+     spring on enter), --ease-in accelerates them OUT (a crisp exit). Because expo ends
+     slow and ease-in starts slow, reversing one mid-flight hands off at near-zero
+     velocity — no jump when a collapse interrupts an expand (or vice versa). */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 

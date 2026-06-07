@@ -49,11 +49,13 @@
     border-left: none;
   }
 
+  /* Collapse direction (the codes retracting): this base transition is the one in effect
+     once [data-expanded] is gone, so it governs the EXIT. Accelerate out + a quick fade. */
   [data-component="lang-switcher"] > a {
     transition:
-      max-width var(--duration-normal) var(--ease-out-expo),
-      padding var(--duration-normal) var(--ease-out-expo),
-      opacity var(--duration-normal),
+      max-width var(--duration-normal) var(--ease-in),
+      padding var(--duration-normal) var(--ease-in),
+      opacity var(--duration-fast) var(--ease-in),
       color var(--duration-normal),
       background var(--duration-normal);
   }
@@ -67,12 +69,37 @@
     pointer-events: none;
   }
 
-  /* Expanded: reveal the other codes. */
+  /* Expanded: reveal the other codes. The cap matches the real rendered width of a
+     two-letter code (~1.56rem in IBM Plex Mono at this size) plus a hair of headroom —
+     NOT an arbitrary 3rem. An oversized cap leaves the box still growing into empty
+     space after the glyphs already fit, so the visible motion finishes at ~half the
+     duration and then freezes; expo's flat tail stretches that freeze across the whole
+     back half and makes interrupted toggles jump. @supports below upgrades this to an
+     exact, headroom-free `max-content` where the engine can animate to intrinsic sizes.
+     This rule carries its own transition so the EXPAND direction keeps the springy expo. */
   [data-component="lang-switcher"][data-expanded] > a:not([aria-current="true"]) {
-    max-width: 3rem;
+    max-width: 1.65rem;
     padding-inline: 0.4rem;
     opacity: 1;
     pointer-events: auto;
+    transition:
+      max-width var(--duration-normal) var(--ease-out-expo),
+      padding var(--duration-normal) var(--ease-out-expo),
+      opacity var(--duration-normal) var(--ease-out-expo),
+      color var(--duration-normal),
+      background var(--duration-normal);
+  }
+
+  /* Where the engine can interpolate to/from intrinsic sizes, animate to the exact glyph
+     width — zero dead zone, and future-proof for locale codes wider than the fallback cap. */
+  @supports (interpolate-size: allow-keywords) {
+    [data-component="lang-switcher"] {
+      interpolate-size: allow-keywords;
+    }
+
+    [data-component="lang-switcher"][data-expanded] > a:not([aria-current="true"]) {
+      max-width: max-content;
+    }
   }
 
   /* The current code is the tappable pill. */

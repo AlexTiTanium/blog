@@ -71,6 +71,16 @@
     opacity: 0;
     transform: translateX(-0.75rem);
     pointer-events: none;
+    /* This is the tabs' EXIT (the base rule's expo governs their return). Accelerate out
+       with the same --ease-in as the codes so the recede and the reveal stay in sync, and
+       a mid-flight reversal hands off smoothly. */
+    transition:
+      max-width var(--duration-normal) var(--ease-in),
+      padding var(--duration-normal) var(--ease-in),
+      opacity var(--duration-fast) var(--ease-in),
+      transform var(--duration-normal) var(--ease-in),
+      color var(--duration-normal),
+      background var(--duration-normal);
   }
 }
 
