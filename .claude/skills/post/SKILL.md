@@ -4,8 +4,9 @@ description: >-
   Turn a raw, unpunctuated stream-of-consciousness brain-dump into a polished,
   self-ironic blog post for THIS repo (the "Geek Life" Moku blog), then translate it
   into every locale the site is configured for. Use this whenever the user pastes messy,
-  rambling, voice-memo-style notes — no capitals, no punctuation, half-finished thoughts,
-  sometimes no logic — and wants them turned into an article. Trigger on "/post", "turn this
+  rambling, voice-memo-style notes — in any language (Russian and English are both common), no
+  capitals, no punctuation, half-finished thoughts, sometimes no logic — and wants them turned into
+  an article (output always covers every configured locale, with English canonical). Trigger on "/post", "turn this
   into a blog post", "write this up", "make an article from my notes", "draft a post", "blog
   this", or any time the user dumps thoughts they clearly want published. This skill owns the
   whole pipeline end-to-end: it mines the story out of the mess, fact-checks the author's verifiable
@@ -53,6 +54,14 @@ The raw text is whatever the user supplied with the request (the message that in
 or text they pasted). Use it verbatim as the source. If they invoked the skill with **no** text
 to work from, ask once: *"Paste the brain-dump — as messy as you like, I'll do the rest."* and wait.
 
+**The dump can be in any language — Russian and English are both common (Ukrainian/Spanish too).**
+Comprehend it *natively* in whatever language it arrives: catch the jokes, the slang, and any
+wordplay that only works in that language. The input language does **not** shrink the output —
+you always produce a post in **every** locale in `LOCALES` (see Step 2), with `en` as the canonical
+default. The only thing the input language changes is *which file mirrors the author's original
+wording most faithfully* — see Step 4. Don't ask the user to translate their dump or to pick a
+language; just read it and go.
+
 If they also handed you images or links, note them now — you'll wire them in at Step 5.
 
 ## Step 2 — Read the live config (never hardcode identity)
@@ -87,11 +96,17 @@ Then lock the metadata:
 
 - **`title`** — punchy, specific, a little self-aware. (`"Making a Game in Nine Days — Is That
   Even Possible?!"`, `"Hello, Pipeline!"`) Not a generic SEO phrase.
-- **`slug`** — kebab-case, short, derived from the title/topic. **Check for collisions:**
+- **`slug`** — kebab-case, short, derived from the title/topic. **Always ASCII**, even when the
+  dump and title are in Russian — translate or transliterate the idea to an English slug (the slug
+  is the directory name and the URL). That's the existing convention: `descent-journeys-in-the-dark`
+  and `bad-monday` have Russian `ru.md` bodies but English slugs. **Check for collisions:**
   `ls content/` — if `content/<slug>/` exists, pick a distinct slug (don't overwrite).
 - **`description`** — 1–2 sentence hook in the post's own voice. This is the OG/meta text and the
   archive teaser, so make it earn the click without spoiling the punchline. No `--`; real prose.
-- **`tags`** — 2–4, lowercase kebab, reused from the existing vocabulary where possible.
+  (Per locale: written in that locale's language — see Step 6.)
+- **`tags`** — 2–4, lowercase ASCII kebab from the **English** taxonomy, reused from the existing
+  vocabulary where possible. Tags are shared identically across all locales regardless of the input
+  language — even a fully-Russian post tags `gamedev`/`devlife`, not Cyrillic.
 - **`date`** — today, `YYYY-MM-DD` (run `date +%Y-%m-%d`).
 
 ## Step 3.5 — Fact-check the claims, then flag deviations (ask — don't auto-fix)
@@ -137,7 +152,17 @@ locales (and an intentional "wrong" is preserved faithfully in all of them).
 If everything checks out, say so in one line and keep going one-shot. Don't manufacture pedantic
 nitpicks to look thorough — a false alarm every run is its own kind of broken.
 
-## Step 4 — Write the English post → `content/<slug>/en.md`
+## Step 4 — Write the canonical post → `content/<slug>/en.md`
+
+`en` is the blog's `DEFAULT_LOCALE` (bare-path output + fallback), so `en.md` is the canonical file
+and always gets written. This step documents the English file; Step 6 produces the rest.
+
+**If the dump itself is in English,** `en.md` *is* the original — write it straight from the dump
+and you're done with this step. **If the dump is in another language (e.g. Russian),** the voice
+lives in that language, so draft the post **in the author's language first** (it'll be the most
+faithful file — same craft rules below, just in that language), then write `en.md` as a *native
+English rewrite* of it. Either way you end Step 4 with a real, on-brand `en.md`; the author's-language
+file (if different) is finished here too and skipped in Step 6.
 
 ### Frontmatter (exact shape)
 
@@ -224,11 +249,15 @@ If the dump literally asks for a chart/diagram and gives no image, the cleanest 
 a fenced ASCII diagram in a code block (fits the terminal aesthetic) — but only if it genuinely
 helps; otherwise leave it out rather than fabricate data.
 
-## Step 6 — Translate into every other locale (one pass)
+## Step 6 — Write the remaining locales (one pass)
 
-For each locale in `LOCALES` except the default, write `content/<slug>/<locale>.md`. These are
-**native rewrites, not literal translations** — the self-irony has to land naturally in each
-language. A Ukrainian or Russian or Spanish reader should feel the same wry voice, idioms and all.
+Write `content/<slug>/<locale>.md` for every locale in `LOCALES` you haven't produced yet — that's
+all of them except `en` (always written in Step 4) and the author's-language file (if the dump
+wasn't in English, you wrote that in Step 4 too). At the end, *every* locale in `LOCALES` must
+exist. These are **native rewrites, not literal translations** — the self-irony has to land
+naturally in each language; a Ukrainian, Russian, or Spanish reader should feel the same wry voice,
+idioms and all. Work from the most faithful source you have: the author's-language file if the dump
+wasn't English, otherwise `en.md`.
 
 **Translate:** `title`, `description`, every heading, all prose, blockquotes, `:::pullquote`
 content, and image **alt text**.

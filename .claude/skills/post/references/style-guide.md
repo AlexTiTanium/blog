@@ -133,3 +133,13 @@ The other locales are *native rewrites of this*, not literal swaps. The pull quo
 should sound like a Ukrainian developer's wry aside; the Spanish closer should carry the same
 shrug. Keep the code blocks, `setTimeout`, `findByRole`, tags, date, slug, and image paths
 identical — translate the prose, the title, the description, and any alt text around them.
+
+### When the dump arrives in Russian (or any non-English language)
+
+This example's dump is English, so `en.md` is the original. Flip it: a *Russian* dump means the
+voice lives in Russian, so the **`ru.md` is the faithful original** — write it first, straight from
+the dump, preserving the author's actual jokes and phrasing. Then `en.md` (the canonical default)
+and `uk`/`es` become native rewrites of *that*. Everything above still holds: same preserve-don't-
+fabricate rule, same native-voice bar per language, and the slug + tags stay English/ASCII even
+though the body is Cyrillic (exactly like the existing `bad-monday` and `descent-journeys-in-the-dark`
+posts). The author shouldn't have to write in English to blog in English.
