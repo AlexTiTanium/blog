@@ -8,9 +8,11 @@ description: >-
   sometimes no logic — and wants them turned into an article. Trigger on "/post", "turn this
   into a blog post", "write this up", "make an article from my notes", "draft a post", "blog
   this", or any time the user dumps thoughts they clearly want published. This skill owns the
-  whole pipeline end-to-end: it mines the story out of the mess, writes the English post with
-  correct frontmatter and on-brand formatting, places any images/charts the user supplies, and
-  writes native translations into all configured locales. Prefer this over hand-writing a post —
+  whole pipeline end-to-end: it mines the story out of the mess, fact-checks the author's verifiable
+  claims (flagging deviations to ask about, never silently rewriting opinions or jokes), writes the
+  English post with correct frontmatter and on-brand formatting, places any images/charts the user
+  supplies, writes native translations into all configured locales, and runs a full build + content +
+  translation verification pass before reporting. Prefer this over hand-writing a post —
   it knows this blog's exact file layout, frontmatter schema, voice, and the renderer's quirks.
 ---
 
@@ -34,9 +36,16 @@ not like a press release a robot wrote about them.
 2. **Self-ironic, first person, literary.** This blog laughs at itself. The narrator screws up,
    notices, and makes it funny. Dry, specific, a little dramatic. Never corporate, never the flat
    "In today's fast-paced world of software development…" register that screams AI.
-3. **Ship everything in one pass.** English first, then a native post in every other locale —
-   no stopping to ask between languages (the user opted into one-shot).
+3. **Ship in one pass — pause only to get a fact right.** English first, then a native post in
+   every other locale, no stopping between languages (the user opted into one-shot). The *one*
+   thing that earns an interruption is a factual deviation you're unsure the author meant — see
+   directive 5 and Step 3.5.
 4. **Published, not draft.** New posts go out live (`draft: false`) — see frontmatter below.
+5. **Fact-check the author — flag, don't fabricate, don't silently fix.** If the dump states
+   something externally verifiable that looks wrong, *highlight it and ask* before it ships. You
+   never quietly rewrite what they said, and you never invent a "correction" you can't stand
+   behind. Opinions, jokes, and their own lived experience are off-limits — you verify the world,
+   not their memory or their taste. Details in Step 3.5.
 
 ## Step 1 — Get the brain-dump
 
@@ -84,6 +93,49 @@ Then lock the metadata:
   archive teaser, so make it earn the click without spoiling the punchline. No `--`; real prose.
 - **`tags`** — 2–4, lowercase kebab, reused from the existing vocabulary where possible.
 - **`date`** — today, `YYYY-MM-DD` (run `date +%Y-%m-%d`).
+
+## Step 3.5 — Fact-check the claims, then flag deviations (ask — don't auto-fix)
+
+As you mine the story, sort what the author wrote into **checkable facts** vs. **everything else**.
+This matters more here than on a normal blog: the post ships in several languages, so a wrong fact
+isn't published once, it's published four times — and once translated, nobody re-checks it. But
+this is a *self-ironic* blog, so being "wrong" is sometimes the entire joke. So the rule is: catch
+genuine mistakes, **highlight them, and let the author decide**. Never quietly rewrite what they
+said, and never invent a "correction" you can't actually stand behind.
+
+**Verify these (objective, externally checkable):**
+
+- Dates, release years, version numbers — *"React shipped in 2015"*, *"Node added `fetch` in 16"*.
+- Who built / named / invented something; attributions and quoted lines.
+- What a tool, API, spec, or status code actually does — *"301 is a temporary redirect"*.
+- Named numbers/metrics stated as real, historical events, and the spelling of products/people.
+
+Use `WebSearch` / `WebFetch` whenever a claim is checkable and you're not certain — don't trust
+memory on anything that would embarrass the author if it's wrong.
+
+**Never "correct" these — they aren't facts:**
+
+- Opinions and taste — *"SVN is garbage"*, *"tabs beat spaces"*.
+- Jokes, hyperbole, deliberate self-irony — *"I read the code until the words stopped being words."*
+  If a line *might* be a bit on purpose, treat it as one.
+- The author's own lived experience — what happened to *them* isn't externally checkable and stays
+  exactly as written (*"we lost a day's work to SVN"*). You verify the world, not their memory.
+
+**When you find a deviation, stop and ask** (use `AskUserQuestion`). Make the deviation impossible
+to miss — quote what they wrote, state what you found, and give your confidence + source:
+
+> ⚠️ **Fact check** — you wrote: *"HTTP 301 is a temporary redirect."*
+> What I find: **301 is _permanent_; 302/307 are the temporary ones** (MDN). Confidence: high.
+
+Batch every deviation into a single round so you interrupt **once**, not once per claim. For each,
+offer three doors: **Correct it** · **Keep as written** (it's intentional / a joke) · **Rephrase
+together**. If you genuinely can't tell whether something is an error or a deliberate bit, *ask
+rather than assume* — that's the whole reason this step exists. Whatever the author decides flows
+into the English draft **and** every translation, so a correction never gets multiplied across
+locales (and an intentional "wrong" is preserved faithfully in all of them).
+
+If everything checks out, say so in one line and keep going one-shot. Don't manufacture pedantic
+nitpicks to look thorough — a false alarm every run is its own kind of broken.
 
 ## Step 4 — Write the English post → `content/<slug>/en.md`
 
@@ -193,17 +245,92 @@ content, and image **alt text**.
 > Don't translate the site's UI chrome — but that lives in `src/i18n/`, not in content, so it
 > never appears in these files anyway. Article content is the only thing localized here.
 
-## Step 7 — Verify and report
+## Step 7 — Full verification & review (don't skip — this is where quality is won or lost)
 
-1. **Confirm the files exist:** `content/<slug>/{en,…}.md` for every locale, plus any vendored
-   images under `content/<slug>/images/`.
-2. **Build-check (recommended):** `bun run build`. It parses frontmatter and renders every locale,
-   so a clean build means the post is valid end-to-end. If it fails, the usual culprit is YAML
-   (an unescaped quote in `title`/`description`) — fix and rebuild. There's no per-post build; the
-   build covers the whole site.
-3. **Report back concisely:** the slug; the title per locale; word counts / reading time; which
-   images were vendored vs. linked vs. left as a "drop file here" TODO; and the local preview
-   paths (`/en/<slug>/`, `/uk/<slug>/`, …) with a reminder they can run `bun run serve` to view.
+A post is only "done" once it builds, reads right, and survives a cold re-read in every language.
+Run all four passes below before you report. Fix what you find and re-run the relevant pass — don't
+just list problems, *resolve* them (a factual deviation is the only thing you hand back to the
+author; everything else here is yours to fix).
+
+### A. Build & structural verification (objective)
+
+1. **Files exist** — `content/<slug>/<locale>.md` for **every** locale in `LOCALES`, plus any
+   vendored images under `content/<slug>/images/`. Missing a locale = not done.
+2. **Build is green** — `bun run build`. It parses frontmatter and renders every locale, so a clean
+   build means the post is valid end-to-end. The usual failure is YAML (an unescaped `"` in
+   `title`/`description`) — fix and rebuild. There's no per-post build; it covers the whole site.
+3. **Frontmatter sanity** — each file has `title`, `date`, `description`, `tags`, `language`,
+   `draft: false`, **no** `author:`. `date` and `tags` are byte-identical across locales; only
+   `title`/`description`/`language` differ.
+
+### B. Content & formatting review — English (read it like an editor, not the author)
+
+Read the finished `en.md` cold and hunt for these failure modes:
+
+- **Voice** — does it sound self-ironic, first-person, specific? Kill any AI tells that crept in:
+  "delve", "tapestry", "in today's fast-paced world", "robust/seamless/game-changer", "as
+  developers, we all know", and rule-of-three padding. Read a paragraph aloud in your head — if it
+  sounds like a press release, rewrite it.
+- **Faithfulness** — every fact, event, and opinion traces back to the dump; nothing invented; and
+  every Step 3.5 fact resolution is actually reflected in the prose.
+- **Shape** — hook with no preamble; `## sections` mark real movements; ends on a takeaway with a
+  bite, not a summary. Length matches the dump — tight, not padded.
+- **Palette correctness (these are the renderer's sharp edges):**
+  - **Real `—` em-dashes, never `--`.** Spot-check: `grep -n -- '--' content/<slug>/*.md` — every
+    hit outside a code block should become `—`.
+  - `:::pullquote` is **one short paragraph**, used once or twice, on the sharpest line.
+  - Every code fence is **language-tagged** (```` ```ts ````), or Shiki can't highlight it.
+  - `---` dividers mark a shift in tempo, not decoration.
+  - Images sit at natural beats with rich, descriptive alt text — never `![](...)` or `![image]`.
+
+### C. Translation review — every non-default locale
+
+For each translated file, verify it's a **native rewrite, not a literal swap**:
+
+- The self-irony lands idiomatically in that language — not translated English idioms.
+- **Same structure as `en.md`** (same sections, same number of images, same pull quote), and every
+  corrected fact is present (the error must not survive in any locale).
+- **Byte-identical to en:** code blocks (incl. comments/strings), `tags`, `date`, the slug, image
+  paths (`./images/…`), URLs, and proper nouns. Quick diff of the non-prose bits:
+  ```bash
+  for f in content/<slug>/*.md; do echo "== $f =="; grep -nE '^(date|tags|  - |language|draft):' "$f"; done
+  grep -rno './images/[^")]*' content/<slug>/*.md | sort -u   # paths must match across locales
+  ```
+- `language:` is the locale; `draft: false`; no `author:`; `title`/`description`/alt-text/pull-quote
+  all translated.
+
+### D. Rendered-output spot check (catch what source review can't)
+
+After the build, look at the actual HTML for the new slug — the canonical files are
+`dist/<locale>/<slug>/index.html` (the bare `dist/<slug>/` is just a redirect):
+
+```bash
+# pull quotes must render as the styled aside, NOT leak as raw ":::" :
+grep -rl ':::' dist/*/<slug>/index.html && echo "RAW DIRECTIVE LEAKED — fix the :::pullquote syntax"
+# literal double-hyphens that slipped into rendered prose:
+grep -rno ' -- ' dist/*/<slug>/index.html
+# every referenced image actually exists on disk (local ones):
+for p in $(grep -rho './images/[^")]*' content/<slug>/*.md | sort -u); do
+  test -f "content/<slug>/${p#./}" && echo "ok  $p" || echo "MISSING $p"; done
+```
+
+If you can, run `bun run serve` and open `/en/<slug>/` plus one translated locale to eyeball the
+real page (pull quote styled, code highlighted, images load, divider shows as `// ────`). The
+Playwright visual baselines won't cover a brand-new post, so this human-ish look is the real check.
+
+### E. (Optional, for a post that matters) independent review
+
+For an important post, spawn a subagent to read the finished `en.md` *cold* — no dump, no context —
+and report only: where the voice slips, anything that reads as invented, and any palette/format
+misuse. A fresh pair of eyes catches the self-justifying "it's fine" that the writer can't.
+
+### F. Report back
+
+Concise summary: the slug; title + word count / reading time per locale; **any fact deviations you
+flagged and how each was resolved**; which images were vendored vs. linked vs. left as a "drop file
+here" TODO; build status; and the local preview paths (`/en/<slug>/`, `/uk/<slug>/`, …) with the
+`bun run serve` reminder. Call out anything still needing the author's hand (e.g. a pasted-only
+image to drop in).
 
 ## Voice & a full worked example
 
