@@ -21,21 +21,43 @@
   opacity: 1;
 }
 
-/* View Transitions: assign transition name to content area.
-   Browser default cross-fade handles the animation correctly
-   using mix-blend-mode: plus-lighter (no content overlap). */
-main > section {
-  view-transition-name: spa-content;
+/* View Transitions.
+
+   The page chrome is PERSISTENT — only `main > section` is swapped — and the header is
+   `position: sticky` (TopBar.css). The trap: the browser's default `root` snapshot captures
+   sticky/fixed elements at their IN-FLOW document position (viewport y = -scrollY), not their
+   pinned position, so a scrolled header un-pins during the ~300ms transition, scrolls away
+   with the old page and snaps back at the end — the "menu hides for a millisecond then
+   reappears" flicker (only visible when scrolled).
+
+   Fix: give ONLY the header its own snapshot, captured at its viewport box (top:0), and pin
+   it on top. The content is deliberately LEFT in `root` so it cross-fades underneath the
+   header — naming the content too would put its group ABOVE the header's in the snapshot
+   paint order (the header is earlier in the DOM), and the scrolled content snapshot would
+   paint over and re-hide the header. One named group = the header paints last = always on top. */
+header[data-sticky] {
+  view-transition-name: site-header;
 }
 
-/* Respect reduced motion preference (locked decision) */
+/* Pin it: cancel the GROUP morph. Chromium captures the sticky header's OLD box at its
+   in-flow position, so the default group animation would slide it up out of the viewport and
+   back — the same flicker, as a slide. With no group animation the header sits at its new box
+   (top:0) for the whole transition while the content cross-fades in `root` below it. */
+::view-transition-group(site-header) {
+  animation: none;
+}
+
+/* Respect reduced motion preference (locked decision). The spa plugin already skips
+   startViewTransition under reduced motion; this is belt-and-suspenders. */
 @media (prefers-reduced-motion: reduce) {
   [data-progress] {
     transition: none;
   }
 
-  ::view-transition-old(spa-content),
-  ::view-transition-new(spa-content) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(site-header),
+  ::view-transition-new(site-header) {
     animation: none;
   }
 }
