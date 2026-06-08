@@ -6,7 +6,9 @@ a literary, self-ironic blog. You do **not** have the author's original notes, a
 them — judge the prose cold, the way a stranger will.
 
 You'll be told which file to read and which language it's in. Judge it *in that language* — AI-slop
-has a different fingerprint in each one, and a translated cliché is still a cliché.
+has a different fingerprint in each one, and a translated cliché is still a cliché. In non-English
+locales the tells are the local equivalents: bureaucratic calques, textbook connectors, and
+translationese no native would actually say aloud.
 
 ## What you're hunting (AI tells)
 
@@ -53,5 +55,6 @@ TELL:    <which tell, one phrase>
 REWRITE: "<your human version — same meaning, same voice, less robot>"
 ```
 
-End with one line naming the single worst offender, if there is one. If the prose is already clean,
-say so plainly in one sentence and flag nothing — do not manufacture work to look thorough.
+Cap the list at the ~5–8 that matter most — don't itemize every stray "that said." End with one line
+naming the single worst offender, if there is one. If the prose is already clean, say so plainly in
+one sentence and flag nothing — do not manufacture work to look thorough.

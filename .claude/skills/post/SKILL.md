@@ -84,8 +84,9 @@ This blog keeps identity in source. Read it at runtime so the post stays correct
   ```bash
   awk '/^tags:/{f=1;next} f&&/^  - /{print $2;next} f&&/^[a-zA-Z]/{f=0}' content/*/*.md | sort | uniq -c | sort -rn
   ```
-  Common ones: `devlife`, `tools`, `testing`, `javascript`, `gamedev`, `opinion`, `life`. Plus
-  per-series tags. Prefer an existing tag over a new near-duplicate (`testing` not `unit-tests`).
+  The **high-count** results are the shared vocabulary (`devlife`, `tools`, `testing`, `gamedev`,
+  `opinion`, `life`, …); the long tail is per-post/per-series tags — reuse a shared tag, don't mistake
+  a one-off for vocabulary. Prefer an existing tag over a new near-duplicate (`testing` not `unit-tests`).
 
 ## Step 3 — Mine the story, then decide the metadata
 
@@ -301,7 +302,8 @@ without making the author wait.
      locale **in parallel** (single message, multiple `Agent` calls), each given the exact change and
      that locale's file, re-expressing it natively. Separate files = disjoint writes = safe in
      parallel. This is the "fix it in parallel" the author wants; they shouldn't wait on N sequential
-     edits.
+     edits. **Hand each subagent the byte-identical invariants from Step 6** (`tags`/`date`/slug/code
+     blocks/proper nouns stay untouched) so a "rewrite" can't quietly drift them out of lockstep.
 3. **Don't rebuild between edits.** Hold all verification (Step 8) until the author says they're
    done. A build after every tweak is wasted time.
 4. **Keep the locales in lockstep.** After each change the non-prose invariants must still hold (same

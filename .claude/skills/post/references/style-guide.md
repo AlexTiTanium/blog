@@ -79,9 +79,7 @@ words.
 
 The payment code was fine. The payment code had been fine the whole time.
 
-:::pullquote
-A flaky test is worse than a failing one. A failing test is at least honest with you.
-:::
+> A flaky test is worse than a failing one. A failing test is at least honest with you.
 
 ## The Actual Villain
 
@@ -120,16 +118,16 @@ we'd all quietly agreed to believe it.
 - **Every fact is from the dump.** Month-long ghost, the rerun habit, payment flow, two days of
   logs, `setTimeout`/sleep 100ms vs ~140ms on CI, "wait for the event", "flaky is worse than
   failing". Nothing invented — the code blocks just *show* what the dump described.
-- **The dump's best line became the pull quote** ("flaky is worse than failing — failing is
-  honest"), sharpened but still theirs.
+- **The dump's best line became a blockquote** ("flaky is worse than failing — failing is
+  honest"), sharpened but still theirs — the plain `>` that real articles use, not the rare `:::pullquote`.
 - **Structure appeared** (hook → wrong hole → real villain → lesson) without adding events.
-- **Real em-dashes, tagged code blocks, one divider, one pull quote** — palette used, not abused.
+- **Real em-dashes, tagged code blocks, one divider, one blockquote** — palette used, not abused.
 - **The "lol / facepalm" got translated into the prose's own dryness** instead of being quoted
   literally. The humor survives; the texting tics don't.
 
 ### On the translations
 
-The other locales are *native rewrites of this*, not literal swaps. The pull quote in Ukrainian
+The other locales are *native rewrites of this*, not literal swaps. The blockquote in Ukrainian
 should sound like a Ukrainian developer's wry aside; the Spanish closer should carry the same
 shrug. Keep the code blocks, `setTimeout`, `findByRole`, tags, date, slug, and image paths
 identical — translate the prose, the title, the description, and any alt text around them.
