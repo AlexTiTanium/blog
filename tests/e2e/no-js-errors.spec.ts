@@ -5,17 +5,17 @@ import { expect, test } from "@playwright/test";
 // → "ReferenceError: process is not defined"), so the DOM-presence specs miss it entirely.
 // This spec fails on any uncaught page error or console error, across every page type + locale.
 const PAGES = [
-  "/en/",
+  "/",
   "/ru/",
-  "/en/hello-pipeline/",
+  "/hello-pipeline/",
   "/ru/hello-pipeline/",
-  "/en/archive/",
+  "/archive/",
   "/ru/archive/",
-  "/en/about/",
+  "/about/",
   "/ru/about/",
-  "/en/tags/testing/",
+  "/tags/testing/",
   "/ru/tags/testing/",
-  "/en/page/2/"
+  "/page/2/"
 ];
 
 for (const path of PAGES) {
@@ -39,7 +39,7 @@ for (const path of PAGES) {
 
 test.describe("SPA hydration is alive (client JS actually ran)", () => {
   test("internal nav swaps content without a full document reload", async ({ page }) => {
-    await page.goto("/en/", { waitUntil: "load" });
+    await page.goto("/", { waitUntil: "load" });
     // Wait for the SPA kernel to boot before exercising client nav. It prepends
     // `<div data-progress>` to <body> on start, immediately before it attaches nav
     // interception — so its presence means clicks are now intercepted. Without this gate
@@ -56,10 +56,10 @@ test.describe("SPA hydration is alive (client JS actually ran)", () => {
     // hangs on "waiting for scheduled navigations to finish" because the SPA commits the
     // URL via the Navigation API, which Playwright's WebKit driver mistracks — even though
     // the click IS intercepted (no full reload; the sentinel below proves it).
-    await page.locator('a[href="/en/archive/"]').dispatchEvent("click");
+    await page.locator('a[href="/archive/"]').dispatchEvent("click");
     // Assert on the in-page location, NOT page.url(): for the same WebKit/Navigation-API
     // reason, page.url()/waitForURL go stale even though the SPA navigated correctly.
-    await page.waitForFunction(() => location.pathname === "/en/archive/");
+    await page.waitForFunction(() => location.pathname === "/archive/");
     // In-page DOM poll instead of expect(locator).toBeVisible(): WebKit parks Playwright in
     // a perpetual "waiting for navigation to finish" state after a Navigation-API commit,
     // which hangs auto-waiting locator actions — but one-shot in-page evals run fine.

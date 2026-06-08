@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { SITE } from "../../src/config";
 
-// All 22 English article slugs (native translations).
+// All 23 English article slugs (native translations).
 const EN_ARTICLES = [
   "bad-monday",
   "ball-factory",
@@ -14,6 +14,7 @@ const EN_ARTICLES = [
   "git-bisect-saves-the-day",
   "hello-pipeline",
   "keyboard-shortcuts-obsession",
+  "monaco-2026-drama",
   "npm-dependency-hell",
   "pair-programming-introvert",
   "production-hotfix-at-midnight",
@@ -41,20 +42,20 @@ const RU_NATIVE = [
 
 test.describe("Content", () => {
   test("home page shows 10 article cards (first page)", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     const cards = page.locator('[data-component="dashboard"] article:not([data-variant="stats"])');
     await expect(cards).toHaveCount(10);
   });
 
   test("home page shows stats card with total article count", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     const statsCard = page.locator('[data-component="dashboard"] article[data-variant="stats"]');
     await expect(statsCard).toBeVisible();
-    await expect(statsCard.locator("[data-value]").first()).toHaveText("22");
+    await expect(statsCard.locator("[data-value]").first()).toHaveText("23");
   });
 
   test("article has title, date, author, and body", async ({ page }) => {
-    await page.goto("/en/hello-pipeline/");
+    await page.goto("/hello-pipeline/");
 
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toHaveText(
       "Hello, Pipeline!"
@@ -65,31 +66,31 @@ test.describe("Content", () => {
   });
 
   test("article has syntax-highlighted code blocks", async ({ page }) => {
-    await page.goto("/en/hello-pipeline/");
+    await page.goto("/hello-pipeline/");
     const codeBlocks = page.locator("pre.shiki");
     expect(await codeBlocks.count()).toBeGreaterThan(0);
   });
 
   test("archive page lists articles", async ({ page }) => {
-    await page.goto("/en/archive/");
+    await page.goto("/archive/");
     const entries = page.locator('[data-component="archive"] [data-entry]');
     expect(await entries.count()).toBeGreaterThan(0);
   });
 
   test("about page has content", async ({ page }) => {
-    await page.goto("/en/about/");
+    await page.goto("/about/");
     const text = await page.locator("body").textContent();
     expect((text ?? "").length).toBeGreaterThan(100);
   });
 
-  test("all 22 English articles resolve (200)", async ({ page }) => {
+  test("all 23 English articles resolve (200)", async ({ page }) => {
     for (const slug of EN_ARTICLES) {
-      const res = await page.goto(`/en/${slug}/`);
+      const res = await page.goto(`/${slug}/`);
       expect(res?.status(), `EN ${slug}`).toBe(200);
     }
   });
 
-  test("all 22 Russian articles resolve (200) — native + English fallback", async ({ page }) => {
+  test("all 23 Russian articles resolve (200) — native + English fallback", async ({ page }) => {
     for (const slug of RU_ARTICLES) {
       const res = await page.goto(`/ru/${slug}/`);
       expect(res?.status(), `RU ${slug}`).toBe(200);
@@ -118,7 +119,7 @@ test.describe("Content", () => {
 
 test.describe("Pagination", () => {
   test("home page has pagination controls", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     const pagination = page.locator('[data-component="pagination"]');
     await expect(pagination).toBeVisible();
     await expect(pagination.locator("[data-next]")).toBeVisible();
@@ -126,7 +127,7 @@ test.describe("Pagination", () => {
   });
 
   test("pagination page 2 shows articles and has prev link", async ({ page }) => {
-    await page.goto("/en/page/2/");
+    await page.goto("/page/2/");
     const cards = page.locator('[data-component="dashboard"] article:not([data-variant="stats"])');
     expect(await cards.count()).toBeGreaterThan(0);
     const pagination = page.locator('[data-component="pagination"]');
@@ -134,25 +135,25 @@ test.describe("Pagination", () => {
   });
 
   test("archive page has pagination", async ({ page }) => {
-    await page.goto("/en/archive/");
+    await page.goto("/archive/");
     await expect(page.locator('[data-component="pagination"]')).toBeVisible();
   });
 });
 
 test.describe("Structure", () => {
   test("header has navigation tabs", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
     await expect(page.locator('[data-component="tab-nav"] > a')).toHaveCount(3);
   });
 
   test("footer is present", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     await expect(page.locator('[data-component="footer"]')).toBeVisible();
   });
 
   test("language switcher shows all supported locales", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     const langItems = page.locator('[data-component="lang-switcher"] a');
     await expect(langItems).toHaveCount(4);
     await expect(langItems.nth(0)).toHaveText("EN");

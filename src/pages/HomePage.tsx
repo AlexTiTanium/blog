@@ -7,6 +7,7 @@ import { DashboardGrid } from "../components/DashboardGrid";
 import { StatusBar } from "../components/StatusBar";
 import { SITE } from "../config";
 import type { Paginated } from "../lib/articles";
+import { homeUrl } from "../lib/urls";
 
 /**
  * Home page: hero header, build-status bar, and the paginated article dashboard.
@@ -35,7 +36,7 @@ export function HomePage({ page, locale }: { page: Paginated; locale: string }):
         totalArticles={page.totalArticles}
         currentPage={page.page}
         totalPages={page.totalPages}
-        baseUrl={`/${locale}`}
+        baseUrl={homeUrl(locale)}
       />
     </>
   );

@@ -14,6 +14,7 @@
  */
 import { createUrls, defineRoutes, route } from "@moku-labs/web/browser";
 import { SITE } from "./config";
+import { DEFAULT_LOCALE } from "./i18n/index";
 import { byTag, paginate } from "./lib/articles";
 import { allArticles, articleBySlug, pagedRouteParameters } from "./lib/content";
 import { articleHead, pageHead, pageTitle } from "./lib/head";
@@ -128,5 +129,8 @@ export const routes = defineRoutes({
  * Pure name→URL builder over {@link routes} (no running app/router needed). Co-located with the
  * route table so the link builder shares its one source of truth without an import cycle; wrapped by
  * the per-route helpers in `src/lib/urls`. Also usable directly from islands.
+ *
+ * The default locale is passed so this pure builder serves it at BARE paths — the same as the
+ * runtime `router.toUrl` (which reads it from the i18n plugin) — so links never diverge.
  */
-export const urls = createUrls(routes);
+export const urls = createUrls(routes, DEFAULT_LOCALE);

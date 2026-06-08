@@ -6,6 +6,7 @@
 import { createComponent } from "@moku-labs/web/browser";
 import { t } from "../i18n/index";
 import { localeFromPath } from "../lib/locale";
+import { aboutUrl, archiveUrl, homeUrl } from "../lib/urls";
 
 /** Terminal-style icon glyph per tab (mirrors the SSG `TabNav` component). */
 const ICONS: Record<string, string> = { home: "~", archive: "[]", about: "@" };
@@ -58,11 +59,12 @@ function sync(element: Element): void {
   const ui = t(locale);
   const active = activeTab(path, locale);
 
-  // Describe the three tabs (key + localized label + locale-scoped href)
+  // Describe the three tabs (key + localized label + href). The URL helpers serve the
+  // default locale bare (`/`, `/archive/`, `/about/`) and prefix the others (`/ru/…`).
   const tabs = [
-    { key: "home", label: ui.home, href: `/${locale}/` },
-    { key: "archive", label: ui.archive, href: `/${locale}/archive/` },
-    { key: "about", label: ui.about, href: `/${locale}/about/` }
+    { key: "home", label: ui.home, href: homeUrl(locale) },
+    { key: "archive", label: ui.archive, href: archiveUrl(locale) },
+    { key: "about", label: ui.about, href: aboutUrl(locale) }
   ];
 
   // Re-point each direct tab anchor and mark the active one

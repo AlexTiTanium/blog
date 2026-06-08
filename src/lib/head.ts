@@ -81,9 +81,8 @@ function localeOf(ctx: HeadContext): string {
  */
 export function pageHead(ctx: HeadContext, o: PageHeadOptions): Head.HeadConfig {
   const locale = localeOf(ctx);
-  const elements: Head.HeadConfig["elements"] = [
-    feedLink(`${SITE.name} RSS`, `/${locale}/feed.xml`)
-  ];
+  // One site-wide feed at the root (the framework emits a single default-locale feed).
+  const elements: Head.HeadConfig["elements"] = [feedLink(`${SITE.name} RSS`, "/feed.xml")];
 
   if (o.isHome) {
     elements.push(
@@ -91,7 +90,7 @@ export function pageHead(ctx: HeadContext, o: PageHeadOptions): Head.HeadConfig 
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: SITE.name,
-        url: `${SITE.url}/${locale}/`,
+        url: SITE.url,
         inLanguage: locale
       })
     );
@@ -141,7 +140,7 @@ export function articleHead(ctx: HeadContext, article: Content.Article): Head.He
       inLanguage: locale,
       mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl }
     }),
-    feedLink(`${SITE.name} RSS`, `/${locale}/feed.xml`)
+    feedLink(`${SITE.name} RSS`, "/feed.xml")
   ];
 
   return {

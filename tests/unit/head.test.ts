@@ -37,12 +37,24 @@ describe("pageHead", () => {
     expect(JSON.stringify(head.elements)).toContain("WebSite");
   });
 
-  it("prefers the lang param over the active locale for the feed link", () => {
-    const head = pageHead(
+  it("links the single site-wide feed at /feed.xml (locale-agnostic)", () => {
+    const en = pageHead(ctx, { title: "Home", description: "Welcome" });
+    const ru = pageHead(
       { params: { lang: "ru" }, locale: "en" },
       { title: "Главная", description: "Добро пожаловать" }
     );
-    expect(JSON.stringify(head.elements)).toContain("/ru/feed.xml");
+    expect(JSON.stringify(en.elements)).toContain('"/feed.xml"');
+    expect(JSON.stringify(ru.elements)).toContain('"/feed.xml"');
+    expect(JSON.stringify(ru.elements)).not.toContain("/ru/feed.xml");
+  });
+
+  it("points the WebSite JSON-LD url at the site origin (locale-agnostic)", () => {
+    const serialized = JSON.stringify(
+      pageHead(ctx, { title: "Home", description: "Welcome", isHome: true }).elements
+    );
+    expect(serialized).toContain(SITE.url);
+    expect(serialized).not.toContain(`${SITE.url}/en/`);
+    expect(serialized).not.toContain(`${SITE.url}/ru/`);
   });
 });
 

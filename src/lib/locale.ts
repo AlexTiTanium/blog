@@ -32,17 +32,20 @@ export function localeFromPath(path: string): Locale {
 }
 
 /**
- * Swap the locale prefix of a path, preserving the rest of the route.
+ * Swap the locale prefix of a path, preserving the rest of the route. The default locale is
+ * served bare, so switching TO it drops the prefix; any other locale gets `/{locale}` prefixed.
  *
- * @param path - A `location.pathname` (e.g. "/en/archive/").
+ * @param path - A `location.pathname` (e.g. "/ru/archive/" or bare "/archive/").
  * @param target - The locale to switch to.
- * @returns The same route under the target locale.
+ * @returns The same route under the target locale (bare for the default locale).
  * @example
- * swapLocale("/en/archive/", "ru"); // "/ru/archive/"
- * swapLocale("/en/", "ru"); // "/ru/"
+ * swapLocale("/ru/archive/", "en"); // "/archive/" (default → bare)
+ * swapLocale("/archive/", "ru"); // "/ru/archive/"
+ * swapLocale("/ru/", "en"); // "/"
  */
 export function swapLocale(path: string, target: Locale): string {
   const parts = path.split("/").filter(Boolean);
   const rest = parts.length > 0 && isLocale(parts[0] ?? "") ? parts.slice(1) : parts;
-  return rest.length > 0 ? `/${target}/${rest.join("/")}/` : `/${target}/`;
+  const prefix = target === DEFAULT_LOCALE ? "" : `/${target}`;
+  return rest.length > 0 ? `${prefix}/${rest.join("/")}/` : `${prefix}/`;
 }

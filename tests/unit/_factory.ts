@@ -1,4 +1,5 @@
 import type { Content } from "@moku-labs/web";
+import { DEFAULT_LOCALE } from "../../src/i18n/index";
 
 type ArticleOverrides = {
   slug?: string;
@@ -34,6 +35,7 @@ export function makeArticle(overrides: ArticleOverrides = {}): Content.Article {
     html: "<p>Body</p>",
     locale,
     isFallback: overrides.isFallback ?? false,
-    url: `/${locale}/${slug}/`
+    // The default locale is served bare (matches the framework's article.url normalization).
+    url: locale === DEFAULT_LOCALE ? `/${slug}/` : `/${locale}/${slug}/`
   };
 }

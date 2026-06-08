@@ -11,18 +11,18 @@ const ORIGIN = "http://localhost:4173";
 // Representative set: every page TYPE × both locales (full 70-page sweep is unnecessary —
 // each type shares a template/route).
 const PAGES = [
-  "/en/",
+  "/",
   "/ru/",
-  "/en/page/2/",
+  "/page/2/",
   "/ru/page/2/",
-  "/en/archive/",
+  "/archive/",
   "/ru/archive/",
-  "/en/archive/page/2/",
-  "/en/about/",
+  "/archive/page/2/",
+  "/about/",
   "/ru/about/",
-  "/en/hello-pipeline/",
+  "/hello-pipeline/",
   "/ru/hello-pipeline/",
-  "/en/tags/testing/",
+  "/tags/testing/",
   "/ru/tags/testing/"
 ];
 
@@ -60,7 +60,7 @@ test.describe("direct load — no failed requests, no JS errors", () => {
 test("link integrity — every internal link resolves (no dead links)", async ({ page, request }) => {
   // Crawl one page of each type and collect every internal href, then verify each resolves (<400).
   const internal = new Set<string>();
-  for (const start of ["/en/", "/ru/", "/en/archive/", "/en/about/", "/en/hello-pipeline/"]) {
+  for (const start of ["/", "/ru/", "/archive/", "/about/", "/hello-pipeline/"]) {
     await page.goto(start);
     const hrefs = await page.$$eval("a[href]", anchors =>
       anchors.map(a => a.getAttribute("href") ?? "")
@@ -86,10 +86,10 @@ test.describe("SPA client navigation — no failed requests through a click path
     page
   }) => {
     const failures = watchFailures(page);
-    await page.goto("/en/");
+    await page.goto("/");
 
     // Home -> Archive -> About -> Home (nav tabs)
-    for (const href of ["/en/archive/", "/en/about/", "/en/"]) {
+    for (const href of ["/archive/", "/about/", "/"]) {
       await page.click(`[data-component="tab-nav"] a[href="${href}"]`);
       await page.waitForURL(url => new URL(url).pathname === href);
       await page.waitForLoadState("networkidle");
@@ -102,10 +102,10 @@ test.describe("SPA client navigation — no failed requests through a click path
     await page.waitForLoadState("networkidle");
 
     // Back home, then page 2 via pagination
-    await page.click('[data-component="tab-nav"] a[href="/en/"]');
-    await page.waitForURL(/\/en\/$/);
+    await page.click('[data-component="tab-nav"] a[href="/"]');
+    await page.waitForURL(/\/$/);
     await page.click('[data-component="pagination"] [data-next]:not([data-hidden])');
-    await page.waitForURL(/\/en\/page\/2\//);
+    await page.waitForURL(/\/page\/2\//);
     await page.waitForLoadState("networkidle");
 
     // Language switch (en -> ru) via the lang switcher
@@ -121,31 +121,32 @@ test.describe("SPA client navigation — no failed requests through a click path
     // Regression: two client navs in a row into the same route used to render an empty
     // swap region (Preact vdom desynced from the DOM). Walk the home pagination and
     // assert cards render on EACH page, then round-trip the about locale.
-    await page.goto("/en/");
+    await page.goto("/");
     await expect(
       page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
     ).toHaveCount(10);
 
     await page.click('[data-component="pagination"] [data-next]:not([data-hidden])');
-    await page.waitForURL(/\/en\/page\/2\//);
+    await page.waitForURL(/\/page\/2\//);
     await expect(
       page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
     ).toHaveCount(10);
 
     await page.click('[data-component="pagination"] [data-next]:not([data-hidden])');
-    await page.waitForURL(/\/en\/page\/3\//);
-    // page 3 (2 articles) — must NOT be empty.
+    await page.waitForURL(/\/page\/3\//);
+    // page 3 (3 articles) — must NOT be empty.
     await expect(
       page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
-    ).toHaveCount(2);
+    ).toHaveCount(3);
 
     // About locale round-trip (en -> ru -> en) — content must persist each time.
-    await page.goto("/en/about/");
+    await page.goto("/about/");
     await page.click('[data-component="lang-switcher"] a[href^="/ru/"]');
     await page.waitForURL(/\/ru\/about\//);
     await expect(page.locator('[data-component="about"]')).toBeVisible();
-    await page.click('[data-component="lang-switcher"] a[href^="/en/"]');
-    await page.waitForURL(/\/en\/about\//);
+    // Back to English: on /ru/about/ the EN link is the bare /about/.
+    await page.click('[data-component="lang-switcher"] a[href="/about/"]');
+    await page.waitForURL(url => new URL(url).pathname === "/about/");
     await expect(page.locator('[data-component="about"]')).toBeVisible();
   });
 });

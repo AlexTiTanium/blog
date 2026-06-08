@@ -1,4 +1,4 @@
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
@@ -7,20 +7,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(__dirname, "../../dist");
 
 // ---------------------------------------------------------------
-// Output shape (4 locales: en, ru, uk, es):
-//   - 22 articles in EACH locale. EN are all native; articles without a native translation
-//     in a given locale fall back to the English body under that locale's slug (flagged
-//     isFallback, shown with a "not translated" notice) — so every article is reachable in
-//     every locale. Native translations: en (22); ru/uk/es (6 each); the rest fall back to en.
-//   - 14 tags per locale
-//   - Pagination: page/2, page/3 + archive/page/2, archive/page/3 per locale
+// Output shape — i18n URL scheme: the DEFAULT locale (en) is served at BARE paths
+// (no /en/ prefix). English is ALSO emitted under /en/ as a real alias (identical content,
+// canonical pointing at the bare url). Non-default locales (ru, uk, es) stay prefixed.
 //
-//   Locale-prefixed pages (per locale):
-//     index + about + archive + 2 archive-pages + 2 home-pages + 22 articles + 14 tags = 43
-//     Total real pages: 172 (43 × 4 locales)
+//   Per locale (45 pages):
+//     index + about + archive + 2 archive-pages + 2 home-pages + 23 articles + 15 tags = 45
+//
+//   Five page sets: bare-en + en-alias + ru + uk + es = 45 × 5 = 225 pages.
 // ---------------------------------------------------------------
 
-const EN_ARTICLES = [
+const ARTICLES = [
   "bad-monday",
   "ball-factory",
   "code-reviews-survival-guide",
@@ -32,6 +29,7 @@ const EN_ARTICLES = [
   "git-bisect-saves-the-day",
   "hello-pipeline",
   "keyboard-shortcuts-obsession",
+  "monaco-2026-drama",
   "npm-dependency-hell",
   "pair-programming-introvert",
   "production-hotfix-at-midnight",
@@ -45,16 +43,12 @@ const EN_ARTICLES = [
   "when-the-build-breaks"
 ];
 
-// Every article is emitted in every locale (native translations + English fallbacks).
-const RU_ARTICLES = EN_ARTICLES;
-const UK_ARTICLES = EN_ARTICLES;
-const ES_ARTICLES = EN_ARTICLES;
-
 const TAGS = [
   "ball-factory",
   "board-games",
   "descent",
   "devlife",
+  "formula1",
   "fun-da-vinci",
   "gamedev",
   "javascript",
@@ -67,32 +61,42 @@ const TAGS = [
   "tools"
 ];
 
-/** Build the full locale-prefixed page list for one locale. */
-function localePages(locale: string, articles: string[]): string[] {
+/**
+ * Build the full page list for one locale's URL prefix.
+ * `prefix` is "" for the bare default locale (en), "en/" for the English alias, and
+ * "ru/"/"uk/"/"es/" for the non-default locales.
+ */
+function localePages(prefix: string): string[] {
   return [
-    `${locale}/index.html`,
-    `${locale}/about/index.html`,
-    `${locale}/archive/index.html`,
-    `${locale}/archive/page/2/index.html`,
-    `${locale}/archive/page/3/index.html`,
-    `${locale}/page/2/index.html`,
-    `${locale}/page/3/index.html`,
-    ...articles.map(slug => `${locale}/${slug}/index.html`),
-    ...TAGS.map(tag => `${locale}/tags/${tag}/index.html`)
+    `${prefix}index.html`,
+    `${prefix}about/index.html`,
+    `${prefix}archive/index.html`,
+    `${prefix}archive/page/2/index.html`,
+    `${prefix}archive/page/3/index.html`,
+    `${prefix}page/2/index.html`,
+    `${prefix}page/3/index.html`,
+    ...ARTICLES.map(slug => `${prefix}${slug}/index.html`),
+    ...TAGS.map(tag => `${prefix}tags/${tag}/index.html`)
   ];
 }
 
 const EXPECTED_PAGES = [
-  ...localePages("en", EN_ARTICLES),
-  ...localePages("ru", RU_ARTICLES),
-  ...localePages("uk", UK_ARTICLES),
-  ...localePages("es", ES_ARTICLES)
+  ...localePages(""), // bare en (default locale)
+  ...localePages("en/"), // en alias
+  ...localePages("ru/"),
+  ...localePages("uk/"),
+  ...localePages("es/")
 ];
 
+/** Strip the non-deterministic build-id meta so two byte-different builds compare equal. */
+function stripBuildId(html: string): string {
+  return html.replaceAll(/<meta name="build-id" content="[^"]*">/g, "");
+}
+
 test.describe("Build Validation", () => {
-  test("emits exactly 172 locale-prefixed pages", () => {
-    // 43 pages × 4 locales (en, ru, uk, es)
-    expect(EXPECTED_PAGES).toHaveLength(172);
+  test("emits exactly 225 pages", () => {
+    // 45 pages × 5 sets (bare-en + en-alias + ru + uk + es).
+    expect(EXPECTED_PAGES).toHaveLength(225);
   });
 
   test("all expected HTML pages exist after build", () => {
@@ -113,13 +117,13 @@ test.describe("Build Validation", () => {
     expect(existsSync(path.join(DIST, "sitemap.xml")), "sitemap.xml missing").toBe(true);
     expect(
       existsSync(path.join(DIST, "sitemap-index.xml")),
-      "0.5.x emits a single sitemap, not an index"
+      "emits a single sitemap, not an index"
     ).toBe(false);
     expect(existsSync(path.join(DIST, "sitemap-en.xml"))).toBe(false);
     expect(existsSync(path.join(DIST, "sitemap-ru.xml"))).toBe(false);
   });
 
-  test("emits RSS, Atom and JSON feeds", () => {
+  test("emits RSS, Atom and JSON feeds at the root", () => {
     expect(existsSync(path.join(DIST, "feed.xml")), "RSS feed missing").toBe(true);
     expect(existsSync(path.join(DIST, "atom.xml")), "Atom feed missing").toBe(true);
     expect(existsSync(path.join(DIST, "feed.json")), "JSON feed missing").toBe(true);
@@ -129,27 +133,35 @@ test.describe("Build Validation", () => {
     expect(existsSync(path.join(DIST, "404.html"))).toBe(true);
   });
 
-  test("emits one OG image per English article (slug-named)", () => {
-    for (const slug of EN_ARTICLES) {
+  test("emits one OG image per article (slug-named)", () => {
+    for (const slug of ARTICLES) {
       const og = path.join(DIST, "og", `${slug}.png`);
       expect(existsSync(og), `Missing OG image: og/${slug}.png`).toBe(true);
     }
+    // 23 articles -> 23 OG images.
+    expect(ARTICLES).toHaveLength(23);
   });
 });
 
 // ---------------------------------------------------------------
-// Root + bare-path redirects (0.5.x localeRedirects):
-//   - root / -> /en/
-//   - every default-locale page also exists at a bare path that
-//     redirects to its /en/ equivalent.
+// Disk content — bare default-locale pages are REAL content (no meta-refresh redirects),
+// and the /en/ alias is byte-identical to the bare page (modulo the build-id meta).
 // ---------------------------------------------------------------
 
-test.describe("Redirects on disk", () => {
-  test("root index.html is a meta-refresh redirect to /en/", () => {
+test.describe("Bare default-locale content on disk", () => {
+  test("dist/index.html is real content (not a meta-refresh redirect)", () => {
     const root = path.join(DIST, "index.html");
     expect(existsSync(root)).toBe(true);
-    const html = statSync(root);
-    expect(html.size).toBeGreaterThan(0);
+
+    const html = readFileSync(root, "utf8");
+    expect(html).not.toContain('http-equiv="refresh"');
+    expect(html).toContain('data-component="dashboard"');
+  });
+
+  test("dist/index.html and dist/en/index.html are identical (modulo build-id)", () => {
+    const bare = readFileSync(path.join(DIST, "index.html"), "utf8");
+    const alias = readFileSync(path.join(DIST, "en/index.html"), "utf8");
+    expect(stripBuildId(alias)).toBe(stripBuildId(bare));
   });
 });
 
@@ -158,8 +170,10 @@ test.describe("Redirects on disk", () => {
 // ---------------------------------------------------------------
 
 test.describe("Root Path Content", () => {
-  test("root / serves home page content (not a paginated page)", async ({ page }) => {
+  test("/ stays at / with real home content (not a paginated page)", async ({ page }) => {
     await page.goto("/");
+    await expect(page).toHaveURL(/\/$/);
+
     const dashboard = page.locator('[data-component="dashboard"]');
     await expect(dashboard).toBeVisible();
 
@@ -169,9 +183,8 @@ test.describe("Root Path Content", () => {
     await expect(pagination.locator("[data-prev][data-hidden]")).toBeAttached();
   });
 
-  test("root / content matches /en/ content", async ({ page }) => {
+  test("/ content matches /en/ alias content", async ({ page }) => {
     await page.goto("/");
-    await page.waitForURL(/\/en\/$/); // root is a meta-refresh redirect to /en/
     const rootTitle = await page.title();
     const rootFirstCard = await page
       .locator('[data-component="dashboard"] article:not([data-variant="stats"]) header')
@@ -190,13 +203,13 @@ test.describe("Root Path Content", () => {
   });
 
   test("each root path serves unique content (no cross-page contamination)", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     const homeTitle = await page.title();
 
-    await page.goto("/en/archive/");
+    await page.goto("/archive/");
     const archiveTitle = await page.title();
 
-    await page.goto("/en/about/");
+    await page.goto("/about/");
     const aboutTitle = await page.title();
 
     expect(homeTitle).not.toBe(archiveTitle);
@@ -205,12 +218,12 @@ test.describe("Root Path Content", () => {
   });
 
   test("paginated pages have distinct content from page 1", async ({ page }) => {
-    await page.goto("/en/");
+    await page.goto("/");
     const page1Cards = await page
       .locator('[data-component="dashboard"] article:not([data-variant="stats"]) header')
       .allTextContents();
 
-    await page.goto("/en/page/2/");
+    await page.goto("/page/2/");
     const page2Cards = await page
       .locator('[data-component="dashboard"] article:not([data-variant="stats"]) header')
       .allTextContents();

@@ -61,9 +61,7 @@ But honestly? Cadillac keep getting better and the Astons keep getting worse, so
 
 ## What Monaco actually needs
 
-:::pullquote
-Everyone's begging for more overtakes at Monaco. Wrong fix. We don't want more passing — we want more carnage. And this year Monaco delivered.
-:::
+> Everyone's begging for more overtakes at Monaco. Wrong fix. We don't want more passing — we want more carnage. And this year Monaco delivered.
 
 Here's my unpopular take, and my wife co-signs it. People moan that Monaco needs eight overtakes, ten, fifteen, whatever number makes a spreadsheet smile. Others want the V8s screaming back, as if engine noise ever won anyone a race. I could not care less about any of it. Give us drama. Give us a broken car on the podium, two heroes in the same wall, six speeding tickets, and a first point that feels like a trophy.
 

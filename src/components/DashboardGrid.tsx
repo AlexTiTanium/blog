@@ -19,7 +19,7 @@ interface Props {
   currentPage?: number;
   /** Total number of pages. */
   totalPages?: number;
-  /** Listing base URL without a trailing slash (e.g. `/en`). */
+  /** The listing's page-1 URL (with trailing slash), e.g. `/` or `/ru/`. */
   baseUrl?: string;
 }
 
