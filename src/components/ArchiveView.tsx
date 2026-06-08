@@ -21,7 +21,7 @@ interface Props {
   currentPage?: number;
   /** Total number of pages. */
   totalPages?: number;
-  /** Listing base URL without a trailing slash (e.g. `/en/archive`). */
+  /** The listing's page-1 URL (with trailing slash), e.g. `/archive/` or `/ru/archive/`. */
   baseUrl?: string;
 }
 
@@ -103,17 +103,21 @@ export function ArchiveView({
           </h2>
 
           {group.articles.map(article => (
-            <a href={article.url} key={article.computed.slug} data-entry>
-              <span data-hash>{shortHash(article.computed.slug)}</span>
-              <time>{article.frontmatter.date}</time>
-              <span data-title>{article.frontmatter.title}</span>
-              <span data-reading>{article.computed.readingTime} min</span>
+            <div data-entry key={article.computed.slug}>
+              {/* Article cells link to the post; `display:contents` keeps them flex items of the
+                  row so the layout is unchanged, while letting the tags be their own links. */}
+              <a href={article.url} data-entry-link>
+                <span data-hash>{shortHash(article.computed.slug)}</span>
+                <time>{article.frontmatter.date}</time>
+                <span data-title>{article.frontmatter.title}</span>
+                <span data-reading>{article.computed.readingTime} min</span>
+              </a>
               <span data-tags>
                 {article.frontmatter.tags.slice(0, 2).map(tag => (
-                  <GitTag key={tag} tag={tag} clickable={false} />
+                  <GitTag key={tag} tag={tag} locale={locale} />
                 ))}
               </span>
-            </a>
+            </div>
           ))}
         </section>
       ))}

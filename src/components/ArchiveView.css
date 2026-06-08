@@ -101,6 +101,12 @@
     }
   }
 
+  /* The article-cells link carries no box of its own — its children flow into the row's flex
+     layout (so it looks identical), while the tags sit beside it as independent /tags/ links. */
+  [data-entry-link] {
+    display: contents;
+  }
+
   [data-hash] {
     font-family: var(--font-code);
     font-size: 0.65rem;
