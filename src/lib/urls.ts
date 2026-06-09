@@ -12,7 +12,8 @@ import { urls } from "../routes";
  * @param locale - Locale code.
  * @returns Home URL.
  * @example
- * homeUrl("en"); // "/en/"
+ * homeUrl("uk"); // "/uk/"
+ * homeUrl("en"); // "/" (default locale is served at bare paths)
  */
 export function homeUrl(locale: string): string {
   return urls.toUrl("home", { lang: locale });
@@ -24,7 +25,8 @@ export function homeUrl(locale: string): string {
  * @param locale - Locale code.
  * @returns Archive URL.
  * @example
- * archiveUrl("en"); // "/en/archive/"
+ * archiveUrl("uk"); // "/uk/archive/"
+ * archiveUrl("en"); // "/archive/" (default locale is served at bare paths)
  */
 export function archiveUrl(locale: string): string {
   return urls.toUrl("archive", { lang: locale });
@@ -36,7 +38,8 @@ export function archiveUrl(locale: string): string {
  * @param locale - Locale code.
  * @returns About URL.
  * @example
- * aboutUrl("en"); // "/en/about/"
+ * aboutUrl("uk"); // "/uk/about/"
+ * aboutUrl("en"); // "/about/" (default locale is served at bare paths)
  */
 export function aboutUrl(locale: string): string {
   return urls.toUrl("about", { lang: locale });
@@ -49,7 +52,8 @@ export function aboutUrl(locale: string): string {
  * @param slug - Article slug.
  * @returns Article URL.
  * @example
- * articleUrl("en", "hello"); // "/en/hello/"
+ * articleUrl("uk", "hello"); // "/uk/hello/"
+ * articleUrl("en", "hello"); // "/hello/" (default locale is served at bare paths)
  */
 export function articleUrl(locale: string, slug: string): string {
   return urls.toUrl("article", { lang: locale, slug });
@@ -62,7 +66,8 @@ export function articleUrl(locale: string, slug: string): string {
  * @param tag - Tag name.
  * @returns Tag URL.
  * @example
- * tagUrl("en", "typescript"); // "/en/tags/typescript/"
+ * tagUrl("uk", "typescript"); // "/uk/tags/typescript/"
+ * tagUrl("en", "typescript"); // "/tags/typescript/" (default locale is served at bare paths)
  */
 export function tagUrl(locale: string, tag: string): string {
   return urls.toUrl("tag", { lang: locale, tag });
