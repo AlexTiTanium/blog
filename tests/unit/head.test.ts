@@ -5,21 +5,28 @@ import { makeArticle } from "./_factory";
 
 const ctx = { params: {}, locale: "en" };
 
+// The framework's `titleTemplate` ("%s — Geek Life") appends the site name to EVERY route title,
+// so the builders must never include it themselves — that doubled it ("Geek Life — Geek Life").
 describe("pageTitle", () => {
-  it("returns the bare site name when no section or page is given", () => {
-    expect(pageTitle()).toBe("Geek Life");
+  it("returns an empty tail when no section or page is given (home listing)", () => {
+    expect(pageTitle()).toBe("");
   });
 
-  it("appends only the page number when a page but no section is given", () => {
-    expect(pageTitle(undefined, 2)).toBe("Geek Life — Page 2");
+  it("returns only the page number when a page but no section is given", () => {
+    expect(pageTitle(undefined, 2)).toBe("Page 2");
   });
 
-  it("appends only the section when a section but no page is given", () => {
-    expect(pageTitle("Archive")).toBe("Geek Life — Archive");
+  it("returns only the section when a section but no page is given", () => {
+    expect(pageTitle("Archive")).toBe("Archive");
   });
 
-  it("appends both section and page when both are given", () => {
-    expect(pageTitle("Archive", 3)).toBe("Geek Life — Archive Page 3");
+  it("returns both section and page when both are given", () => {
+    expect(pageTitle("Archive", 3)).toBe("Archive Page 3");
+  });
+
+  it("never includes the site name (titleTemplate appends it)", () => {
+    expect(pageTitle("Archive", 3)).not.toContain(SITE.name);
+    expect(pageTitle(undefined, 2)).not.toContain(SITE.name);
   });
 });
 
@@ -35,6 +42,21 @@ describe("pageHead", () => {
     const head = pageHead(ctx, { title: "Home", description: "Welcome", isHome: true });
     expect(head.elements?.length).toBe(2);
     expect(JSON.stringify(head.elements)).toContain("WebSite");
+  });
+
+  it("maps an empty title (home listing) to the bare site name", () => {
+    const head = pageHead(ctx, { title: pageTitle(), description: "Welcome", isHome: true });
+    expect(head.title).toBe(SITE.name);
+  });
+
+  it("pins a keyed title element for an empty title so titleTemplate cannot double the site name", () => {
+    const head = pageHead(ctx, { title: "", description: "Welcome" });
+    expect(head.elements).toContainEqual({ tag: "title", children: SITE.name, key: "title" });
+  });
+
+  it("does NOT pin a title override for a non-empty title (titleTemplate applies)", () => {
+    const head = pageHead(ctx, { title: "Archive", description: "Welcome" });
+    expect(head.elements?.some(e => e.tag === "title")).toBe(false);
   });
 
   it("links the single site-wide feed at /feed.xml (locale-agnostic)", () => {
