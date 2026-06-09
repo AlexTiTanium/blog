@@ -68,9 +68,17 @@ test.describe("SPA Navigation", () => {
 
     await page.click('a[href="/archive/"]');
     await page.waitForURL(/\/archive\//);
+    await expect(page.locator('[data-component="archive"]')).toBeVisible();
 
     await page.goBack();
     await page.waitForURL(/\/$/);
+    // Settle the back navigation's content swap before traversing forward. The URL
+    // commits synchronously on traversal, but the framework swaps content async —
+    // going forward mid-swap races two fetches and the stale (home) swap can land
+    // last, leaving /archive/ showing dashboard content. A real user sees the page
+    // render between presses; without this settle the test is a coin-flip locally
+    // and reliably loses on slow CI runners.
+    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
 
     await page.goForward();
     await page.waitForURL(/\/archive\//);
