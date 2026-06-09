@@ -15,7 +15,13 @@ export default defineConfig({
           include: [
             "tests/integration/**/*.test.ts",
             "src/plugins/**/__tests__/integration/**/*.test.ts"
-          ]
+          ],
+          // Integration tests boot real apps over the real content/ tree — a cold
+          // `content.loadAll()` (full corpus parse + Shiki highlighting) takes ~6s on CI
+          // runners, past vitest's 5s default (tuned for unit tests). Sized for the
+          // slowest observed run with headroom; unit tests keep the strict default.
+          testTimeout: 30_000,
+          hookTimeout: 30_000
         }
       }
     ],
