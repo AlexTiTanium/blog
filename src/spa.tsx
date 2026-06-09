@@ -23,7 +23,9 @@ const app = createApp({
     i18n: i18nConfig,
     router: { routes },
     head: { titleTemplate: `%s — ${SITE.name}` },
-    spa: { components: islands, viewTransitions: true, progressBar: true },
+    // viewTransitions:false → instant content swap (no View Transition, so no scroll-before-
+    // snapshot flash). Motion, if any, comes from a CSS animation on the incoming content.
+    spa: { components: islands, viewTransitions: false, progressBar: true },
     data: { baseUrl: "/_data/" }
   }
 });

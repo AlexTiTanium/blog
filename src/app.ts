@@ -103,7 +103,9 @@ export const app = createApp({
         ]
       }
     },
-    spa: { components: islands, viewTransitions: true, progressBar: true },
+    // viewTransitions:false → instant content swap (no View Transition, so no scroll-before-
+    // snapshot flash). Motion, if any, comes from a CSS animation on the incoming content.
+    spa: { components: islands, viewTransitions: false, progressBar: true },
     data: { outputDir: "_data", baseUrl: "/_data/" },
     deploy: { target: "cloudflare-pages", outDir: "dist", productionBranch: "main", ci: true },
     // serve/preview/deploy all act on the same "dist" output as build + deploy (stated explicitly so
