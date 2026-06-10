@@ -15,6 +15,14 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Honour reduced-motion: no smooth scroll-to-top on navigation (the spa scroll defers to
+   this via behavior:"auto" when view transitions are off), and no smooth anchor jumps. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 a {
   color: inherit;
   text-decoration: none;

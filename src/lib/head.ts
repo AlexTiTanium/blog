@@ -16,21 +16,23 @@ import { buildArticleHead, feedLink, jsonLd } from "@moku-labs/web/browser";
 import { SITE } from "../config";
 
 /**
- * Compose a document title from the site name, an optional section label, and an optional 1-based
- * page number — the single source for the listing-route titles so they stay consistent.
+ * Compose a listing-route document title TAIL from an optional section label and an optional
+ * 1-based page number — the single source for the listing-route titles so they stay consistent.
+ * The site name is NOT included: the head plugin's `titleTemplate` (`"%s — Geek Life"`, set in
+ * `src/app.ts`/`src/spa.tsx`) appends it to every title, so including it here would double it
+ * (`<title>Geek Life — Archive — Geek Life</title>`).
  *
  * @param section - Section label (e.g. "Archive"); omit for the home listing.
  * @param page - 1-based page number; omit for the first page.
- * @returns The composed title.
+ * @returns The title tail (empty for the home listing — {@link pageHead} then pins the bare site name).
  * @example
- * pageTitle(); // "Geek Life"
- * pageTitle(undefined, 2); // "Geek Life — Page 2"
- * pageTitle("Archive"); // "Geek Life — Archive"
- * pageTitle("Archive", 3); // "Geek Life — Archive Page 3"
+ * pageTitle(); // ""
+ * pageTitle(undefined, 2); // "Page 2"
+ * pageTitle("Archive"); // "Archive"
+ * pageTitle("Archive", 3); // "Archive Page 3"
  */
 export function pageTitle(section?: string, page?: number): string {
-  const tail = [section, page === undefined ? undefined : `Page ${page}`].filter(Boolean).join(" ");
-  return tail ? `${SITE.name} — ${tail}` : SITE.name;
+  return [section, page === undefined ? undefined : `Page ${page}`].filter(Boolean).join(" ");
 }
 
 /**
@@ -47,7 +49,7 @@ type HeadContext = {
  * Page-head options supplied by a route.
  */
 type PageHeadOptions = {
-  /** Page title (before titleTemplate). */
+  /** Page title tail (before titleTemplate); empty = home listing → bare site name. */
   title: string;
   /** Meta description. */
   description: string;
@@ -71,18 +73,28 @@ function localeOf(ctx: HeadContext): string {
 
 /**
  * Standard page head: title + description, plus the RSS feed link and (on the home route) a
- * WebSite JSON-LD. The framework adds canonical/hreflang/OG/Twitter from the title/description.
+ * WebSite JSON-LD. The framework adds canonical/hreflang/OG/Twitter from the title/description
+ * and appends the site name to the title via `titleTemplate`; an EMPTY title yields the bare
+ * site name (the home listing).
  *
  * @param ctx - Route context (params + locale).
  * @param o - Page title/description (+ isHome for WebSite JSON-LD).
  * @returns The head config for the route.
  * @example
- * pageHead(ctx, { title: "Home", description: "Welcome", isHome: true });
+ * pageHead(ctx, { title: pageTitle(), description: "Welcome", isHome: true });
  */
 export function pageHead(ctx: HeadContext, o: PageHeadOptions): Head.HeadConfig {
   const locale = localeOf(ctx);
   // One site-wide feed at the root (the framework emits a single default-locale feed).
   const elements: Head.HeadConfig["elements"] = [feedLink(`${SITE.name} RSS`, "/feed.xml")];
+
+  // An empty title = the home listing → the BARE site name. The framework applies `titleTemplate`
+  // to EVERY title — including its own `site.name()` fallback — so without this override home
+  // would render "Geek Life — Geek Life". Route-supplied elements win the head plugin's keyed
+  // last-wins de-dupe, so pinning the `title` element bypasses the template; the plain `title`
+  // field below still feeds `og:title`/`twitter:title` and the SPA's client-nav `document.title`.
+  const title = o.title === "" ? SITE.name : o.title;
+  if (o.title === "") elements.push({ tag: "title", children: SITE.name, key: "title" });
 
   if (o.isHome) {
     elements.push(
@@ -96,7 +108,7 @@ export function pageHead(ctx: HeadContext, o: PageHeadOptions): Head.HeadConfig 
     );
   }
 
-  return { title: o.title, description: o.description, elements };
+  return { title, description: o.description, elements };
 }
 
 /**

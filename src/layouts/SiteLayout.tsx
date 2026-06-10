@@ -38,7 +38,7 @@ type SiteLayoutProps = {
  */
 export function SiteLayout({ locale, activeTab, children }: SiteLayoutProps): VNode {
   return (
-    <main>
+    <main data-component="page-fx">
       <header data-sticky>
         <TopBar quote={QUOTES[0] ?? ""} />
         <TabNav locale={locale} activeTab={activeTab} />
