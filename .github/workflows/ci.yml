@@ -1,6 +1,10 @@
-# Skeleton CI — lint + typecheck + unit/integration tests only.
-# Build phase F replaces this with the full chain (build → Playwright dual-OS visual →
-# @custom-media guard → dist/404.html assertion → gated Cloudflare deploy job).
+# CI — lint + typecheck + unit/integration tests, plus the functional Playwright
+# e2e suite (built site, real browsers). Deploys are gated on this workflow:
+# deploy.yml triggers via `workflow_run` only after CI succeeds on main.
+#
+# Visual snapshot specs (`toHaveScreenshot`) are LOCAL-ONLY for now: every committed
+# baseline is `*-darwin`, so they cannot pass on a linux runner. They stay excluded
+# from the e2e job below until linux baselines land (`bun run test:e2e:update:linux`).
 name: CI
 
 on:
@@ -28,3 +32,29 @@ jobs:
       - run: bunx tsc --noEmit
       - run: bun run test:unit
       - run: bun run test:integration
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+      # The playwright CLI runs under `node` (its bin shebang) — pin Node 24 to match
+      # engines.node, same as the validate job.
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+      - run: bun install --frozen-lockfile
+      # playwright.config.ts's `webServer` (scripts/preview.ts) serves the ALREADY-BUILT
+      # output dir — it has no build step of its own, so build first.
+      - run: bun run build
+      # All three engines from playwright.config.ts: chromium runs the full functional
+      # suite; webkit + firefox still run the JS-boot guard (no-js-errors.spec.ts).
+      - run: bunx playwright install --with-deps chromium webkit firefox
+      # Functional + seo specs only. The visual snapshot specs (baseline, lang-switcher)
+      # are excluded: zero *-linux baselines are committed, so visual tests are local-only
+      # until linux baselines land. Keep this filter in sync with
+      # tests/integration/ci-workflows.test.ts, which asserts it covers exactly the
+      # snapshot-bearing specs.
+      - run: bunx playwright test --grep-invert "(baseline|lang-switcher)\.spec\.ts"
