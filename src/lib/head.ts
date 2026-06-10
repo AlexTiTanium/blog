@@ -126,7 +126,12 @@ export function articleHead(ctx: HeadContext, article: Content.Article): Head.He
   const locale = localeOf(ctx);
   const { frontmatter, computed, url } = article;
   const canonicalUrl = `${SITE.url}${url}`;
-  const ogImage = `/og/${computed.contentId}.png`;
+  // `computed.slug` (the article directory name), NOT `computed.contentId`: the framework's
+  // og-image writer names the emitted PNGs by slug. Pre-1.7.0 the two happened to coincide on
+  // article routes because `load()` bypassed the `loadAll()` cache; since web 1.7.0 `load()` is
+  // cache-first, so `contentId` carries the post-sort `locale:ordinal:slug` id — using it here
+  // would point og:image at a file that does not exist.
+  const ogImage = `/og/${computed.slug}.png`;
   const author = frontmatter.author ?? SITE.author;
 
   const elements: Head.HeadConfig["elements"] = [
