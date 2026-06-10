@@ -29,18 +29,25 @@ function shorten(text: string): string {
 
 /**
  * Format an ISO publication date for the card footer, localized to the active locale.
- * Falls back to the raw string if the date cannot be parsed.
+ * Falls back to the raw string if the date cannot be parsed. Formats in UTC: bare
+ * frontmatter dates ("YYYY-MM-DD") parse as UTC midnight, so formatting in the build
+ * machine's local timezone would show the previous day anywhere west of UTC.
  *
  * @param iso - ISO date string from article frontmatter.
  * @param locale - Active locale (e.g. "en", "ru").
  * @returns A human-readable date (e.g. "January 15, 2026") or the raw input on failure.
+ * @example
+ * formatDate("2026-01-15", "en"); // "January 15, 2026" on every build machine
  */
-function formatDate(iso: string, locale: string): string {
+export function formatDate(iso: string, locale: string): string {
   const parsed = new Date(iso);
   if (Number.isNaN(parsed.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale, { year: "numeric", month: "long", day: "numeric" }).format(
-    parsed
-  );
+  return new Intl.DateTimeFormat(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC"
+  }).format(parsed);
 }
 
 /**
