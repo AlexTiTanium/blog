@@ -51,7 +51,17 @@ export const makeApp = (stage: Stage) =>
       site: SITE,
       i18n: i18nConfig,
       content: {
-        providers: [fileSystemContent({ contentDir: "./content", shikiTheme: warmSyntaxTheme })]
+        // `trustedContent: true` — `./content` is fully author-controlled, in-repo Markdown (the
+        // documented case for this flag). Since web 1.7.0 the default sanitize pass strips `style`
+        // attributes, which would discard Shiki's inline token colors (src/styles/code.css states
+        // syntax colors come from those inline styles) on pages, `_data` payloads, and feed items.
+        providers: [
+          fileSystemContent({
+            contentDir: "./content",
+            shikiTheme: warmSyntaxTheme,
+            trustedContent: true
+          })
+        ]
       },
       router: { routes },
       // `defaultOgImage` is the site-wide `og:image`/`twitter:image` fallback for every route that does
