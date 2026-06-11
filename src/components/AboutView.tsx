@@ -34,15 +34,7 @@ const BADGES: readonly Badge[] = [
 ];
 
 /** Interest tags (English chrome — styled like git tags). */
-const INTERESTS = [
-  "game-development",
-  "game-design",
-  "board-games",
-  "rust",
-  "rendering",
-  "distributed-systems",
-  "performance"
-] as const;
+const INTERESTS = ["game-development", "board-games", "electric-guitar", "rust"] as const;
 
 /** Contact rows (term → displayed value → link); terms are proper names, so they stay locale-invariant. */
 const CONTACT = [
