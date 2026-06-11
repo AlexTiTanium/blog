@@ -10,6 +10,14 @@ import { defineConfig } from "@playwright/test";
  * knobs below (disabled animations, srgb color profile, no font hinting, reduced
  * motion, fixed device scale) keep those renders stable across runs.
  */
+/**
+ * Preview-server port. Honors the same `PORT` env var as `scripts/preview.ts` (the cli
+ * plugin reads it too), so the suite can be pointed at a free port when 4173 is already
+ * taken — e.g. by a preview server from another checkout serving a stale build, which
+ * `reuseExistingServer` would otherwise happily test against.
+ */
+const port = Number(process.env.PORT ?? 4173);
+
 export default defineConfig({
   testDir: "./tests/e2e",
   outputDir: "./tests/test-results",
@@ -19,11 +27,11 @@ export default defineConfig({
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : [["list"]],
   webServer: {
     command: "bun scripts/preview.ts",
-    port: 4173,
+    port,
     reuseExistingServer: !process.env.CI
   },
   use: {
-    baseURL: "http://localhost:4173",
+    baseURL: `http://localhost:${port}`,
     deviceScaleFactor: 1,
     colorScheme: "light"
   },
