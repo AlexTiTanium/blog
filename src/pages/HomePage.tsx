@@ -29,7 +29,7 @@ export function HomePage({ page, locale }: { page: Paginated; locale: string }):
         </p>
       </header>
 
-      <StatusBar articleCount={page.totalArticles} />
+      <StatusBar articleCount={page.totalArticles} latestPostDate={page.latest} />
       <DashboardGrid
         articles={page.articles}
         locale={locale}
