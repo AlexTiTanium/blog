@@ -16,5 +16,9 @@ export const es: UIStrings = {
   tags: "Etiquetas",
   recentPosts: "Entradas recientes",
   fileInfo: "Información",
-  tagPageTitle: "Etiqueta"
+  tagPageTitle: "Etiqueta",
+  posts: "Publicaciones",
+  page: "Página",
+  aboutDescription: "Sobre el autor",
+  taggedDescription: "Artículos con la etiqueta"
 };

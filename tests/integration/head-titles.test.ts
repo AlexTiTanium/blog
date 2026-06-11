@@ -127,6 +127,19 @@ describe("rendered <title> composition (titleTemplate seam)", () => {
     ).toBe(`Tag: pipeline — ${SITE.name}`);
   });
 
+  it("title tails are LOCALIZED per locale (nav-label copy, not IDE chrome)", () => {
+    expect(renderedTitle("homePaged", { lang: "ru", page: "2" }, { page: 2, items: [] })).toBe(
+      `Посты Страница 2 — ${SITE.name}`
+    );
+    expect(renderedTitle("archive", { lang: "uk" }, { page: 1, items: [] })).toBe(
+      `Архів — ${SITE.name}`
+    );
+    expect(renderedTitle("about", { lang: "es" })).toBe(`Acerca de — ${SITE.name}`);
+    expect(
+      renderedTitle("tag", { lang: "ru", tag: "pipeline" }, { tag: "pipeline", articles: [] })
+    ).toBe(`Тег: pipeline — ${SITE.name}`);
+  });
+
   it("NO rendered <title> contains the site name twice (audit regression gate)", () => {
     for (const c of CASES) {
       const title = c.title();

@@ -47,8 +47,9 @@ the framework package.
   the single source of truth — never hardcode these elsewhere; source them from `SITE`.
 - **UI chrome is intentionally English.** The IDE/terminal aesthetic (`build: passing`, `git log`,
   `<< prev`, dashboard metric labels, the tab glyphs `~`/`[]`/`@`, …) is locale-invariant by design.
-  Do NOT move it into i18n or translate it. Only article content and the nav labels are localized
-  (`src/i18n/`).
+  Do NOT move it into i18n or translate it. Localized (`src/i18n/`): article content, the nav
+  labels, and the HEAD copy — document `<title>` tails + meta descriptions (`pageTitle`/`pageStrings`
+  in `src/lib/head.ts`) — since those are search-result text, not in-page chrome.
 - **Rendered output is guarded by visual baselines.** Playwright golden screenshots exist for
   home/archive/about/article in en+ru (desktop+mobile). Refactors should be output-preserving; if a
   change intentionally alters rendering, regenerate baselines with `bun run test:e2e:update` and say

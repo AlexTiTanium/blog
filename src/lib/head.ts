@@ -14,26 +14,7 @@
 import type { Content, Head } from "@moku-labs/web";
 import { buildArticleHead, feedLink, jsonLd } from "@moku-labs/web/browser";
 import { SITE } from "../config";
-
-/**
- * Compose a listing-route document title TAIL from an optional section label and an optional
- * 1-based page number — the single source for the listing-route titles so they stay consistent.
- * The site name is NOT included: the head plugin's `titleTemplate` (`"%s — Geek Life"`, set in
- * `src/app.ts`/`src/spa.tsx`) appends it to every title, so including it here would double it
- * (`<title>Geek Life — Archive — Geek Life</title>`).
- *
- * @param section - Section label (e.g. "Archive", "Posts" for the paged home); omit for the home listing.
- * @param page - 1-based page number; omit for the first page.
- * @returns The title tail (empty for the home listing — {@link pageHead} then pins the bare site name).
- * @example
- * pageTitle(); // ""
- * pageTitle("Posts", 2); // "Posts Page 2"
- * pageTitle("Archive"); // "Archive"
- * pageTitle("Archive", 3); // "Archive Page 3"
- */
-export function pageTitle(section?: string, page?: number): string {
-  return [section, page === undefined ? undefined : `Page ${page}`].filter(Boolean).join(" ");
-}
+import { DEFAULT_LOCALE, LOCALES, type Locale, t, type UIStrings } from "../i18n/index";
 
 /**
  * Route context passed to the head builders (params + active locale).
@@ -44,6 +25,51 @@ type HeadContext = {
   /** Active locale code. */
   locale: string;
 };
+
+/**
+ * Resolve the UI-string set for a route's EFFECTIVE locale (explicit `lang` param wins over the
+ * active locale; unknown codes fall back to the default locale). Head copy — titles and meta
+ * descriptions — is localized like the nav labels, unlike the in-page IDE chrome which stays
+ * English by design.
+ *
+ * @param ctx - Route context (params + locale).
+ * @returns The locale's {@link UIStrings}.
+ * @example
+ * pageStrings({ params: { lang: "ru" }, locale: "en" }).posts; // "Посты"
+ */
+export function pageStrings(ctx: HeadContext): UIStrings {
+  const locale = localeOf(ctx);
+  const isKnown = (LOCALES as readonly string[]).includes(locale);
+  return t(isKnown ? (locale as Locale) : DEFAULT_LOCALE);
+}
+
+/**
+ * Compose a LOCALIZED listing-route document title TAIL from an optional section and an optional
+ * 1-based page number — the single source for the listing-route titles so they stay consistent.
+ * The site name is NOT included: the head plugin's `titleTemplate` (`"%s — Geek Life"`, set in
+ * `src/app.ts`/`src/spa.tsx`) appends it to every title, so including it here would double it
+ * (`<title>Geek Life — Archive — Geek Life</title>`).
+ *
+ * @param ctx - Route context (params + locale) — picks the localized labels.
+ * @param section - Section string key ("posts" for the paged home); omit for the home listing.
+ * @param page - 1-based page number; omit for the first page.
+ * @returns The title tail (empty for the home listing — {@link pageHead} then pins the bare site name).
+ * @example
+ * pageTitle(ctx); // ""
+ * pageTitle(ctx, "posts", 2); // "Posts Page 2" (ru: "Посты Страница 2")
+ * pageTitle(ctx, "archive"); // "Archive" (ru: "Архив")
+ * pageTitle(ctx, "archive", 3); // "Archive Page 3"
+ */
+export function pageTitle(
+  ctx: HeadContext,
+  section?: "posts" | "archive" | "about",
+  page?: number
+): string {
+  const ui = pageStrings(ctx);
+  const sectionLabel = section === undefined ? undefined : ui[section];
+  const pageLabel = page === undefined ? undefined : `${ui.page} ${page}`;
+  return [sectionLabel, pageLabel].filter(Boolean).join(" ");
+}
 
 /**
  * Page-head options supplied by a route.

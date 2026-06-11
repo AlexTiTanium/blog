@@ -16,5 +16,9 @@ export const uk: UIStrings = {
   tags: "Теги",
   recentPosts: "Останні дописи",
   fileInfo: "Інформація",
-  tagPageTitle: "Тег"
+  tagPageTitle: "Тег",
+  posts: "Дописи",
+  page: "Сторінка",
+  aboutDescription: "Про автора",
+  taggedDescription: "Статті з тегом"
 };

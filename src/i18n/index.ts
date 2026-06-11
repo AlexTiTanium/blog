@@ -29,6 +29,10 @@ export type UIStrings = {
   recentPosts: string;
   fileInfo: string;
   tagPageTitle: string;
+  posts: string;
+  page: string;
+  aboutDescription: string;
+  taggedDescription: string;
 };
 
 /** Supported locales, in display order. */

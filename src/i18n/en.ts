@@ -16,5 +16,9 @@ export const en: UIStrings = {
   tags: "Tags",
   recentPosts: "Recent Posts",
   fileInfo: "File Info",
-  tagPageTitle: "Tag"
+  tagPageTitle: "Tag",
+  posts: "Posts",
+  page: "Page",
+  aboutDescription: "About the author",
+  taggedDescription: "Articles tagged"
 };

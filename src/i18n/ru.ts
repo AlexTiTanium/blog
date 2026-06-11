@@ -16,5 +16,9 @@ export const ru: UIStrings = {
   tags: "Теги",
   recentPosts: "Последние посты",
   fileInfo: "Информация",
-  tagPageTitle: "Тег"
+  tagPageTitle: "Тег",
+  posts: "Посты",
+  page: "Страница",
+  aboutDescription: "Об авторе",
+  taggedDescription: "Статьи с тегом"
 };
