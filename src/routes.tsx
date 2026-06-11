@@ -17,7 +17,7 @@ import { SITE } from "./config";
 import { DEFAULT_LOCALE } from "./i18n/index";
 import { byTag, paginate } from "./lib/articles";
 import { allArticles, articleBySlug, pagedRouteParameters } from "./lib/content";
-import { articleHead, pageHead, pageTitle } from "./lib/head";
+import { articleHead, pageHead, pageStrings, pageTitle } from "./lib/head";
 import { layout } from "./lib/route-helpers";
 import { AboutPage } from "./pages/AboutPage";
 import { ArchivePage } from "./pages/ArchivePage";
@@ -32,7 +32,9 @@ export const routes = defineRoutes({
     .generate(ctx => [{ lang: ctx.locale }])
     .load(async ctx => paginate(await allArticles(ctx), 1))
     .render(ctx => <HomePage page={ctx.data} locale={ctx.locale} />)
-    .head(ctx => pageHead(ctx, { title: pageTitle(), description: SITE.description, isHome: true }))
+    .head(ctx =>
+      pageHead(ctx, { title: pageTitle(ctx), description: SITE.description, isHome: true })
+    )
     .meta({ activeTab: "home" }),
 
   homePaged: route("/{lang:?}/page/{page}/")
@@ -42,7 +44,7 @@ export const routes = defineRoutes({
     .render(ctx => <HomePage page={ctx.data} locale={ctx.locale} />)
     .head(ctx =>
       pageHead(ctx, {
-        title: pageTitle(undefined, ctx.data.page),
+        title: pageTitle(ctx, "posts", ctx.data.page),
         description: SITE.description,
         path: `page/${ctx.data.page}/`
       })
@@ -57,7 +59,7 @@ export const routes = defineRoutes({
     .render(ctx => <ArchivePage page={ctx.data} locale={ctx.locale} />)
     .head(ctx =>
       pageHead(ctx, {
-        title: pageTitle("Archive"),
+        title: pageTitle(ctx, "archive"),
         description: SITE.description,
         path: "archive/"
       })
@@ -71,7 +73,7 @@ export const routes = defineRoutes({
     .render(ctx => <ArchivePage page={ctx.data} locale={ctx.locale} />)
     .head(ctx =>
       pageHead(ctx, {
-        title: pageTitle("Archive", ctx.data.page),
+        title: pageTitle(ctx, "archive", ctx.data.page),
         description: SITE.description,
         path: `archive/page/${ctx.data.page}/`
       })
@@ -107,8 +109,8 @@ export const routes = defineRoutes({
     .render(ctx => <TagPage tag={ctx.data.tag} articles={ctx.data.articles} locale={ctx.locale} />)
     .head(ctx =>
       pageHead(ctx, {
-        title: `Tag: ${ctx.data.tag}`,
-        description: `Articles tagged "${ctx.data.tag}"`,
+        title: `${pageStrings(ctx).tagPageTitle}: ${ctx.data.tag}`,
+        description: `${pageStrings(ctx).taggedDescription} "${ctx.data.tag}"`,
         path: `tags/${ctx.data.tag}/`
       })
     )
@@ -121,7 +123,13 @@ export const routes = defineRoutes({
     .layout(layout)
     .generate(ctx => [{ lang: ctx.locale }])
     .render(ctx => <AboutPage locale={ctx.locale} />)
-    .head(ctx => pageHead(ctx, { title: "About", description: "About the author", path: "about/" }))
+    .head(ctx =>
+      pageHead(ctx, {
+        title: pageTitle(ctx, "about"),
+        description: pageStrings(ctx).aboutDescription,
+        path: "about/"
+      })
+    )
     .meta({ activeTab: "about" })
 });
 
