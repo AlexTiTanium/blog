@@ -125,6 +125,15 @@
     }
   }
 
+  /* Entrance retirement: the dashboard island stamps [data-entered] once the stagger has
+     played (src/islands/dashboard.ts). Dropping the animation here is what prevents the
+     rare blank-card flash while scrolling — browsers suspend/restart offscreen CSS
+     animations, and a restarted card-enter holds the card at its backwards-fill state
+     (opacity 0) for up to ~1.4s. Cancelling the finished animation is visually a no-op. */
+  :scope[data-entered] article {
+    animation: none;
+  }
+
   /* Card header */
   header {
     display: flex;

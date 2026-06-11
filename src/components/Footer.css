@@ -5,6 +5,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    /* Keeps the two halves from colliding on narrow viewports (space-between alone
+       lets them touch once the content fills the row). */
+    column-gap: 1rem;
     padding: 0.5rem 1rem;
     margin-top: 1.5rem;
     background: var(--surface-elevated);
@@ -20,9 +23,14 @@
     gap: 1rem;
   }
 
+  [data-part="right"] {
+    gap: 0.45rem;
+  }
+
   [data-item] {
     display: flex;
     align-items: center;
+    white-space: nowrap;
     /* Dot↔label spacing lives on the dot's margin, not flex `gap` — see DashboardGrid.css
        (real-Safari flex-gap label-position quirk). */
   }
@@ -36,5 +44,63 @@
 
   [data-dot="green"] {
     background: var(--accent-success);
+  }
+
+  /* Source-repo links styled as status-bar segments */
+  [data-chip] {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--surface-card) 55%, transparent);
+    color: var(--text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  [data-chip] svg {
+    /* Icon↔label spacing on the icon's margin, not flex `gap` — see DashboardGrid.css
+       (real-Safari flex-gap label-position quirk). */
+    margin-inline-end: 0.35rem;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    [data-chip] {
+      transition:
+        color var(--duration-fast),
+        border-color var(--duration-fast);
+    }
+
+    [data-chip]:hover {
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+  }
+
+  /* Chip labels: long form by default, short form on narrow viewports */
+  [data-short] {
+    display: none;
+  }
+
+  @media (max-width: 480px) {
+    :scope {
+      padding: 0.5rem 0.7rem;
+    }
+
+    /* The branch marker is pure decoration — cede its space to the chips. */
+    [data-item="branch"] {
+      display: none;
+    }
+
+    [data-long] {
+      display: none;
+    }
+
+    [data-short] {
+      display: inline;
+    }
   }
 }
