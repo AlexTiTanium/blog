@@ -85,6 +85,15 @@
     background: color-mix(in srgb, var(--accent-secondary) 8%, transparent);
   }
 
+  /* A badge that is switched off — rendered like a commented-out feature flag. */
+  [data-badge][data-disabled] {
+    color: var(--text-muted);
+    border-color: color-mix(in srgb, var(--text-muted) 30%, transparent);
+    background: transparent;
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
   h2 {
     font-family: var(--font-display);
     font-size: 1rem;
@@ -138,6 +147,18 @@
     font-size: 0.75rem;
     color: var(--text-secondary);
     text-align: right;
+  }
+
+  /* Contact values are real links — underlined subtly, accent on hover. */
+  dd a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent-secondary) 45%, transparent);
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: var(--accent-secondary);
+    }
   }
 
   /* Timeline */

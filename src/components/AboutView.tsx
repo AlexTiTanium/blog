@@ -16,12 +16,22 @@ import { GitTag } from "./GitTag";
 /** Site domain shown in the contact list (derived from {@link SITE.url}). */
 const DOMAIN = new URL(SITE.url).hostname;
 
-/** Status badges (English chrome — styled like repo shields). */
-const BADGES = [
-  { label: "open to interesting offers", color: "green" },
+/** One status badge (English chrome — styled like repo shields). */
+interface Badge {
+  /** Badge text. */
+  label: string;
+  /** Accent color key (see `AboutView.css`). */
+  color: "green" | "amber" | "coral";
+  /** Render struck-through/dimmed — a feature flag that is currently off. */
+  disabled?: boolean;
+}
+
+/** Status badges. `disabled` ones render struck-through, like a commented-out feature flag. */
+const BADGES: readonly Badge[] = [
+  { label: "open to interesting offers", color: "green", disabled: true },
   { label: "typescript by day, rust by night", color: "amber" },
   { label: "blog author", color: "coral" }
-] as const;
+];
 
 /** Interest tags (English chrome — styled like git tags). */
 const INTERESTS = [
@@ -34,12 +44,16 @@ const INTERESTS = [
   "performance"
 ] as const;
 
-/** Contact rows (term → value); terms are proper names, so they stay locale-invariant. */
+/** Contact rows (term → displayed value → link); terms are proper names, so they stay locale-invariant. */
 const CONTACT = [
-  { term: "GitHub", detail: SITE.github },
-  { term: "LinkedIn", detail: `in/${SITE.linkedin}` },
-  { term: "Email", detail: SITE.email },
-  { term: "Blog", detail: DOMAIN }
+  { term: "GitHub", detail: SITE.github, href: `https://github.com/${SITE.github.slice(1)}` },
+  {
+    term: "LinkedIn",
+    detail: `in/${SITE.linkedin}`,
+    href: `https://www.linkedin.com/in/${SITE.linkedin}/`
+  },
+  { term: "Email", detail: SITE.email, href: `mailto:${SITE.email}` },
+  { term: "Blog", detail: DOMAIN, href: SITE.url }
 ] as const;
 
 /** Footer "last updated" comment line (English chrome). */
@@ -76,7 +90,12 @@ export function AboutView({ locale }: Props): VNode {
           </p>
           <div data-badges>
             {BADGES.map(badge => (
-              <span key={badge.label} data-badge data-color={badge.color}>
+              <span
+                key={badge.label}
+                data-badge
+                data-color={badge.color}
+                data-disabled={badge.disabled || undefined}
+              >
                 {badge.label}
               </span>
             ))}
@@ -141,7 +160,9 @@ export function AboutView({ locale }: Props): VNode {
             {CONTACT.map(item => (
               <div key={item.term}>
                 <dt>{item.term}</dt>
-                <dd>{item.detail}</dd>
+                <dd>
+                  <a href={item.href}>{item.detail}</a>
+                </dd>
               </div>
             ))}
           </dl>
