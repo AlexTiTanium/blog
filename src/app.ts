@@ -81,9 +81,17 @@ export const makeApp = (stage: Stage) =>
         images: true,
         injectAssets: true,
         publicDir: "public",
-        // Custom 404 — `path` to a complete, app-owned page emitted verbatim as dist/404.html
-        // (links /assets/main.css itself, since the 404 page gets no asset injection). See src/404.html.
+        // Custom 404 — `path` to a complete, app-owned page emitted as dist/404.html. Bundle
+        // filenames embed a content hash (since web 1.8.0), so the page can't hardcode the
+        // stylesheet — it carries `<!--moku:assets:css-->` (CSS-only on purpose: the 404 page
+        // ships no JS), substituted at build time. See src/404.html.
         notFound: { path: "src/404.html" },
+        // Cache protection (the framework default, stated for visibility): dist/_headers gets a
+        // per-file `immutable, max-age=1y` rule for every fingerprinted bundle and a catch-all
+        // `max-age=0, must-revalidate` rule for everything else (pages, content images, feeds,
+        // _data) — Cloudflare/browsers can never serve a stale file, and unchanged files still
+        // answer 304 from their ETag. Our public/_headers security rules are appended after.
+        cacheHeaders: true,
         // No redirect pages: the default locale (English) is served at bare paths directly (and also
         // at /en/ as a content-identical alias), so there is nothing to redirect.
         localeRedirects: false,

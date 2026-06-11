@@ -13,9 +13,11 @@
     <meta name="robots" content="noindex">
     <!-- Title/footer identity mirror SITE in src/config.ts — a static page can't import it. -->
     <title>404 — Geek Life</title>
-    <!-- The standalone 404 page owns its own <head>; link the stable site bundle directly for
-         tokens, fonts, and chrome (404-specific rules live in src/styles/not-found.css). -->
-    <link rel="stylesheet" href="/assets/main.css">
+    <!-- The standalone 404 page owns its own <head>. Bundle filenames embed a content hash
+         (cache busting), so the stylesheet can't be hardcoded — the build substitutes the
+         placeholder with the fingerprinted <link> for tokens, fonts, and chrome (404-specific
+         rules live in src/styles/not-found.css). CSS-only on purpose: this page ships no JS. -->
+    <!--moku:assets:css-->
   </head>
   <body>
     <main>
