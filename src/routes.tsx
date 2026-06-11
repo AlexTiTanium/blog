@@ -42,7 +42,7 @@ export const routes = defineRoutes({
     .render(ctx => <HomePage page={ctx.data} locale={ctx.locale} />)
     .head(ctx =>
       pageHead(ctx, {
-        title: pageTitle(undefined, ctx.data.page),
+        title: pageTitle("Posts", ctx.data.page),
         description: SITE.description,
         path: `page/${ctx.data.page}/`
       })

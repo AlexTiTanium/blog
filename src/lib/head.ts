@@ -22,12 +22,12 @@ import { SITE } from "../config";
  * `src/app.ts`/`src/spa.tsx`) appends it to every title, so including it here would double it
  * (`<title>Geek Life — Archive — Geek Life</title>`).
  *
- * @param section - Section label (e.g. "Archive"); omit for the home listing.
+ * @param section - Section label (e.g. "Archive", "Posts" for the paged home); omit for the home listing.
  * @param page - 1-based page number; omit for the first page.
  * @returns The title tail (empty for the home listing — {@link pageHead} then pins the bare site name).
  * @example
  * pageTitle(); // ""
- * pageTitle(undefined, 2); // "Page 2"
+ * pageTitle("Posts", 2); // "Posts Page 2"
  * pageTitle("Archive"); // "Archive"
  * pageTitle("Archive", 3); // "Archive Page 3"
  */

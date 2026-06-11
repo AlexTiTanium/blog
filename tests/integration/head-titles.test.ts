@@ -110,7 +110,7 @@ describe("rendered <title> composition (titleTemplate seam)", () => {
 
   it("listing routes render their tail + the site name exactly once", () => {
     expect(renderedTitle("homePaged", { lang: "en", page: "2" }, { page: 2, items: [] })).toBe(
-      `Page 2 — ${SITE.name}`
+      `Posts Page 2 — ${SITE.name}`
     );
     expect(renderedTitle("archive", { lang: "en" }, { page: 1, items: [] })).toBe(
       `Archive — ${SITE.name}`
