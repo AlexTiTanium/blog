@@ -141,25 +141,35 @@ describe("paginate beyond range", () => {
 });
 
 describe("postId", () => {
-  it("formats the 1-based, zero-padded id from the contentId index segment", () => {
-    // contentId index 4 → 0-based rank, so the label is 4 + 1 = 5, padded to 3 digits.
-    expect(postId(withContentId("en:4:some-slug"))).toBe("post/005");
+  it("counts back from the total, so the oldest post is post/001", () => {
+    // contentId index is the date-descending rank: with 10 articles, the oldest (rank 9) is 001.
+    expect(postId(withContentId("en:9:oldest"), 10)).toBe("post/001");
   });
 
-  it("zero-pads single-digit indices to three digits", () => {
-    expect(postId(withContentId("en:0:first"))).toBe("post/001");
+  it("gives the newest post the highest number", () => {
+    expect(postId(withContentId("en:0:newest"), 10)).toBe("post/010");
   });
 
-  it("does not truncate indices wider than three digits", () => {
-    expect(postId(withContentId("ru:122:big"))).toBe("post/123");
+  it("keeps an article's label stable when newer posts are added", () => {
+    // Adding a post bumps both the article's rank and the total, so the label is unchanged.
+    expect(postId(withContentId("en:4:some-slug"), 10)).toBe("post/006");
+    expect(postId(withContentId("en:5:some-slug"), 11)).toBe("post/006");
   });
 
-  it("falls back to post/001 when the index segment is missing", () => {
+  it("does not truncate numbers wider than three digits", () => {
+    expect(postId(withContentId("ru:0:big"), 1234)).toBe("post/1234");
+  });
+
+  it("falls back to the newest label when the index segment is missing", () => {
     // The factory default contentId is just the slug — no colon-delimited index.
-    expect(postId(makeArticle())).toBe("post/001");
+    expect(postId(makeArticle(), 10)).toBe("post/010");
   });
 
-  it("falls back to post/001 when the index segment is non-numeric", () => {
-    expect(postId(withContentId("en:abc:slug"))).toBe("post/001");
+  it("falls back to the newest label when the index segment is non-numeric", () => {
+    expect(postId(withContentId("en:abc:slug"), 10)).toBe("post/010");
+  });
+
+  it("never drops below post/001 on inconsistent input", () => {
+    expect(postId(withContentId("en:5:slug"), 3)).toBe("post/001");
   });
 });

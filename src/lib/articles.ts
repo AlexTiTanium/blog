@@ -120,16 +120,20 @@ export function byTag(arts: Content.Article[], tag: string): Content.Article[] {
 }
 
 /**
- * Sequential card label ("post/NNN", 1-based, zero-padded to 3 digits) for an article, mirroring
- * the legacy blog's post id. Derived from the date-descending rank the content pipeline encodes in
- * `contentId` (`${locale}:${index}:${slug}`), so it stays stable and continues across pages.
+ * Sequential card label ("post/NNN", 1-based, zero-padded to 3 digits) for an article. The oldest
+ * post is "post/001" and each new post takes the next number, so existing labels never shift.
+ * Derived from the date-descending rank the content pipeline encodes in `contentId`
+ * (`${locale}:${index}:${slug}`) counted back from `total`, so it stays stable across pages.
  *
  * @param article - The article to label.
+ * @param total - Total article count for the locale.
  * @returns The `post/NNN` id (e.g. "post/001").
  * @example
- * postId(article); // "post/001"
+ * postId(oldestArticle, 23); // "post/001"
+ * postId(newestArticle, 23); // "post/023"
  */
-export function postId(article: Content.Article): string {
+export function postId(article: Content.Article, total: number): string {
   const index = Number.parseInt(article.computed.contentId.split(":")[1] ?? "", 10);
-  return `post/${String((Number.isNaN(index) ? 0 : index) + 1).padStart(3, "0")}`;
+  const rank = Number.isNaN(index) ? 0 : index;
+  return `post/${String(Math.max(total - rank, 1)).padStart(3, "0")}`;
 }

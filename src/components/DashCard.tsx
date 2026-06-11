@@ -16,19 +16,21 @@ interface Props {
   article: Content.Article;
   /** Active locale (for tag links). */
   locale: string;
+  /** Total article count for the locale (anchors the post/NNN label to the oldest post). */
+  total: number;
 }
 
 /**
  * Render a single article preview card in the dashboard grid.
  *
- * @param props - The article and active locale.
+ * @param props - The article, active locale, and locale article total.
  * @returns The article card.
  */
-export function DashCard({ article, locale }: Props) {
+export function DashCard({ article, locale, total }: Props) {
   return (
     <article>
       <header>
-        <span data-id>{postId(article)}</span>
+        <span data-id>{postId(article, total)}</span>
         <span data-status>
           <span data-dot></span>
           {article.computed.status}
