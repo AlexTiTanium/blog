@@ -36,4 +36,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4.95.0"
-          command: pages deploy dist --project-name geek-life
+          # `--branch main` is required: the SHA-pinned checkout above leaves git on a
+          # detached HEAD, so wrangler infers branch "head" and Cloudflare files the
+          # deployment as a PREVIEW instead of promoting production.
+          command: pages deploy dist --project-name geek-life --branch main

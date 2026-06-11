@@ -95,4 +95,10 @@ describe("deploy.yml gating", () => {
       /ref: \$\{\{ github\.event\.workflow_run\.head_sha \|\| github\.sha \}\}/
     );
   });
+
+  it("deploys to the production branch (detached-HEAD checkout would silently ship a preview)", () => {
+    // The SHA-pinned checkout leaves git detached, so wrangler infers branch "head"
+    // and Cloudflare files the deploy as a preview. `--branch main` forces promotion.
+    expect(deployYml).toContain("pages deploy dist --project-name geek-life --branch main");
+  });
 });
