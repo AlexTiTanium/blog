@@ -13,22 +13,19 @@ import type { Locale } from "../i18n/index";
 import { homeUrl } from "../lib/urls";
 import { GitTag } from "./GitTag";
 
-/** Site domain shown in the contact list (derived from {@link SITE.url}). */
-const DOMAIN = new URL(SITE.url).hostname;
-
 /** One status badge (English chrome — styled like repo shields). */
 interface Badge {
   /** Badge text. */
   label: string;
   /** Accent color key (see `AboutView.css`). */
   color: "green" | "amber" | "coral";
-  /** Render struck-through/dimmed — a feature flag that is currently off. */
-  disabled?: boolean;
+  /** Render dimmed with a blinking status dot — on standby, not gone. */
+  dimmed?: boolean;
 }
 
-/** Status badges. `disabled` ones render struck-through, like a commented-out feature flag. */
+/** Status badges. `dimmed` ones render muted with a blinking dot, like a service on standby. */
 const BADGES: readonly Badge[] = [
-  { label: "open to interesting offers", color: "green", disabled: true },
+  { label: "open to interesting offers", color: "green", dimmed: true },
   { label: "typescript by day, rust by night", color: "amber" },
   { label: "blog author", color: "coral" }
 ];
@@ -44,8 +41,7 @@ const CONTACT = [
     detail: `in/${SITE.linkedin}`,
     href: `https://www.linkedin.com/in/${SITE.linkedin}/`
   },
-  { term: "Email", detail: SITE.email, href: `mailto:${SITE.email}` },
-  { term: "Blog", detail: DOMAIN, href: SITE.url }
+  { term: "Email", detail: SITE.email, href: `mailto:${SITE.email}` }
 ] as const;
 
 /** Footer "last updated" comment line (English chrome). */
@@ -86,7 +82,7 @@ export function AboutView({ locale }: Props): VNode {
                 key={badge.label}
                 data-badge
                 data-color={badge.color}
-                data-disabled={badge.disabled || undefined}
+                data-dimmed={badge.dimmed || undefined}
               >
                 {badge.label}
               </span>
