@@ -85,13 +85,30 @@
     background: color-mix(in srgb, var(--accent-secondary) 8%, transparent);
   }
 
-  /* A badge that is switched off — rendered like a commented-out feature flag. */
-  [data-badge][data-disabled] {
+  /* A badge on standby — dimmed, with a blinking status dot (margin, not gap: Safari
+     misrenders flex gap on dot+label rows). */
+  [data-badge][data-dimmed] {
     color: var(--text-muted);
     border-color: color-mix(in srgb, var(--text-muted) 30%, transparent);
     background: transparent;
-    text-decoration: line-through;
-    opacity: 0.6;
+  }
+
+  [data-badge][data-dimmed]::before {
+    content: "";
+    display: inline-block;
+    width: 0.45em;
+    height: 0.45em;
+    border-radius: 50%;
+    margin-right: 0.45em;
+    vertical-align: baseline;
+    background: var(--accent-danger);
+    animation: about-status-blink 1.4s steps(2, jump-none) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-badge][data-dimmed]::before {
+      animation: none;
+    }
   }
 
   h2 {
@@ -149,15 +166,26 @@
     text-align: right;
   }
 
-  /* Contact values are real links — underlined subtly, accent on hover. */
+  /* Contact values are real links — quiet (same tone as plain values), marked only by a
+     small accent ↗; the text warms to accent on hover. */
   dd a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--accent-secondary) 45%, transparent);
-    text-underline-offset: 2px;
+    color: var(--text-secondary);
+    text-decoration: none;
+
+    &::after {
+      content: "↗";
+      margin-left: 0.35em;
+      font-size: 0.85em;
+      color: var(--accent-secondary);
+      opacity: 0.7;
+    }
 
     &:hover {
       color: var(--accent-secondary);
+
+      &::after {
+        opacity: 1;
+      }
     }
   }
 
@@ -235,5 +263,12 @@
       flex-direction: column;
       gap: 0.25rem;
     }
+  }
+}
+
+/* Blink for the standby-badge status dot (keyframes are global, so defined outside @scope). */
+@keyframes about-status-blink {
+  50% {
+    opacity: 0.2;
   }
 }

@@ -55,9 +55,10 @@ const en: AboutStrings = {
   location: "Santa Pola, Alicante, Spain",
   aboutHeading: "About",
   aboutParagraphs: [
-    "Senior Game Engineer at Playco, shipping software since 2007 — games, web apps, backends, mobile apps, and the occasional tool nobody asked for. The last decade has been mostly games: live-ops platforms, monetization, inventory systems, and platform tech behind titles people actually play.",
-    "The career arc, briefly: PHP (2007) → a bit of everything — Android, iOS, Ruby, WebGL, high-load backends → full-time game development since 2016. These days it's TypeScript by day and Rust by night: a 2D game engine and a power-grid city simulator, because apparently the word \"rest\" doesn't compile in my vocabulary.",
-    "Recently relocated to Santa Pola, Alicante, Spain — same memory leaks, better sea view. Off duty: board games, game design, and family time."
+    'Senior Game Engineer at Playco. Writing software since 2007 — back when "deploy" meant FTP. Along the way there were games, web apps, backends and mobile — but the last decade has been mostly games: live-ops platforms, monetization, inventory systems, and the plumbing behind titles people actually play.',
+    "Started with PHP, survived Flash (rest in peace, you beautiful disaster), detoured through Android, iOS, Ruby and high-load backends, and went full-time gamedev in 2016.",
+    'These days it\'s TypeScript by day and Rust by night — a power-grid city simulator running on my own 2D engine, built "for fun", because apparently my idea of rest is writing another game engine.',
+    "These days home is Santa Pola, a small seaside town in Alicante, Spain. The code is the same — the view got a serious upgrade. Off duty: board games, electric guitar, and family."
   ],
   stackHeading: "Tech Stack",
   stack: [
@@ -100,7 +101,10 @@ const en: AboutStrings = {
   ],
   gitLog: [
     { term: "On GitHub since", detail: "May 2012 · 31 public repos" },
-    { term: "Language drift", detail: "AS3 → PHP → Ruby → C# → JS → TS → Rust" },
+    {
+      term: "Language drift",
+      detail: "PHP → AS3 → Ruby, Python → C#, Java → Objective-C → JS → TS → Rust"
+    },
     {
       term: "Most starred repo",
       detail: "an ExtJS 4 tree plugin from 2012 — fame is unpredictable"
@@ -120,9 +124,10 @@ const uk: AboutStrings = {
   location: "Санта-Пола, Аліканте, Іспанія",
   aboutHeading: "Про мене",
   aboutParagraphs: [
-    "Senior Game Engineer у Playco. Пишу софт із 2007 року — ігри, веб, бекенди, мобільні застосунки й подекуди інструменти, про які ніхто не просив. Останні десять років — здебільшого ігри: live-ops платформи, монетизація, системи інвентаря та платформні технології для тайтлів, у які люди справді грають.",
-    "Кар'єрна траєкторія, якщо коротко: PHP (2007) → усього потроху — Android, iOS, Ruby, WebGL, високонавантажені бекенди → з 2016-го повністю в геймдеві. Нині вдень TypeScript, уночі Rust: 2D-рушій і симулятор міської електромережі, бо слово «відпочинок» у моєму словнику, схоже, не компілюється.",
-    "Нещодавно переїхав до Санта-Поли (Аліканте, Іспанія) — ті самі витоки пам'яті, але з видом на море. Поза роботою: настільні ігри, геймдизайн і час із родиною."
+    "Senior Game Engineer у Playco. Пишу софт із 2007 року — з часів, коли «деплой» означав FTP. За цей час були ігри, веб, бекенди й мобільні застосунки, але останні десять років — здебільшого ігри: live-ops платформи, монетизація, системи інвентаря та платформна сантехніка для тайтлів, у які люди справді грають.",
+    "Починав із PHP, пережив Flash (спочивай з миром, прекрасна катастрофо), зробив гак через Android, iOS, Ruby та високонавантажені бекенди — і з 2016-го повністю в геймдеві.",
+    "Нині вдень TypeScript, уночі Rust: симулятор міської електромережі на власному 2D-рушії — «для задоволення», бо мій спосіб відпочивати, схоже, — написати ще один рушій.",
+    "Тепер мій дім — Санта-Пола, маленьке приморське містечко в Аліканте, Іспанія. Код той самий — а от краєвид помітно апгрейднувся. Поза роботою: настільні ігри, електрогітара та родина."
   ],
   stackHeading: "Стек",
   stack: [
@@ -139,7 +144,7 @@ const uk: AboutStrings = {
   experience: [
     {
       time: "2020–зараз",
-      text: "Playco — Senior Game Engineer: live-ops, платежі, інвентар, аналітика — все, на чому тримаються живі ігри"
+      text: "Playco — Senior Game Engineer: live-ops, платежі, інвентар, аналітика — все, на чому тримаються ігри-сервіси"
     },
     {
       time: "2016–2020",
@@ -165,7 +170,10 @@ const uk: AboutStrings = {
   ],
   gitLog: [
     { term: "На GitHub із", detail: "травень 2012 · 31 публічний репозиторій" },
-    { term: "Дрейф мов", detail: "AS3 → PHP → Ruby → C# → JS → TS → Rust" },
+    {
+      term: "Дрейф мов",
+      detail: "PHP → AS3 → Ruby, Python → C#, Java → Objective-C → JS → TS → Rust"
+    },
     {
       term: "Найбільше зірок",
       detail: "у плагіна дерева для ExtJS 4 з 2012-го — слава непередбачувана"
@@ -185,9 +193,10 @@ const ru: AboutStrings = {
   location: "Санта-Пола, Аликанте, Испания",
   aboutHeading: "Обо мне",
   aboutParagraphs: [
-    "Senior Game Engineer в Playco. Пишу софт с 2007 года — игры, веб, бэкенды, мобильные приложения и иногда инструменты, о которых никто не просил. Последние десять лет — в основном игры: live-ops платформы, монетизация, системы инвентаря и платформенные технологии для тайтлов, в которые люди действительно играют.",
-    "Карьерная траектория, если коротко: PHP (2007) → всего понемногу — Android, iOS, Ruby, WebGL, высоконагруженные бэкенды → с 2016-го полностью в геймдеве. Сейчас днём TypeScript, ночью Rust: 2D-движок и симулятор городской электросети, потому что слово «отдых» в моём словаре, видимо, не компилируется.",
-    "Недавно переехал в Санта-Полу (Аликанте, Испания) — те же утечки памяти, но с видом на море. Вне работы: настольные игры, геймдизайн и время с семьёй."
+    "Senior Game Engineer в Playco. Пишу софт с 2007 года — со времён, когда «деплой» означал FTP. За это время были игры, веб, бэкенды и мобильные приложения, но последние десять лет — в основном игры: live-ops платформы, монетизация, системы инвентаря и платформенная сантехника для тайтлов, в которые люди действительно играют.",
+    "Начинал с PHP, пережил Flash (покойся с миром, прекрасная катастрофа), сделал крюк через Android, iOS, Ruby и высоконагруженные бэкенды — и с 2016-го полностью в геймдеве.",
+    "Сейчас днём TypeScript, ночью Rust: симулятор городской электросети на собственном 2D-движке — «для удовольствия», потому что мой способ отдыхать, видимо, — написать ещё один движок.",
+    "Сейчас мой дом — Санта-Пола, маленький приморский городок в Аликанте, Испания. Код всё тот же — а вот вид из окна заметно апгрейднулся. Вне работы: настольные игры, электрогитара и семья."
   ],
   stackHeading: "Стек",
   stack: [
@@ -204,7 +213,7 @@ const ru: AboutStrings = {
   experience: [
     {
       time: "2020–сейчас",
-      text: "Playco — Senior Game Engineer: live-ops, платежи, инвентарь, аналитика — всё, на чём держатся живые игры"
+      text: "Playco — Senior Game Engineer: live-ops, платежи, инвентарь, аналитика — всё, на чём держатся игры-сервисы"
     },
     {
       time: "2016–2020",
@@ -230,7 +239,10 @@ const ru: AboutStrings = {
   ],
   gitLog: [
     { term: "На GitHub с", detail: "май 2012 · 31 публичный репозиторий" },
-    { term: "Дрейф языков", detail: "AS3 → PHP → Ruby → C# → JS → TS → Rust" },
+    {
+      term: "Дрейф языков",
+      detail: "PHP → AS3 → Ruby, Python → C#, Java → Objective-C → JS → TS → Rust"
+    },
     {
       term: "Больше всего звёзд",
       detail: "у плагина дерева для ExtJS 4 из 2012-го — слава непредсказуема"
@@ -250,9 +262,10 @@ const es: AboutStrings = {
   location: "Santa Pola, Alicante, España",
   aboutHeading: "Sobre mí",
   aboutParagraphs: [
-    "Senior Game Engineer en Playco. Escribo software desde 2007: juegos, aplicaciones web, backends, apps móviles y, de vez en cuando, herramientas que nadie pidió. La última década ha sido sobre todo juegos: plataformas de live-ops, monetización, sistemas de inventario y tecnología de plataforma para títulos a los que la gente juega de verdad.",
-    "La trayectoria, en resumen: PHP (2007) → un poco de todo — Android, iOS, Ruby, WebGL, backends de alta carga → desde 2016, desarrollo de juegos a tiempo completo. Hoy: TypeScript de día y Rust de noche — un motor 2D y un simulador de red eléctrica urbana, porque por lo visto la palabra «descanso» no compila en mi vocabulario.",
-    "Hace poco me mudé a Santa Pola (Alicante, España): las mismas fugas de memoria, pero con vistas al mar. Fuera del trabajo: juegos de mesa, diseño de juegos y tiempo en familia."
+    "Senior Game Engineer en Playco. Escribo software desde 2007 — de cuando «desplegar» significaba FTP. Por el camino hubo juegos, web, backends y apps móviles, pero la última década ha sido sobre todo juegos: plataformas de live-ops, monetización, sistemas de inventario y la fontanería detrás de títulos a los que la gente juega de verdad.",
+    "Empecé con PHP, sobreviví a Flash (descansa en paz, hermoso desastre), di un rodeo por Android, iOS, Ruby y backends de alta carga — y desde 2016, gamedev a tiempo completo.",
+    "Hoy es TypeScript de día y Rust de noche: un simulador de red eléctrica urbana sobre mi propio motor 2D — «por diversión», porque por lo visto mi manera de descansar es escribir otro motor.",
+    "Hoy mi casa es Santa Pola, un pueblo costero de Alicante, España. El código es el mismo — las vistas han recibido un upgrade serio. Fuera del trabajo: juegos de mesa, guitarra eléctrica y familia."
   ],
   stackHeading: "Stack",
   stack: [
@@ -295,7 +308,10 @@ const es: AboutStrings = {
   ],
   gitLog: [
     { term: "En GitHub desde", detail: "mayo de 2012 · 31 repos públicos" },
-    { term: "Deriva de lenguajes", detail: "AS3 → PHP → Ruby → C# → JS → TS → Rust" },
+    {
+      term: "Deriva de lenguajes",
+      detail: "PHP → AS3 → Ruby, Python → C#, Java → Objective-C → JS → TS → Rust"
+    },
     {
       term: "Más estrellas",
       detail: "un plugin de árbol para ExtJS 4 de 2012 — la fama es impredecible"
