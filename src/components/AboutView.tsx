@@ -1,12 +1,14 @@
 /**
- * @file About page — a README-style author profile. The profile is described once as the {@link PROFILE}
- * data object and rendered by mapping, so editing content never means touching JSX; identity fields
- * (author, GitHub, email, domain) come from {@link SITE}. The markdown-flavored headings and footer are
- * deliberately English UI chrome.
+ * @file About page — a README-style author profile. All prose (role, location, bio, stack terms,
+ * experience, section headings) is localized via {@link aboutContent}; identity fields (author,
+ * GitHub, LinkedIn, email, domain) come from {@link SITE}. The surrounding UI chrome — breadcrumb,
+ * status badges, `##` heading prefixes, `git log` heading, interest tags, and the footer comment —
+ * is deliberately English, matching the site-wide IDE/terminal aesthetic.
  */
 
 import type { VNode } from "preact";
 import { SITE } from "../config";
+import { aboutContent } from "../i18n/about";
 import type { Locale } from "../i18n/index";
 import { homeUrl } from "../lib/urls";
 import { GitTag } from "./GitTag";
@@ -14,67 +16,64 @@ import { GitTag } from "./GitTag";
 /** Site domain shown in the contact list (derived from {@link SITE.url}). */
 const DOMAIN = new URL(SITE.url).hostname;
 
-/** Author profile content rendered by {@link AboutView}. */
-const PROFILE = {
-  /** Role line shown under the name. */
-  role: "Senior Developer",
-  /** Location shown under the name. */
-  location: "Kherson, Ukraine",
-  /** Status badges with their accent colors. */
-  badges: [
-    { label: "available for hire", color: "green" },
-    { label: "open source contributor", color: "amber" },
-    { label: "blog author", color: "coral" }
-  ],
-  /** Tech-stack definition list (term → detail). */
-  techStack: [
-    { term: "Languages", detail: "TypeScript, HTML, CSS" },
-    { term: "Frontend", detail: "Preact, CSS wizardry" },
-    { term: "Backend", detail: "Bun, Cloudflare Pages" },
-    { term: "Tools", detail: "Git (blame enthusiast), Bun bundler, Playwright" },
-    { term: "Editor", detail: "VS Code + vim keybindings (the worst of both worlds)" }
-  ],
-  /** Experience timeline (period → summary). */
-  experience: [
-    {
-      time: "2020–present",
-      text: "Senior Developer — building things, breaking things, writing about both"
-    },
-    { time: "2016–2020", text: "Full-stack Developer — survived three framework migrations" },
-    { time: "2013–2016", text: "Junior Developer — jQuery was still cool, and so was I" }
-  ],
-  /** Interest tags. */
-  interests: [
-    "systems-programming",
-    "static-site-generators",
-    "developer-experience",
-    "technical-writing",
-    "open-source",
-    "mechanical-keyboards"
-  ],
-  /** Contact rows (term → value). */
-  contact: [
-    { term: "GitHub", detail: SITE.github },
-    { term: "Email", detail: SITE.email },
-    { term: "Blog", detail: DOMAIN }
-  ],
-  /** Footer "last updated" comment line. */
-  lastUpdated: "// Last updated: 2026-02-13 · README.md · 1 contributor"
-} as const;
+/** One status badge (English chrome — styled like repo shields). */
+interface Badge {
+  /** Badge text. */
+  label: string;
+  /** Accent color key (see `AboutView.css`). */
+  color: "green" | "amber" | "coral";
+  /** Render struck-through/dimmed — a feature flag that is currently off. */
+  disabled?: boolean;
+}
+
+/** Status badges. `disabled` ones render struck-through, like a commented-out feature flag. */
+const BADGES: readonly Badge[] = [
+  { label: "open to interesting offers", color: "green", disabled: true },
+  { label: "typescript by day, rust by night", color: "amber" },
+  { label: "blog author", color: "coral" }
+];
+
+/** Interest tags (English chrome — styled like git tags). */
+const INTERESTS = [
+  "game-development",
+  "game-design",
+  "board-games",
+  "rust",
+  "rendering",
+  "distributed-systems",
+  "performance"
+] as const;
+
+/** Contact rows (term → displayed value → link); terms are proper names, so they stay locale-invariant. */
+const CONTACT = [
+  { term: "GitHub", detail: SITE.github, href: `https://github.com/${SITE.github.slice(1)}` },
+  {
+    term: "LinkedIn",
+    detail: `in/${SITE.linkedin}`,
+    href: `https://www.linkedin.com/in/${SITE.linkedin}/`
+  },
+  { term: "Email", detail: SITE.email, href: `mailto:${SITE.email}` },
+  { term: "Blog", detail: DOMAIN, href: SITE.url }
+] as const;
+
+/** Footer "last updated" comment line (English chrome). */
+const LAST_UPDATED = "// Last updated: 2026-06-11 · README.md · 1 contributor";
 
 /** Props for {@link AboutView}. */
 interface Props {
-  /** Active locale (for the breadcrumb home link). */
+  /** Active locale (drives the profile prose and the breadcrumb home link). */
   locale: Locale;
 }
 
 /**
- * Render the README-style author profile from {@link PROFILE}.
+ * Render the README-style author profile in the active locale.
  *
  * @param props - The active locale.
  * @returns The about page content.
  */
 export function AboutView({ locale }: Props): VNode {
+  const profile = aboutContent(locale);
+
   return (
     <div data-component="about">
       <header>
@@ -87,11 +86,16 @@ export function AboutView({ locale }: Props): VNode {
         <section>
           <h1># {SITE.author}</h1>
           <p data-role>
-            {PROFILE.role} <span data-sep>·</span> {PROFILE.location}
+            {profile.role} <span data-sep>·</span> {profile.location}
           </p>
           <div data-badges>
-            {PROFILE.badges.map(badge => (
-              <span key={badge.label} data-badge data-color={badge.color}>
+            {BADGES.map(badge => (
+              <span
+                key={badge.label}
+                data-badge
+                data-color={badge.color}
+                data-disabled={badge.disabled || undefined}
+              >
                 {badge.label}
               </span>
             ))}
@@ -99,22 +103,16 @@ export function AboutView({ locale }: Props): VNode {
         </section>
 
         <section>
-          <h2>## About</h2>
-          <p>
-            Full-stack developer with a weakness for clean architecture, strong types, and rewriting
-            things in Rust (see post #001). Building web applications by day, writing self-ironic
-            dev confessions by night.
-          </p>
-          <p>
-            Believer in the power of good documentation that nobody reads, meaningful variable
-            names, and the occasional <code>console.log</code> in production.
-          </p>
+          <h2>## {profile.aboutHeading}</h2>
+          {profile.aboutParagraphs.map(paragraph => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </section>
 
         <section>
-          <h2>## Tech Stack</h2>
+          <h2>## {profile.stackHeading}</h2>
           <dl>
-            {PROFILE.techStack.map(item => (
+            {profile.stack.map(item => (
               <div key={item.term}>
                 <dt>{item.term}</dt>
                 <dd>{item.detail}</dd>
@@ -124,9 +122,9 @@ export function AboutView({ locale }: Props): VNode {
         </section>
 
         <section>
-          <h2>## Experience Highlights</h2>
+          <h2>## {profile.experienceHeading}</h2>
           <ol data-timeline>
-            {PROFILE.experience.map(item => (
+            {profile.experience.map(item => (
               <li key={item.time}>
                 <time>{item.time}</time>
                 <span>{item.text}</span>
@@ -136,18 +134,9 @@ export function AboutView({ locale }: Props): VNode {
         </section>
 
         <section>
-          <h2>## Interests</h2>
-          <div data-interests>
-            {PROFILE.interests.map(tag => (
-              <GitTag key={tag} tag={tag} />
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <h2>## Contact</h2>
+          <h2>## git log --oneline</h2>
           <dl>
-            {PROFILE.contact.map(item => (
+            {profile.gitLog.map(item => (
               <div key={item.term}>
                 <dt>{item.term}</dt>
                 <dd>{item.detail}</dd>
@@ -156,8 +145,31 @@ export function AboutView({ locale }: Props): VNode {
           </dl>
         </section>
 
+        <section>
+          <h2>## {profile.interestsHeading}</h2>
+          <div data-interests>
+            {INTERESTS.map(tag => (
+              <GitTag key={tag} tag={tag} />
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <h2>## {profile.contactHeading}</h2>
+          <dl>
+            {CONTACT.map(item => (
+              <div key={item.term}>
+                <dt>{item.term}</dt>
+                <dd>
+                  <a href={item.href}>{item.detail}</a>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
         <footer>
-          <span data-comment>{PROFILE.lastUpdated}</span>
+          <span data-comment>{LAST_UPDATED}</span>
         </footer>
       </div>
     </div>

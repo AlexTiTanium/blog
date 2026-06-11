@@ -13,7 +13,9 @@ export const SITE = {
   /** Contact email shown on the About page. */
   email: "kucherenko.email@gmail.com",
   /** GitHub handle shown on the About page. */
-  github: "@AlexTiTanium"
+  github: "@AlexTiTanium",
+  /** LinkedIn handle shown on the About page (profile path segment, without `in/`). */
+  linkedin: "alexanderkucherenko"
 } as const;
 
 /**
