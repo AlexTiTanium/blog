@@ -44,7 +44,7 @@ export function DashboardGrid({
   return (
     <div data-component="dashboard" data-cards={articles.length}>
       {articles.map(article => (
-        <DashCard key={article.computed.slug} article={article} locale={locale} />
+        <DashCard key={article.computed.slug} article={article} locale={locale} total={postCount} />
       ))}
 
       <article data-variant="stats">

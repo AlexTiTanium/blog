@@ -13,5 +13,20 @@ export const SITE = {
   /** Contact email shown on the About page. */
   email: "kucherenko.email@gmail.com",
   /** GitHub handle shown on the About page. */
-  github: "@AlexTiTanium"
+  github: "@AlexTiTanium",
+  /** LinkedIn handle shown on the About page (profile path segment, without `in/`). */
+  linkedin: "alexanderkucherenko"
+} as const;
+
+/**
+ * Source-repository links surfaced as the footer's GitHub chips: this blog's source
+ * plus the two Moku packages it is built on.
+ */
+export const REPOS = {
+  /** This blog's source. */
+  blog: "https://github.com/AlexTiTanium/blog",
+  /** The `@moku-labs/web` framework (Layers 1+2). */
+  web: "https://github.com/moku-labs/web",
+  /** The Moku Core micro-kernel. */
+  core: "https://github.com/moku-labs/core"
 } as const;
