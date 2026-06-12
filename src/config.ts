@@ -5,7 +5,7 @@ export const SITE = {
   /** Display name (also drives the `head` title template). */
   name: "Geek Life",
   /** Canonical origin. */
-  url: "https://geeklife.in.ua",
+  url: "https://alexblog.net",
   /** Default article author (frontmatter `author` overrides per-article). */
   author: "Oleksandr Kucherenko",
   /** Tagline used for the home hero and meta description. */
