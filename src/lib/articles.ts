@@ -20,6 +20,8 @@ export type Paginated = {
   page: number;
   /** Total number of pages. */
   totalPages: number;
+  /** Newest article's date across ALL pages (input is date-descending), or `undefined` when empty. */
+  latest: string | undefined;
 };
 
 /** Article-route page data: the resolved article plus the recent-articles sidebar list. */
@@ -52,7 +54,13 @@ export function paginate(arts: Content.Article[], page: number, per = PER_PAGE):
   const totalArticles = arts.length;
   const totalPages = Math.max(1, Math.ceil(totalArticles / per));
   const start = (page - 1) * per;
-  return { articles: arts.slice(start, start + per), totalArticles, page, totalPages };
+  return {
+    articles: arts.slice(start, start + per),
+    totalArticles,
+    page,
+    totalPages,
+    latest: arts[0]?.frontmatter.date
+  };
 }
 
 /**
