@@ -7,7 +7,7 @@ export const SITE = {
   /** Canonical origin. */
   url: "https://alexblog.net",
   /** Default article author (frontmatter `author` overrides per-article). */
-  author: "Oleksandr Kucherenko",
+  author: "Alex Kucherenko",
   /** Tagline used for the home hero and meta description. */
   description: "A literary, self-ironic dev blog",
   /** Contact email shown on the About page. */
