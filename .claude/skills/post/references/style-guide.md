@@ -1,4 +1,4 @@
-# Geek Life — voice guide & worked example
+# Geek Life — voice guide & worked examples
 
 Read this when you want to nail the register. The mechanics live in `SKILL.md`; this is about
 *sound*. The tagline is the whole brief: **"a literary, self-ironic dev blog."**
@@ -36,7 +36,7 @@ the gap rather than filling it with a confident lie.
 
 ---
 
-## Worked example
+## Worked example 1 — a story dump (sections, code, a lesson)
 
 ### The raw brain-dump (what the user pastes)
 
@@ -125,16 +125,80 @@ we'd all quietly agreed to believe it.
 - **The "lol / facepalm" got translated into the prose's own dryness** instead of being quoted
   literally. The humor survives; the texting tics don't.
 
-### On the translations
+> ⚠️ **This example's *shape* is one option, not the house template.** Hook → wrong turn → the
+> real villain → "The Lesson", one blockquote, one divider, a button line at the bottom of every
+> section — if every post comes out shaped like this, the blog reads machine-made no matter how
+> good each sentence is. The shape fit *this* dump because this dump was a detective story. The
+> next dump might be a take, a shrug, or a two-paragraph confession — see example 2. Let the dump
+> pick the shape; never transplant these section titles onto another story.
 
-The other locales are *native rewrites of this*, not literal swaps. The blockquote in Ukrainian
-should sound like a Ukrainian developer's wry aside; the Spanish closer should carry the same
-shrug. Keep the code blocks, `setTimeout`, `findByRole`, tags, date, slug, and image paths
-identical — translate the prose, the title, the description, and any alt text around them.
+---
 
-### When the dump arrives in Russian (or any non-English language)
+## Worked example 2 — a thin opinion dump (no sections, no lesson, just a take)
 
-This example's dump is English, so `en.md` is the original. Flip it: a *Russian* dump means the
+The other common dump shape: not a story, an *opinion* — and thin. The right output is short, has
+no headings, and doesn't manufacture an arc or a moral that isn't there.
+
+### The raw brain-dump
+
+> hot take i dont think side projects need ci. i spent the whole evening yesterday setting up
+> github actions for my little static site generator thing that has exactly one user, me. cache
+> config, matrix builds, badge in the readme. the site itself didnt change. and like at work ci
+> makes total sense obviously but my side project doesnt have a team it doesnt have users it
+> doesnt even have tests really. i was just cosplaying a serious project. ship script that rsyncs
+> to the server was already there and worked since forever
+
+### The finished `content/side-projects-dont-need-ci/en.md`
+
+```markdown
+---
+title: "My Side Project Doesn't Need CI (and Yours Probably Doesn't Either)"
+date: "2026-06-07"
+description: "I spent an evening giving a one-user static site generator a build matrix and a README badge. The site itself didn't change. A confession about cosplay."
+tags:
+  - opinion
+  - devlife
+language: en
+draft: false
+---
+
+Yesterday evening I set up GitHub Actions for my little static site generator. Cache config,
+matrix builds, a badge in the README. It has exactly one user — me. The site itself didn't change
+at all.
+
+At work, CI makes total sense. There's a team, there are users, there are tests that catch real
+regressions before real people hit them. My side project has none of those things. It doesn't
+even have tests, really. What it had, the whole time, was a ship script that rsyncs to the server
+and has worked since forever.
+
+I wasn't building infrastructure. I was cosplaying a serious project — the badge was the costume.
+
+The generator still works. The badge is green. It guards nothing.
+```
+
+### Why this one is different — on purpose
+
+- **No headings, no divider, no blockquote.** ~160 words of body for a thin dump. Padding it to
+  600 words with invented anecdotes would be the worst possible move.
+- **No "The Lesson" section.** The dump didn't reach a lesson — it reached a confession
+  ("cosplaying"). The closer lands the confession and stops; it doesn't reverse into advice.
+- **The dump's own words are the anchors:** "exactly one user, me", "cosplaying a serious
+  project", "worked since forever" — lightly placed, not paraphrased away.
+- **The opinion stays the author's,** hedged exactly as much as they hedged it ("at work CI makes
+  total sense") and no more. No "to be fair, CI has its place…" both-sidesing they didn't write.
+
+---
+
+## On the translations
+
+The other locales are *native rewrites*, not literal swaps. The blockquote in Ukrainian should
+sound like a Ukrainian developer's wry aside; the Spanish closer should carry the same shrug. Keep
+the code blocks, `setTimeout`, `findByRole`, tags, date, slug, and image paths identical —
+translate the prose, the title, the description, and any alt text around them.
+
+## When the dump arrives in Russian (or any non-English language)
+
+Example 1's dump is English, so `en.md` is the original. Flip it: a *Russian* dump means the
 voice lives in Russian, so the **`ru.md` is the faithful original** — write it first, straight from
 the dump, preserving the author's actual jokes and phrasing. Then `en.md` (the canonical default)
 and `uk`/`es` become native rewrites of *that*. Everything above still holds: same preserve-don't-
