@@ -85,7 +85,12 @@ export const makeApp = (stage: Stage, { contentDir = "./content", outDir = "dist
             // Build-time ```mermaid fences → static inline SVG (requires trustedContent; the
             // renderer is lazy-loaded, so content without diagrams pays nothing). Themed at
             // blog level like code blocks: warm-mermaid mirrors warm-syntax (src/lib/).
-            mermaid: { mermaidConfig: warmMermaidTheme }
+            mermaid: { mermaidConfig: warmMermaidTheme },
+            // `::embed{src title}` → static click-to-activate facade (requires trustedContent;
+            // no iframe — and none of the target's cost — until the reader clicks). The
+            // activation island is `lazyEmbed`, registered in src/islands; chrome in
+            // src/styles/code.css.
+            embed: true
           })
         ]
       },

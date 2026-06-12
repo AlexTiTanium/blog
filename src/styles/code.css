@@ -32,6 +32,56 @@
     border: 1px solid var(--border-default);
     background: var(--color-stone-975);
   }
+
+  /* Lazy embeds -- `::embed` facades in <figure class="lazy-embed">.
+     Same block chrome as pre.shiki; a fixed-ratio box that holds first the
+     activation button (terminal-prompt styled, chrome intentionally English)
+     and, after the lazyEmbed island swaps it in, the iframe itself. */
+  figure.lazy-embed {
+    margin: 1.5rem 0;
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--border-default);
+    background: var(--color-stone-975);
+
+    .lazy-embed-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-family: var(--font-code);
+      color: var(--text-secondary);
+    }
+
+    .lazy-embed-button:hover .lazy-embed-title,
+    .lazy-embed-button:focus-visible .lazy-embed-title {
+      color: var(--accent-primary);
+    }
+
+    .lazy-embed-title {
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    /* Locale-invariant UI chrome (terminal aesthetic) -- not i18n by design. */
+    .lazy-embed-button::after {
+      content: "$ run --interactive  [click to load]";
+      font-size: 0.78rem;
+      opacity: 0.7;
+    }
+
+    .lazy-embed-frame {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  }
 }
 
 @media (max-width: 600px) {
