@@ -7,15 +7,14 @@ import { expect, test } from "@playwright/test";
 const PAGES = [
   "/",
   "/ru/",
-  "/hello-pipeline/",
-  "/ru/hello-pipeline/",
+  "/monaco-2026-drama/",
+  "/ru/monaco-2026-drama/",
   "/archive/",
   "/ru/archive/",
   "/about/",
   "/ru/about/",
-  "/tags/testing/",
-  "/ru/tags/testing/",
-  "/page/2/"
+  "/tags/formula1/",
+  "/ru/tags/formula1/"
 ];
 
 for (const path of PAGES) {

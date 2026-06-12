@@ -11,54 +11,32 @@ const DIST = path.join(__dirname, "../../dist");
 // (no /en/ prefix). English is ALSO emitted under /en/ as a real alias (identical content,
 // canonical pointing at the bare url). Non-default locales (ru, uk, es) stay prefixed.
 //
-//   Per locale (45 pages):
-//     index + about + archive + 2 archive-pages + 2 home-pages + 23 articles + 15 tags = 45
+//   Per locale (18 pages):
+//     index + about + archive + 6 articles + 9 tags = 18
+//   (All 6 articles fit on one page, so no /page/N/ or /archive/page/N/ are emitted.)
 //
-//   Five page sets: bare-en + en-alias + ru + uk + es = 45 × 5 = 225 pages.
+//   Five page sets: bare-en + en-alias + ru + uk + es = 18 × 5 = 90 pages.
 // ---------------------------------------------------------------
 
 const ARTICLES = [
   "bad-monday",
   "ball-factory",
-  "code-reviews-survival-guide",
-  "css-specificity-wars",
-  "debugging-at-3am",
   "descent-journeys-in-the-dark",
-  "docker-container-therapy",
   "fun-da-vinci",
-  "git-bisect-saves-the-day",
-  "hello-pipeline",
-  "keyboard-shortcuts-obsession",
   "monaco-2026-drama",
-  "npm-dependency-hell",
-  "pair-programming-introvert",
-  "production-hotfix-at-midnight",
-  "refactoring-legacy-spaghetti",
-  "regex-dark-arts",
-  "stack-overflow-driven-dev",
-  "stds",
-  "test-literary-elements",
-  "the-joy-of-typescript",
-  "weekend-side-project-curse",
-  "when-the-build-breaks"
+  "stds"
 ];
 
 const TAGS = [
   "ball-factory",
   "board-games",
   "descent",
-  "devlife",
   "formula1",
   "fun-da-vinci",
   "gamedev",
-  "javascript",
   "life",
-  "literary",
   "opinion",
-  "pipeline",
-  "stds",
-  "testing",
-  "tools"
+  "stds"
 ];
 
 /**
@@ -71,10 +49,6 @@ function localePages(prefix: string): string[] {
     `${prefix}index.html`,
     `${prefix}about/index.html`,
     `${prefix}archive/index.html`,
-    `${prefix}archive/page/2/index.html`,
-    `${prefix}archive/page/3/index.html`,
-    `${prefix}page/2/index.html`,
-    `${prefix}page/3/index.html`,
     ...ARTICLES.map(slug => `${prefix}${slug}/index.html`),
     ...TAGS.map(tag => `${prefix}tags/${tag}/index.html`)
   ];
@@ -94,9 +68,9 @@ function stripBuildId(html: string): string {
 }
 
 test.describe("Build Validation", () => {
-  test("emits exactly 225 pages", () => {
-    // 45 pages × 5 sets (bare-en + en-alias + ru + uk + es).
-    expect(EXPECTED_PAGES).toHaveLength(225);
+  test("emits exactly 90 pages", () => {
+    // 18 pages × 5 sets (bare-en + en-alias + ru + uk + es).
+    expect(EXPECTED_PAGES).toHaveLength(90);
   });
 
   test("all expected HTML pages exist after build", () => {
@@ -138,8 +112,8 @@ test.describe("Build Validation", () => {
       const og = path.join(DIST, "og", `${slug}.png`);
       expect(existsSync(og), `Missing OG image: og/${slug}.png`).toBe(true);
     }
-    // 23 articles -> 23 OG images.
-    expect(ARTICLES).toHaveLength(23);
+    // 6 articles -> 6 OG images.
+    expect(ARTICLES).toHaveLength(6);
   });
 });
 
@@ -170,17 +144,15 @@ test.describe("Bare default-locale content on disk", () => {
 // ---------------------------------------------------------------
 
 test.describe("Root Path Content", () => {
-  test("/ stays at / with real home content (not a paginated page)", async ({ page }) => {
+  test("/ stays at / with real home content", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/$/);
 
     const dashboard = page.locator('[data-component="dashboard"]');
     await expect(dashboard).toBeVisible();
 
-    // Page 1: "next" is visible; "prev" exists but is hidden.
-    const pagination = page.locator('[data-component="pagination"]');
-    await expect(pagination.locator("[data-next]:not([data-hidden])")).toBeVisible();
-    await expect(pagination.locator("[data-prev][data-hidden]")).toBeAttached();
+    // All 6 articles fit on one page, so no pagination renders.
+    await expect(page.locator('[data-component="pagination"]')).toHaveCount(0);
   });
 
   test("/ content matches /en/ alias content", async ({ page }) => {
@@ -215,20 +187,5 @@ test.describe("Root Path Content", () => {
     expect(homeTitle).not.toBe(archiveTitle);
     expect(homeTitle).not.toBe(aboutTitle);
     expect(archiveTitle).not.toBe(aboutTitle);
-  });
-
-  test("paginated pages have distinct content from page 1", async ({ page }) => {
-    await page.goto("/");
-    const page1Cards = await page
-      .locator('[data-component="dashboard"] article:not([data-variant="stats"]) header')
-      .allTextContents();
-
-    await page.goto("/page/2/");
-    const page2Cards = await page
-      .locator('[data-component="dashboard"] article:not([data-variant="stats"]) header')
-      .allTextContents();
-
-    const overlap = page1Cards.filter(title => page2Cards.includes(title));
-    expect(overlap).toHaveLength(0);
   });
 });

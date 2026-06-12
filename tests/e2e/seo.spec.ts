@@ -19,11 +19,11 @@ test.describe("SEO & Metadata", () => {
   });
 
   test("article page has OG tags and JSON-LD", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+    await page.goto("/monaco-2026-drama/");
 
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
       "content",
-      /Hello, Pipeline!/
+      /Monaco 2026/
     );
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "article");
     await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\.png$/);
@@ -36,14 +36,14 @@ test.describe("SEO & Metadata", () => {
   });
 
   test("article page has description meta tag", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+    await page.goto("/monaco-2026-drama/");
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
   });
 
   test("OG image url is slug-named and matches an emitted PNG", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+    await page.goto("/monaco-2026-drama/");
     const content = await page.locator('meta[property="og:image"]').getAttribute("content");
-    expect(content).toMatch(/\/og\/hello-pipeline\.png$/);
+    expect(content).toMatch(/\/og\/monaco-2026-drama\.png$/);
   });
 
   test("RSS feed link exists", async ({ page }) => {
@@ -68,8 +68,8 @@ const ALL_PAGES = [
   { name: "archive-ru", path: "/ru/archive/", isArticle: false },
   { name: "about-en", path: "/about/", isArticle: false },
   { name: "about-ru", path: "/ru/about/", isArticle: false },
-  { name: "article-en", path: "/hello-pipeline/", isArticle: true },
-  { name: "article-ru", path: "/ru/hello-pipeline/", isArticle: true }
+  { name: "article-en", path: "/monaco-2026-drama/", isArticle: true },
+  { name: "article-ru", path: "/ru/monaco-2026-drama/", isArticle: true }
 ];
 
 test.describe("SEO: All pages", () => {

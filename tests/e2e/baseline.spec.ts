@@ -22,8 +22,8 @@ const fontsReady = async (page: import("@playwright/test").Page): Promise<void> 
 const pages = [
   { name: "home-en", path: "/" },
   { name: "home-ru", path: "/ru/" },
-  { name: "article-en-hello-pipeline", path: "/hello-pipeline/" },
-  { name: "article-ru-hello-pipeline", path: "/ru/hello-pipeline/" },
+  { name: "article-en-monaco-2026-drama", path: "/monaco-2026-drama/" },
+  { name: "article-ru-monaco-2026-drama", path: "/ru/monaco-2026-drama/" },
   { name: "article-en-bad-monday", path: "/bad-monday/" },
   { name: "article-ru-bad-monday", path: "/ru/bad-monday/" },
   { name: "archive-en", path: "/archive/" },

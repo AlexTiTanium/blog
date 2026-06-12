@@ -28,19 +28,13 @@ test.describe("Bare Path English", () => {
     await expect(page).toHaveTitle(/About/);
   });
 
-  test("/page/2/ serves real English page 2 content", async ({ page }) => {
-    await page.goto("/page/2/");
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
-    await expect(page.locator("[data-prev]:not([data-hidden])")).toBeVisible();
-  });
-
-  test("/tags/testing/ serves real English tag content", async ({ page }) => {
-    await page.goto("/tags/testing/");
+  test("/tags/formula1/ serves real English tag content", async ({ page }) => {
+    await page.goto("/tags/formula1/");
     await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
   });
 
-  test("/hello-pipeline/ serves real English article content", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+  test("/monaco-2026-drama/ serves real English article content", async ({ page }) => {
+    await page.goto("/monaco-2026-drama/");
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toBeVisible();
   });
 });
@@ -52,12 +46,14 @@ test.describe("/en/ alias serves English directly (not a redirect)", () => {
     await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
   });
 
-  test("/en/hello-pipeline/ stays at /en/hello-pipeline/ with bare canonical", async ({ page }) => {
-    await page.goto("/en/hello-pipeline/");
-    await expect(page).toHaveURL(/\/en\/hello-pipeline\/$/);
+  test("/en/monaco-2026-drama/ stays at /en/monaco-2026-drama/ with bare canonical", async ({
+    page
+  }) => {
+    await page.goto("/en/monaco-2026-drama/");
+    await expect(page).toHaveURL(/\/en\/monaco-2026-drama\/$/);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `${SITE.url}/hello-pipeline/`
+      `${SITE.url}/monaco-2026-drama/`
     );
   });
 });

@@ -1,10 +1,11 @@
 /**
- * @file Content migration gate (Phase B). Boots a content-only app over the real `content/` tree and
- * guards the migrated corpus: at least 23 English articles (all native) and at least 7 native Russian
- * articles (the rest resolve via locale fallback → `isFallback: true`). Counts are minimums, not exact —
- * the corpus actively grows (the `/post` skill adds articles), so exact equality would break the suite
- * on every new post. The migration-guard intent (nothing was lost) only needs a lower bound; the
- * growth-proof invariants (no EN fallbacks, full RU fallback coverage, date order) stay exact.
+ * @file Content corpus gate. Boots a content-only app over the real `content/` tree and guards the
+ * authored corpus: at least 6 articles, all natively translated in English AND Russian (the
+ * AI-generated en-only filler was removed in June 2026; only authored, fully-translated posts
+ * remain). Counts are minimums, not exact — the corpus actively grows (the `/post` skill adds
+ * articles), so exact equality would break the suite on every new post. A drop BELOW the baseline
+ * means authored content went missing; the growth-proof invariants (no EN fallbacks, full RU
+ * coverage, date order) stay exact.
  *
  * Uses only `contentPlugin` on the isomorphic defaults — no `buildPlugin`, so the OG `fontDir`
  * validation (a Phase D concern) doesn't run here.
@@ -25,26 +26,26 @@ const app = createApp({
   }
 });
 
-// Migration baselines from Phase B. Minimums, not exact counts: the corpus grows over time
-// (the /post skill adds articles), and exact equality would fail the suite on every new post.
-// A drop BELOW these baselines still means migrated content went missing.
-const MIN_ENGLISH_ARTICLES = 23;
-const MIN_NATIVE_RUSSIAN_ARTICLES = 7;
+// Authored-corpus baselines (post AI-filler cleanup, June 2026). Minimums, not exact counts:
+// the corpus grows over time (the /post skill adds articles), and exact equality would fail
+// the suite on every new post. A drop BELOW these baselines means authored content went missing.
+const MIN_ENGLISH_ARTICLES = 6;
+const MIN_NATIVE_RUSSIAN_ARTICLES = 6;
 
-describe("content migration (Phase B)", () => {
+describe("content corpus", () => {
   let byLocale: Awaited<ReturnType<typeof app.content.loadAll>>;
 
   beforeAll(async () => {
     byLocale = await app.content.loadAll();
   });
 
-  it("has at least 23 English articles (all native translations)", () => {
+  it("has at least 6 English articles (all native translations)", () => {
     const en = byLocale.get("en") ?? [];
     expect(en.length).toBeGreaterThanOrEqual(MIN_ENGLISH_ARTICLES);
     expect(en.every(a => !a.isFallback)).toBe(true);
   });
 
-  it("has at least 7 native Russian articles (rest fall back to English)", () => {
+  it("has at least 6 native Russian articles (full native coverage)", () => {
     const en = byLocale.get("en") ?? [];
     const ru = byLocale.get("ru") ?? [];
     const native = ru.filter(a => !a.isFallback);

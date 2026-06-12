@@ -1,72 +1,47 @@
 import { expect, test } from "@playwright/test";
 import { SITE } from "../../src/config";
 
-// All 23 English article slugs (native translations).
+// All 6 article slugs — every article carries native translations in every locale.
 const EN_ARTICLES = [
   "bad-monday",
   "ball-factory",
-  "code-reviews-survival-guide",
-  "css-specificity-wars",
-  "debugging-at-3am",
   "descent-journeys-in-the-dark",
-  "docker-container-therapy",
   "fun-da-vinci",
-  "git-bisect-saves-the-day",
-  "hello-pipeline",
-  "keyboard-shortcuts-obsession",
   "monaco-2026-drama",
-  "npm-dependency-hell",
-  "pair-programming-introvert",
-  "production-hotfix-at-midnight",
-  "refactoring-legacy-spaghetti",
-  "regex-dark-arts",
-  "stack-overflow-driven-dev",
-  "stds",
-  "test-literary-elements",
-  "the-joy-of-typescript",
-  "weekend-side-project-curse",
-  "when-the-build-breaks"
-];
-
-// Every article is reachable under /ru/ too (native translations + English fallbacks).
-const RU_ARTICLES = EN_ARTICLES;
-// The 6 with a native Russian translation (the other 16 fall back to the English body).
-const RU_NATIVE = [
-  "bad-monday",
-  "ball-factory",
-  "descent-journeys-in-the-dark",
-  "fun-da-vinci",
-  "hello-pipeline",
   "stds"
 ];
 
+// Every article is reachable under /ru/ too (all have native Russian translations).
+const RU_ARTICLES = EN_ARTICLES;
+const RU_NATIVE = EN_ARTICLES;
+
 test.describe("Content", () => {
-  test("home page shows 10 article cards (first page)", async ({ page }) => {
+  test("home page shows all 6 article cards (single page)", async ({ page }) => {
     await page.goto("/");
     const cards = page.locator('[data-component="dashboard"] article:not([data-variant="stats"])');
-    await expect(cards).toHaveCount(10);
+    await expect(cards).toHaveCount(6);
   });
 
   test("home page shows stats card with total article count", async ({ page }) => {
     await page.goto("/");
     const statsCard = page.locator('[data-component="dashboard"] article[data-variant="stats"]');
     await expect(statsCard).toBeVisible();
-    await expect(statsCard.locator("[data-value]").first()).toHaveText("23");
+    await expect(statsCard.locator("[data-value]").first()).toHaveText("6");
   });
 
   test("article has title, date, author, and body", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+    await page.goto("/monaco-2026-drama/");
 
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toHaveText(
-      "Hello, Pipeline!"
+      "Monaco 2026: One Overtake, All the Drama in the World"
     );
-    await expect(page.locator("[data-meta]")).toContainText("2026-01-15");
+    await expect(page.locator("[data-meta]")).toContainText("2026-06-07");
     await expect(page.locator("[data-meta]")).toContainText(SITE.author);
     await expect(page.locator("[data-content]")).toBeVisible();
   });
 
   test("article has syntax-highlighted code blocks", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+    await page.goto("/monaco-2026-drama/");
     const codeBlocks = page.locator("pre.shiki");
     expect(await codeBlocks.count()).toBeGreaterThan(0);
   });
@@ -83,29 +58,24 @@ test.describe("Content", () => {
     expect((text ?? "").length).toBeGreaterThan(100);
   });
 
-  test("all 23 English articles resolve (200)", async ({ page }) => {
+  test("all 6 English articles resolve (200)", async ({ page }) => {
     for (const slug of EN_ARTICLES) {
       const res = await page.goto(`/${slug}/`);
       expect(res?.status(), `EN ${slug}`).toBe(200);
     }
   });
 
-  test("all 23 Russian articles resolve (200) — native + English fallback", async ({ page }) => {
+  test("all 6 Russian articles resolve (200)", async ({ page }) => {
     for (const slug of RU_ARTICLES) {
       const res = await page.goto(`/ru/${slug}/`);
       expect(res?.status(), `RU ${slug}`).toBe(200);
     }
   });
 
-  test("fallback RU article shows the 'not translated' notice; native does not", async ({
-    page
-  }) => {
-    // test-literary-elements has no RU translation -> English fallback + notice.
-    await page.goto("/ru/test-literary-elements/");
-    await expect(page.locator("[data-notice]")).toBeVisible();
-
-    // hello-pipeline has a native RU translation -> no notice.
-    await page.goto("/ru/hello-pipeline/");
+  test("native RU articles show no 'not translated' notice", async ({ page }) => {
+    // Every article has a native RU translation, so the fallback notice never renders.
+    // (The fallback path itself is framework behavior; no untranslated fixture remains.)
+    await page.goto("/ru/monaco-2026-drama/");
     await expect(page.locator("[data-notice]")).toHaveCount(0);
   });
 
@@ -118,25 +88,16 @@ test.describe("Content", () => {
 });
 
 test.describe("Pagination", () => {
-  test("home page has pagination controls", async ({ page }) => {
+  // All 6 articles fit on one page (page size 10), so no pagination renders and
+  // no /page/N/ routes are emitted.
+  test("home page has no pagination controls (single page)", async ({ page }) => {
     await page.goto("/");
-    const pagination = page.locator('[data-component="pagination"]');
-    await expect(pagination).toBeVisible();
-    await expect(pagination.locator("[data-next]")).toBeVisible();
-    await expect(pagination.locator("[data-prev]")).toHaveAttribute("data-hidden", "true");
+    await expect(page.locator('[data-component="pagination"]')).toHaveCount(0);
   });
 
-  test("pagination page 2 shows articles and has prev link", async ({ page }) => {
-    await page.goto("/page/2/");
-    const cards = page.locator('[data-component="dashboard"] article:not([data-variant="stats"])');
-    expect(await cards.count()).toBeGreaterThan(0);
-    const pagination = page.locator('[data-component="pagination"]');
-    await expect(pagination.locator("[data-prev]")).toBeVisible();
-  });
-
-  test("archive page has pagination", async ({ page }) => {
+  test("archive page has no pagination (single page)", async ({ page }) => {
     await page.goto("/archive/");
-    await expect(page.locator('[data-component="pagination"]')).toBeVisible();
+    await expect(page.locator('[data-component="pagination"]')).toHaveCount(0);
   });
 });
 
