@@ -5,7 +5,9 @@ import { expect, test } from "@playwright/test";
 import { ARTICLES, pageCount, SLUGS, TAGS } from "./_content";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DIST = path.join(__dirname, "../../dist");
+// The FIXTURE build output (scripts/e2e-server.ts) — validates the build pipeline's output
+// shape against the frozen fixture corpus. The real `dist` is exercised by CI's `bun run build`.
+const DIST = path.join(__dirname, "../../dist-e2e");
 
 // ---------------------------------------------------------------
 // Output shape — i18n URL scheme: the DEFAULT locale (en) is served at BARE paths

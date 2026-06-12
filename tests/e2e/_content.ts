@@ -1,20 +1,23 @@
 /**
- * @file Content-derived test expectations. Scans the real `content/` tree at test time so the
- * e2e suite never hardcodes slugs, counts, tags, or titles — adding a new article via the
- * `/post` skill requires NO test edits (only the visual baselines for listing pages change,
- * regenerated with `bun run test:e2e:update`).
+ * @file Content-derived test expectations over the FIXTURE corpus (`tests/fixtures/content`)
+ * that the Playwright webServer builds into `dist-e2e/` (see scripts/e2e-server.ts). The
+ * fixtures are a frozen article set, fully independent of the real `content/` — publishing a
+ * real article never touches the e2e suite or its visual baselines. The fixtures deliberately
+ * keep cases the live corpus may lack: >PAGE_SIZE articles (pagination), en-only articles
+ * (locale-fallback notice), and code blocks (Shiki highlighting).
  *
- * Frontmatter is parsed with a minimal line scanner (title/date/tags are flat, quoted scalars
- * and a simple list) rather than a YAML dependency — deliberately independent of the
- * framework's own gray-matter pipeline so these expectations aren't derived from the code
- * under test.
+ * Expectations are still DERIVED by scanning the fixture tree at test time, so editing the
+ * fixture corpus is also edit-free for the specs. Frontmatter is parsed with a minimal line
+ * scanner (title/date/tags are flat, quoted scalars and a simple list) rather than a YAML
+ * dependency — deliberately independent of the framework's own gray-matter pipeline so these
+ * expectations aren't derived from the code under test.
  */
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CONTENT_DIR = path.join(__dirname, "../../content");
+const CONTENT_DIR = path.join(__dirname, "../fixtures/content");
 
 /**
  * Articles per listing page — the framework default (`@moku-labs/web` pages plugin); this app

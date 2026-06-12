@@ -25,8 +25,12 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : [["list"]],
+  // The webServer builds and serves the FIXTURE corpus (tests/fixtures/content → dist-e2e),
+  // not the real site: e2e expectations + visual baselines are frozen against it, so
+  // publishing a real article never touches the suite. The real corpus is still guarded by
+  // `bun run build` in CI + the integration content tests.
   webServer: {
-    command: "bun scripts/preview.ts",
+    command: "bun scripts/e2e-server.ts",
     port,
     reuseExistingServer: !process.env.CI
   },

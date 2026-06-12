@@ -50,11 +50,19 @@ the framework package.
   Do NOT move it into i18n or translate it. Localized (`src/i18n/`): article content, the nav
   labels, and the HEAD copy — document `<title>` tails + meta descriptions (`pageTitle`/`pageStrings`
   in `src/lib/head.ts`) — since those are search-result text, not in-page chrome.
+- **E2E runs against a FROZEN fixture corpus, never the real articles.** The Playwright webServer
+  (`scripts/e2e-server.ts`) builds `tests/fixtures/content/` into `dist-e2e/` and serves that;
+  spec expectations are derived by scanning the fixture tree (`tests/e2e/_content.ts`). So
+  publishing or editing real articles in `content/` requires ZERO test or baseline changes. The
+  fixtures deliberately keep cases the live corpus may lack (>10 articles → pagination, en-only
+  articles → locale-fallback notice, code blocks → Shiki). The real corpus is guarded separately:
+  `bun run build` in CI + the `tests/integration/content.test.ts` minimums.
 - **Rendered output is guarded by visual baselines.** Playwright golden screenshots exist for
-  home/archive/about/article in en+ru (desktop+mobile). Refactors should be output-preserving; if a
-  change intentionally alters rendering, regenerate baselines with `bun run test:e2e:update` and say
-  so. A fast pre-check: `bun run build` then diff `dist/**/*.html` (ignoring the non-deterministic
-  `build-id` meta) against a pre-change build.
+  home/archive/about/article in en+ru (desktop+mobile), rendered from the fixture corpus — they
+  change only when CODE changes rendering, never when content is published. Refactors should be
+  output-preserving; if a change intentionally alters rendering, regenerate baselines with
+  `bun run test:e2e:update` and say so. A fast pre-check: `bun run build` then diff
+  `dist/**/*.html` (ignoring the non-deterministic `build-id` meta) against a pre-change build.
 - **Client bundle must stay node/native-free.** `routes.tsx` and the shared `lib/` helpers are in the
   browser graph, so they must not import the concrete SSG app or any Node-only plugin. Route loaders
   reach the content API the spec way — `ctx.require(contentPlugin)` (the browser-safe shell; the node

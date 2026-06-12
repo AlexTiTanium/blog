@@ -19,13 +19,18 @@ const fontsReady = async (page: import("@playwright/test").Page): Promise<void> 
   await page.evaluate(() => document.fonts.ready);
 };
 
+// All paths live in the FIXTURE corpus (tests/fixtures/content, served from dist-e2e), so
+// these goldens are FROZEN — publishing a real article never changes any baseline.
+//   hello-pipeline: natively translated (en+ru renders) with code blocks.
+//   debugging-at-3am: en-only — its /ru/ render locks the locale-fallback notice pixels.
 const pages = [
   { name: "home-en", path: "/" },
   { name: "home-ru", path: "/ru/" },
-  { name: "article-en-monaco-2026-drama", path: "/monaco-2026-drama/" },
-  { name: "article-ru-monaco-2026-drama", path: "/ru/monaco-2026-drama/" },
-  { name: "article-en-bad-monday", path: "/bad-monday/" },
-  { name: "article-ru-bad-monday", path: "/ru/bad-monday/" },
+  { name: "article-en-hello-pipeline", path: "/hello-pipeline/" },
+  { name: "article-ru-hello-pipeline", path: "/ru/hello-pipeline/" },
+  { name: "article-en-debugging-at-3am", path: "/debugging-at-3am/" },
+  { name: "article-ru-fallback-debugging-at-3am", path: "/ru/debugging-at-3am/" },
+  { name: "page2-en", path: "/page/2/" },
   { name: "archive-en", path: "/archive/" },
   { name: "archive-ru", path: "/ru/archive/" },
   { name: "about-en", path: "/about/" },

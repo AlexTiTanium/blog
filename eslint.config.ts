@@ -9,6 +9,7 @@ export default [
   {
     ignores: [
       "dist/**",
+      "dist-e2e/**",
       "coverage/**",
       "bun.lock",
       ".claude/**",
@@ -49,6 +50,8 @@ export default [
             prod: true,
             md: true,
             dir: true,
+            contentDir: true,
+            outDir: true,
             doc: true,
             docs: true,
             db: true,
