@@ -61,8 +61,10 @@ the framework package.
   `fileSystemContent` provider is composed only in `src/app.ts`) — and links come from the pure
   `createUrls(routes)` builder, so there are no `app.*` module globals to bind. The `bundle-safety`
   test enforces this.
-- **Fonts are vendored** under `assets/fonts/` with local `@font-face` (`src/styles/*.css`) — no
-  font npm dependencies.
+- **Fonts are vendored** under `public/fonts/` (served statically, root-relative `/fonts/...` URLs
+  in the local `@font-face` blocks, `src/styles/*.css`) — no font npm dependencies. The build
+  leaves font `url()`s external (never base64-inlined into the CSS bundle); `public/_headers`
+  carries their immutable cache rule. OG-render fonts (build-time only) stay in `assets/fonts/og/`.
 
 ## Testing
 

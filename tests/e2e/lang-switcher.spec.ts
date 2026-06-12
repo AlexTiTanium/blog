@@ -29,6 +29,12 @@ test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date("2026-06-01T12:00:00Z"));
 });
 
+// Fonts load as separate /fonts/* requests (font-display: swap) — wait before a
+// screenshot so it never captures the fallback-font frame (see baseline.spec.ts).
+const fontsReady = async (page: Page): Promise<void> => {
+  await page.evaluate(() => document.fonts.ready);
+};
+
 /** The language-switcher root. */
 const switcher = (page: Page): Locator => page.locator('[data-component="lang-switcher"]');
 
@@ -131,6 +137,7 @@ for (const phone of PHONES) {
         const header = page.locator("header[data-sticky]");
         // The default locale (en) is served at the bare path; ru stays prefixed.
         await page.goto(locale === "en" ? "/" : `/${locale}/`);
+        await fontsReady(page);
 
         await expect(header).toHaveScreenshot(`lang-${phone.id}-${locale}-collapsed.png`);
 
@@ -161,6 +168,7 @@ for (const screen of WIDE) {
 
     test("visual: header keeps the four-code row", async ({ page }) => {
       await page.goto("/");
+      await fontsReady(page);
       await expect(page.locator("header[data-sticky]")).toHaveScreenshot(
         `lang-${screen.id}-en.png`
       );

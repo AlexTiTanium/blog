@@ -7,25 +7,25 @@
 
 ## Main pages
 
-- [Home (EN)](https://geeklife.in.ua/): Latest posts dashboard
-- [Home (UK)](https://geeklife.in.ua/uk/): Стрічка останніх дописів
-- [Home (RU)](https://geeklife.in.ua/ru/): Лента последних постов
-- [Home (ES)](https://geeklife.in.ua/es/): Panel de entradas recientes
-- [Archive (EN)](https://geeklife.in.ua/archive/): All posts, grouped by month
-- [Archive (UK)](https://geeklife.in.ua/uk/archive/): Архів усіх дописів, за місяцями
-- [Archive (RU)](https://geeklife.in.ua/ru/archive/): Архив всех постов, по месяцам
-- [Archive (ES)](https://geeklife.in.ua/es/archive/): Todas las entradas, agrupadas por mes
-- [About (EN)](https://geeklife.in.ua/about/): Author profile
-- [About (UK)](https://geeklife.in.ua/uk/about/): Про автора
-- [About (RU)](https://geeklife.in.ua/ru/about/): Об авторе
-- [About (ES)](https://geeklife.in.ua/es/about/): Sobre el autor
+- [Home (EN)](https://alexblog.net/): Latest posts dashboard
+- [Home (UK)](https://alexblog.net/uk/): Стрічка останніх дописів
+- [Home (RU)](https://alexblog.net/ru/): Лента последних постов
+- [Home (ES)](https://alexblog.net/es/): Panel de entradas recientes
+- [Archive (EN)](https://alexblog.net/archive/): All posts, grouped by month
+- [Archive (UK)](https://alexblog.net/uk/archive/): Архів усіх дописів, за місяцями
+- [Archive (RU)](https://alexblog.net/ru/archive/): Архив всех постов, по месяцам
+- [Archive (ES)](https://alexblog.net/es/archive/): Todas las entradas, agrupadas por mes
+- [About (EN)](https://alexblog.net/about/): Author profile
+- [About (UK)](https://alexblog.net/uk/about/): Про автора
+- [About (RU)](https://alexblog.net/ru/about/): Об авторе
+- [About (ES)](https://alexblog.net/es/about/): Sobre el autor
 
 ## Feeds & indexes
 
-- [RSS feed](https://geeklife.in.ua/feed.xml): Recent articles (RSS 2.0)
-- [Atom feed](https://geeklife.in.ua/atom.xml): Recent articles (Atom)
-- [JSON feed](https://geeklife.in.ua/feed.json): Recent articles (JSON Feed)
-- [Sitemap](https://geeklife.in.ua/sitemap.xml): All pages
+- [RSS feed](https://alexblog.net/feed.xml): Recent articles (RSS 2.0)
+- [Atom feed](https://alexblog.net/atom.xml): Recent articles (Atom)
+- [JSON feed](https://alexblog.net/feed.json): Recent articles (JSON Feed)
+- [Sitemap](https://alexblog.net/sitemap.xml): All pages
 
 ## Conventions
 

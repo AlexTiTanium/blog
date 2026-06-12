@@ -18,7 +18,7 @@ export const OG_COLORS = {
   keyword: "#f97316", // --accent-secondary / hero "keyword" (orange-500)
   string: "#84cc16", // --accent-success / hero "string" (lime-500)
   comment: "rgba(132, 204, 22, 0.7)", // hero "comment" — dim lime
-  muted: "#8a7e72", // --color-stone-500
+  muted: "#92867a", // --color-stone-500
   border: "#292524", // --color-stone-850-ish
   red: "#f43f5e", // --accent-danger (rose-500) — titlebar dot
   yellow: "#f59e0b", // --accent-primary (amber-500) — titlebar dot

@@ -6,7 +6,7 @@ Statically generated, progressively enhanced, and lovingly over-engineered — t
 <div align="center">
 
 [![CI](https://github.com/AlexTiTanium/blog/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexTiTanium/blog/actions/workflows/ci.yml)
-[![live](https://img.shields.io/badge/live-geeklife.in.ua-0b7285)](https://geeklife.in.ua)
+[![live](https://img.shields.io/badge/live-alexblog.net-0b7285)](https://alexblog.net)
 [![built with](https://img.shields.io/badge/built%20with-%40moku--labs%2Fweb-1864ab)](https://github.com/moku-labs/web)
 [![node](https://img.shields.io/badge/node-%3E%3D24-339933?logo=node.js&logoColor=white)](#requirements)
 [![readers](https://img.shields.io/badge/readers-citation%20needed-lightgrey)](#)
@@ -37,7 +37,7 @@ Markdown goes in. A surprising amount of machinery happens. Static HTML comes ou
 flowchart LR
   MD["content/*.md<br/>(words, allegedly)"] --> B["bun run build<br/>@moku-labs/web · SSG"]
   B --> OUT["dist/<br/>HTML + feeds + sitemap + OG cards"]
-  OUT --> CF["Cloudflare Pages<br/>geeklife.in.ua"]
+  OUT --> CF["Cloudflare Pages<br/>alexblog.net"]
   OUT -. "hydrate islands · intercept nav" .-> SPA["SPA<br/>(the IDE chrome stays put)"]
   classDef a fill:#1864ab,stroke:#0d3d6e,color:#fff;
   classDef b fill:#0b7285,stroke:#08525f,color:#fff;
@@ -116,6 +116,6 @@ bun run deploy --cli    # non-interactive, headless-safe path
 
 Words by [Oleksandr Kucherenko](https://github.com/AlexTiTanium). Rendering by [`@moku-labs/web`](https://github.com/moku-labs/web) — which, full disclosure, I also wrote, which is the most on-brand sentence in this file.
 
-Read it (you, specifically) at **[geeklife.in.ua](https://geeklife.in.ua)**.
+Read it (you, specifically) at **[alexblog.net](https://alexblog.net)**.
 
 [MIT](./LICENSE) — the posts are mine, the bugs are collaborative.

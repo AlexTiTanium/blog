@@ -9,7 +9,7 @@
  * Color reference (from DESIGN-GUIDE.md):
  *   --dash-bg:       #1c1917  (warm near-black)
  *   --dash-text:     #d4c8b8  (body text)
- *   --dash-muted:    #8a7e72  (metadata / punctuation)
+ *   --dash-muted:    #92867a  (metadata / punctuation)
  *   --syntax-amber:  #f59e0b  (comments, italic)
  *   --syntax-coral:  #f97316  (keywords)
  *   --syntax-green:  #84cc16  (strings)
@@ -27,7 +27,7 @@ export const warmSyntaxTheme: ThemeRegistration = {
   colors: {
     "editor.background": "#181412",
     "editor.foreground": "#d4c8b8",
-    "editorLineNumber.foreground": "#8a7e72"
+    "editorLineNumber.foreground": "#92867a"
   },
   tokenColors: [
     // ── Comments ──────────────────────────────────────────────
@@ -118,7 +118,7 @@ export const warmSyntaxTheme: ThemeRegistration = {
         "meta.brace"
       ],
       settings: {
-        foreground: "#8a7e72"
+        foreground: "#92867a"
       }
     },
 

@@ -13,6 +13,12 @@ test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date("2026-06-01T12:00:00Z"));
 });
 
+// Fonts load as separate /fonts/* requests (font-display: swap), so a screenshot
+// can otherwise capture the fallback-font frame and ghost-diff every glyph.
+const fontsReady = async (page: import("@playwright/test").Page): Promise<void> => {
+  await page.evaluate(() => document.fonts.ready);
+};
+
 const pages = [
   { name: "home-en", path: "/" },
   { name: "home-ru", path: "/ru/" },
@@ -29,6 +35,7 @@ const pages = [
 for (const { name, path } of pages) {
   test(`baseline: ${name}`, async ({ page }) => {
     await page.goto(path);
+    await fontsReady(page);
     await expect(page).toHaveScreenshot(`${name}.png`, {
       fullPage: true,
       maxDiffPixelRatio: 0.02
@@ -42,6 +49,7 @@ test.describe("mobile", () => {
   for (const { name, path } of pages) {
     test(`baseline: ${name}`, async ({ page }) => {
       await page.goto(path);
+      await fontsReady(page);
       await expect(page).toHaveScreenshot(`${name}-mobile.png`, {
         fullPage: true,
         maxDiffPixelRatio: 0.02
