@@ -1,65 +1,33 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
+import { ARTICLES, pageCount, SLUGS, TAGS } from "./_content";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DIST = path.join(__dirname, "../../dist");
+// The FIXTURE build output (scripts/e2e-server.ts) — validates the build pipeline's output
+// shape against the frozen fixture corpus. The real `dist` is exercised by CI's `bun run build`.
+const DIST = path.join(__dirname, "../../dist-e2e");
 
 // ---------------------------------------------------------------
 // Output shape — i18n URL scheme: the DEFAULT locale (en) is served at BARE paths
 // (no /en/ prefix). English is ALSO emitted under /en/ as a real alias (identical content,
 // canonical pointing at the bare url). Non-default locales (ru, uk, es) stay prefixed.
 //
-//   Per locale (45 pages):
-//     index + about + archive + 2 archive-pages + 2 home-pages + 23 articles + 15 tags = 45
+//   Per locale: index + about + archive + one page per article + one page per tag
+//   + /page/N/ and /archive/page/N/ overflow pages when the corpus outgrows PAGE_SIZE.
 //
-//   Five page sets: bare-en + en-alias + ru + uk + es = 45 × 5 = 225 pages.
+//   Five page sets: bare-en + en-alias + ru + uk + es.
+//
+// The article/tag lists are DERIVED from content/ (see _content.ts), so adding an
+// article never requires editing this spec.
 // ---------------------------------------------------------------
 
-const ARTICLES = [
-  "bad-monday",
-  "ball-factory",
-  "code-reviews-survival-guide",
-  "css-specificity-wars",
-  "debugging-at-3am",
-  "descent-journeys-in-the-dark",
-  "docker-container-therapy",
-  "fun-da-vinci",
-  "git-bisect-saves-the-day",
-  "hello-pipeline",
-  "keyboard-shortcuts-obsession",
-  "monaco-2026-drama",
-  "npm-dependency-hell",
-  "pair-programming-introvert",
-  "production-hotfix-at-midnight",
-  "refactoring-legacy-spaghetti",
-  "regex-dark-arts",
-  "stack-overflow-driven-dev",
-  "stds",
-  "test-literary-elements",
-  "the-joy-of-typescript",
-  "weekend-side-project-curse",
-  "when-the-build-breaks"
-];
-
-const TAGS = [
-  "ball-factory",
-  "board-games",
-  "descent",
-  "devlife",
-  "formula1",
-  "fun-da-vinci",
-  "gamedev",
-  "javascript",
-  "life",
-  "literary",
-  "opinion",
-  "pipeline",
-  "stds",
-  "testing",
-  "tools"
-];
+/** `/page/2/..N/` suffixes under `base` when listings overflow a single page. */
+function overflowPages(base: string): string[] {
+  const pages = pageCount(ARTICLES.length);
+  return Array.from({ length: pages - 1 }, (_, i) => `${base}page/${i + 2}/index.html`);
+}
 
 /**
  * Build the full page list for one locale's URL prefix.
@@ -71,11 +39,9 @@ function localePages(prefix: string): string[] {
     `${prefix}index.html`,
     `${prefix}about/index.html`,
     `${prefix}archive/index.html`,
-    `${prefix}archive/page/2/index.html`,
-    `${prefix}archive/page/3/index.html`,
-    `${prefix}page/2/index.html`,
-    `${prefix}page/3/index.html`,
-    ...ARTICLES.map(slug => `${prefix}${slug}/index.html`),
+    ...overflowPages(prefix),
+    ...overflowPages(`${prefix}archive/`),
+    ...SLUGS.map(slug => `${prefix}${slug}/index.html`),
     ...TAGS.map(tag => `${prefix}tags/${tag}/index.html`)
   ];
 }
@@ -93,10 +59,26 @@ function stripBuildId(html: string): string {
   return html.replaceAll(/<meta name="build-id" content="[^"]*">/g, "");
 }
 
+/** Every `**\/index.html` actually present in dist, as locale-prefixed relative paths. */
+function distPages(): string[] {
+  const found: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name === "index.html") found.push(path.relative(DIST, full));
+    }
+  };
+  walk(DIST);
+  return found;
+}
+
 test.describe("Build Validation", () => {
-  test("emits exactly 225 pages", () => {
-    // 45 pages × 5 sets (bare-en + en-alias + ru + uk + es).
-    expect(EXPECTED_PAGES).toHaveLength(225);
+  test("dist page set EXACTLY matches the content-derived expectation", () => {
+    // Set equality both ways: a missing page means content was dropped; an extra page
+    // means the build emits routes the content tree doesn't explain.
+    const actual = distPages().toSorted();
+    expect(actual).toEqual(EXPECTED_PAGES.toSorted());
   });
 
   test("all expected HTML pages exist after build", () => {
@@ -133,13 +115,11 @@ test.describe("Build Validation", () => {
     expect(existsSync(path.join(DIST, "404.html"))).toBe(true);
   });
 
-  test("emits one OG image per article (slug-named)", () => {
-    for (const slug of ARTICLES) {
-      const og = path.join(DIST, "og", `${slug}.png`);
-      expect(existsSync(og), `Missing OG image: og/${slug}.png`).toBe(true);
-    }
-    // 23 articles -> 23 OG images.
-    expect(ARTICLES).toHaveLength(23);
+  test("emits exactly one OG image per article (slug-named)", () => {
+    const emitted = readdirSync(path.join(DIST, "og"))
+      .filter(file => file.endsWith(".png"))
+      .toSorted();
+    expect(emitted).toEqual(SLUGS.map(slug => `${slug}.png`).toSorted());
   });
 });
 
@@ -170,17 +150,12 @@ test.describe("Bare default-locale content on disk", () => {
 // ---------------------------------------------------------------
 
 test.describe("Root Path Content", () => {
-  test("/ stays at / with real home content (not a paginated page)", async ({ page }) => {
+  test("/ stays at / with real home content", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/$/);
 
     const dashboard = page.locator('[data-component="dashboard"]');
     await expect(dashboard).toBeVisible();
-
-    // Page 1: "next" is visible; "prev" exists but is hidden.
-    const pagination = page.locator('[data-component="pagination"]');
-    await expect(pagination.locator("[data-next]:not([data-hidden])")).toBeVisible();
-    await expect(pagination.locator("[data-prev][data-hidden]")).toBeAttached();
   });
 
   test("/ content matches /en/ alias content", async ({ page }) => {
@@ -215,20 +190,5 @@ test.describe("Root Path Content", () => {
     expect(homeTitle).not.toBe(archiveTitle);
     expect(homeTitle).not.toBe(aboutTitle);
     expect(archiveTitle).not.toBe(aboutTitle);
-  });
-
-  test("paginated pages have distinct content from page 1", async ({ page }) => {
-    await page.goto("/");
-    const page1Cards = await page
-      .locator('[data-component="dashboard"] article:not([data-variant="stats"]) header')
-      .allTextContents();
-
-    await page.goto("/page/2/");
-    const page2Cards = await page
-      .locator('[data-component="dashboard"] article:not([data-variant="stats"]) header')
-      .allTextContents();
-
-    const overlap = page1Cards.filter(title => page2Cards.includes(title));
-    expect(overlap).toHaveLength(0);
   });
 });

@@ -34,16 +34,36 @@ import { routes } from "./routes";
 type Stage = "production" | "development" | "test";
 
 /**
+ * Filesystem overrides for {@link makeApp} — where Markdown is read from and where the build
+ * (and the cli serve/preview loop) writes. Defaults compose the REAL site; the e2e suite passes
+ * the frozen fixture corpus + a separate output dir (`scripts/e2e-server.ts`) so tests never
+ * depend on the live articles.
+ */
+export interface AppIO {
+  /** Markdown content root. Default `"./content"` — the real authored corpus. */
+  contentDir?: string;
+  /** Build/serve/preview output dir. Default `"dist"` — the deployed artifact. */
+  outDir?: string;
+}
+
+/**
  * Compose the full Node-side app for the given deployment stage. The framework defaults
  * `config.stage` to `"production"` (drafts hidden); the dev loop passes `"development"`
  * so drafts are previewable locally.
  *
  * @param stage - Deployment stage threaded into the framework's `config.stage`.
- * @returns The composed app (same wiring at every stage — only draft visibility differs).
+ * @param io - Optional content/output dir overrides (see {@link AppIO}) — used by the e2e
+ *   fixture build. Deploy intentionally ignores them: only the real `dist` ever ships.
+ * @param io.contentDir - Markdown content root (default `"./content"`).
+ * @param io.outDir - Build/serve/preview output dir (default `"dist"`).
+ * @returns The composed app (same wiring at every stage — only draft visibility and IO differ).
  * @example
  * await makeApp("development").cli.serve();
+ * @example
+ * // e2e fixture build: frozen corpus, separate output dir
+ * makeApp("production", { contentDir: "tests/fixtures/content", outDir: "dist-e2e" });
  */
-export const makeApp = (stage: Stage) =>
+export const makeApp = (stage: Stage, { contentDir = "./content", outDir = "dist" }: AppIO = {}) =>
   createApp({
     plugins: [contentPlugin, buildPlugin, deployPlugin, dataPlugin, cliPlugin],
     config: { mode: "hybrid", stage },
@@ -51,13 +71,14 @@ export const makeApp = (stage: Stage) =>
       site: SITE,
       i18n: i18nConfig,
       content: {
-        // `trustedContent: true` — `./content` is fully author-controlled, in-repo Markdown (the
-        // documented case for this flag). Since web 1.7.0 the default sanitize pass strips `style`
-        // attributes, which would discard Shiki's inline token colors (src/styles/code.css states
-        // syntax colors come from those inline styles) on pages, `_data` payloads, and feed items.
+        // `trustedContent: true` — the content dir is fully author-controlled, in-repo Markdown
+        // (the documented case for this flag; true for both `./content` and the e2e fixture
+        // corpus). Since web 1.7.0 the default sanitize pass strips `style` attributes, which
+        // would discard Shiki's inline token colors (src/styles/code.css states syntax colors
+        // come from those inline styles) on pages, `_data` payloads, and feed items.
         providers: [
           fileSystemContent({
-            contentDir: "./content",
+            contentDir,
             shikiTheme: warmSyntaxTheme,
             trustedContent: true
           })
@@ -75,7 +96,7 @@ export const makeApp = (stage: Stage) =>
         defaultOgImage: "/og-default.png"
       },
       build: {
-        outDir: "dist",
+        outDir,
         feeds: true,
         sitemap: true,
         images: true,
@@ -145,11 +166,12 @@ export const makeApp = (stage: Stage) =>
       spa: { components: islands, viewTransitions: false, progressBar: true },
       data: { outputDir: "_data", baseUrl: "/_data/" },
       deploy: { target: "cloudflare-pages", outDir: "dist", productionBranch: "main", ci: true },
-      // serve/preview/deploy all act on the same "dist" output as build + deploy (stated explicitly so
-      // the linkage is visible, not coincidental). port 4173 = the Playwright webServer port; honor a
-      // PORT override. The remaining cli defaults already match the old hand-rolled scripts: watchDirs
-      // ["content","src"], debounceMs 150, notFoundFile "404.html", liveReload.
-      cli: { outDir: "dist", port: Number(process.env.PORT ?? 4173) },
+      // serve/preview act on the same output dir as build (stated explicitly so the linkage is
+      // visible, not coincidental) — deploy stays pinned to the real "dist" below. port 4173 =
+      // the Playwright webServer port; honor a PORT override. The remaining cli defaults already
+      // match the old hand-rolled scripts: watchDirs ["content","src"], debounceMs 150,
+      // notFoundFile "404.html", liveReload.
+      cli: { outDir, port: Number(process.env.PORT ?? 4173) },
       // Wire the Node env providers so `ctx.env.require(...)` (used by deploy to read
       // CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID) returns real values — process.env
       // first so CI-injected secrets win, .env (gitignored) is the local fallback.

@@ -1,72 +1,43 @@
 import { expect, test } from "@playwright/test";
 import { SITE } from "../../src/config";
+import { LOCALES } from "../../src/i18n/index";
+import { ARTICLES, CANONICAL, nativeSlugs, PAGE_SIZE, PAGINATED, SLUGS } from "./_content";
 
-// All 23 English article slugs (native translations).
-const EN_ARTICLES = [
-  "bad-monday",
-  "ball-factory",
-  "code-reviews-survival-guide",
-  "css-specificity-wars",
-  "debugging-at-3am",
-  "descent-journeys-in-the-dark",
-  "docker-container-therapy",
-  "fun-da-vinci",
-  "git-bisect-saves-the-day",
-  "hello-pipeline",
-  "keyboard-shortcuts-obsession",
-  "monaco-2026-drama",
-  "npm-dependency-hell",
-  "pair-programming-introvert",
-  "production-hotfix-at-midnight",
-  "refactoring-legacy-spaghetti",
-  "regex-dark-arts",
-  "stack-overflow-driven-dev",
-  "stds",
-  "test-literary-elements",
-  "the-joy-of-typescript",
-  "weekend-side-project-curse",
-  "when-the-build-breaks"
-];
-
-// Every article is reachable under /ru/ too (native translations + English fallbacks).
+// All expectations are DERIVED from content/ (see _content.ts) — adding an article
+// never requires editing this spec.
+const EN_ARTICLES = SLUGS;
+// Every article is reachable under /ru/ too (native translation or English fallback).
 const RU_ARTICLES = EN_ARTICLES;
-// The 6 with a native Russian translation (the other 16 fall back to the English body).
-const RU_NATIVE = [
-  "bad-monday",
-  "ball-factory",
-  "descent-journeys-in-the-dark",
-  "fun-da-vinci",
-  "hello-pipeline",
-  "stds"
-];
+const RU_NATIVE = nativeSlugs("ru");
 
 test.describe("Content", () => {
-  test("home page shows 10 article cards (first page)", async ({ page }) => {
+  test("home page shows the first page of article cards", async ({ page }) => {
     await page.goto("/");
     const cards = page.locator('[data-component="dashboard"] article:not([data-variant="stats"])');
-    await expect(cards).toHaveCount(10);
+    await expect(cards).toHaveCount(Math.min(ARTICLES.length, PAGE_SIZE));
   });
 
   test("home page shows stats card with total article count", async ({ page }) => {
     await page.goto("/");
     const statsCard = page.locator('[data-component="dashboard"] article[data-variant="stats"]');
     await expect(statsCard).toBeVisible();
-    await expect(statsCard.locator("[data-value]").first()).toHaveText("23");
+    await expect(statsCard.locator("[data-value]").first()).toHaveText(String(ARTICLES.length));
   });
 
   test("article has title, date, author, and body", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+    await page.goto(`/${CANONICAL.slug}/`);
 
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toHaveText(
-      "Hello, Pipeline!"
+      CANONICAL.title
     );
-    await expect(page.locator("[data-meta]")).toContainText("2026-01-15");
+    await expect(page.locator("[data-meta]")).toContainText(CANONICAL.date);
     await expect(page.locator("[data-meta]")).toContainText(SITE.author);
     await expect(page.locator("[data-content]")).toBeVisible();
   });
 
   test("article has syntax-highlighted code blocks", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+    test.skip(!CANONICAL.hasCodeBlock, "no article with a fenced code block in the corpus");
+    await page.goto(`/${CANONICAL.slug}/`);
     const codeBlocks = page.locator("pre.shiki");
     expect(await codeBlocks.count()).toBeGreaterThan(0);
   });
@@ -83,30 +54,31 @@ test.describe("Content", () => {
     expect((text ?? "").length).toBeGreaterThan(100);
   });
 
-  test("all 23 English articles resolve (200)", async ({ page }) => {
+  test("all English articles resolve (200)", async ({ page }) => {
     for (const slug of EN_ARTICLES) {
       const res = await page.goto(`/${slug}/`);
       expect(res?.status(), `EN ${slug}`).toBe(200);
     }
   });
 
-  test("all 23 Russian articles resolve (200) — native + English fallback", async ({ page }) => {
+  test("all Russian articles resolve (200)", async ({ page }) => {
     for (const slug of RU_ARTICLES) {
       const res = await page.goto(`/ru/${slug}/`);
       expect(res?.status(), `RU ${slug}`).toBe(200);
     }
   });
 
-  test("fallback RU article shows the 'not translated' notice; native does not", async ({
-    page
-  }) => {
-    // test-literary-elements has no RU translation -> English fallback + notice.
-    await page.goto("/ru/test-literary-elements/");
-    await expect(page.locator("[data-notice]")).toBeVisible();
-
-    // hello-pipeline has a native RU translation -> no notice.
-    await page.goto("/ru/hello-pipeline/");
+  test("'not translated' notice renders ONLY on RU fallback articles", async ({ page }) => {
+    // A native RU translation never shows the notice.
+    await page.goto(`/ru/${CANONICAL.slug}/`);
     await expect(page.locator("[data-notice]")).toHaveCount(0);
+
+    // If the corpus ever carries an untranslated article again, its RU page must show it.
+    const fallback = SLUGS.find(slug => !RU_NATIVE.includes(slug));
+    if (fallback) {
+      await page.goto(`/ru/${fallback}/`);
+      await expect(page.locator("[data-notice]")).toBeVisible();
+    }
   });
 
   test("native RU article slugs are a subset that resolve", async ({ page }) => {
@@ -118,25 +90,37 @@ test.describe("Content", () => {
 });
 
 test.describe("Pagination", () => {
-  test("home page has pagination controls", async ({ page }) => {
+  // Pagination only exists when the corpus outgrows one page (PAGE_SIZE articles) —
+  // both branches are asserted so the suite adapts as the corpus grows.
+  test("home pagination matches corpus size", async ({ page }) => {
     await page.goto("/");
     const pagination = page.locator('[data-component="pagination"]');
-    await expect(pagination).toBeVisible();
-    await expect(pagination.locator("[data-next]")).toBeVisible();
-    await expect(pagination.locator("[data-prev]")).toHaveAttribute("data-hidden", "true");
+    if (PAGINATED) {
+      await expect(pagination).toBeVisible();
+      await expect(pagination.locator("[data-next]")).toBeVisible();
+      await expect(pagination.locator("[data-prev]")).toHaveAttribute("data-hidden", "true");
+    } else {
+      await expect(pagination).toHaveCount(0);
+    }
   });
 
-  test("pagination page 2 shows articles and has prev link", async ({ page }) => {
-    await page.goto("/page/2/");
-    const cards = page.locator('[data-component="dashboard"] article:not([data-variant="stats"])');
-    expect(await cards.count()).toBeGreaterThan(0);
-    const pagination = page.locator('[data-component="pagination"]');
-    await expect(pagination.locator("[data-prev]")).toBeVisible();
+  test("page 2 exists exactly when the corpus overflows", async ({ page }) => {
+    const res = await page.goto("/page/2/");
+    if (PAGINATED) {
+      expect(res?.status()).toBe(200);
+      const cards = page.locator(
+        '[data-component="dashboard"] article:not([data-variant="stats"])'
+      );
+      expect(await cards.count()).toBeGreaterThan(0);
+    } else {
+      expect(res?.status()).toBe(404);
+    }
   });
 
-  test("archive page has pagination", async ({ page }) => {
+  test("archive pagination matches corpus size", async ({ page }) => {
     await page.goto("/archive/");
-    await expect(page.locator('[data-component="pagination"]')).toBeVisible();
+    const pagination = page.locator('[data-component="pagination"]');
+    await (PAGINATED ? expect(pagination).toBeVisible() : expect(pagination).toHaveCount(0));
   });
 });
 
@@ -155,10 +139,9 @@ test.describe("Structure", () => {
   test("language switcher shows all supported locales", async ({ page }) => {
     await page.goto("/");
     const langItems = page.locator('[data-component="lang-switcher"] a');
-    await expect(langItems).toHaveCount(4);
-    await expect(langItems.nth(0)).toHaveText("EN");
-    await expect(langItems.nth(1)).toHaveText("UK");
-    await expect(langItems.nth(2)).toHaveText("RU");
-    await expect(langItems.nth(3)).toHaveText("ES");
+    await expect(langItems).toHaveCount(LOCALES.length);
+    for (const [index, locale] of LOCALES.entries()) {
+      await expect(langItems.nth(index)).toHaveText(locale.toUpperCase());
+    }
   });
 });

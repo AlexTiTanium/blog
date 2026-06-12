@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
 import { SITE } from "../../src/config";
+import { CANONICAL, escapeRegExp, TAGS } from "./_content";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(__dirname, "../../dist");
@@ -28,19 +29,13 @@ test.describe("Bare Path English", () => {
     await expect(page).toHaveTitle(/About/);
   });
 
-  test("/page/2/ serves real English page 2 content", async ({ page }) => {
-    await page.goto("/page/2/");
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
-    await expect(page.locator("[data-prev]:not([data-hidden])")).toBeVisible();
-  });
-
-  test("/tags/testing/ serves real English tag content", async ({ page }) => {
-    await page.goto("/tags/testing/");
+  test("bare tag page serves real English tag content", async ({ page }) => {
+    await page.goto(`/tags/${TAGS[0]}/`);
     await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
   });
 
-  test("/hello-pipeline/ serves real English article content", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+  test("bare article path serves real English article content", async ({ page }) => {
+    await page.goto(`/${CANONICAL.slug}/`);
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toBeVisible();
   });
 });
@@ -52,12 +47,12 @@ test.describe("/en/ alias serves English directly (not a redirect)", () => {
     await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
   });
 
-  test("/en/hello-pipeline/ stays at /en/hello-pipeline/ with bare canonical", async ({ page }) => {
-    await page.goto("/en/hello-pipeline/");
-    await expect(page).toHaveURL(/\/en\/hello-pipeline\/$/);
+  test("/en/<article>/ stays at /en/<article>/ with bare canonical", async ({ page }) => {
+    await page.goto(`/en/${CANONICAL.slug}/`);
+    await expect(page).toHaveURL(new RegExp(`/en/${escapeRegExp(CANONICAL.slug)}/$`));
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `${SITE.url}/hello-pipeline/`
+      `${SITE.url}/${CANONICAL.slug}/`
     );
   });
 });

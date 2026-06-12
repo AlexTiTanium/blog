@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { CANONICAL } from "./_content";
 
 test.describe("Navigation", () => {
   test("home page loads with correct title", async ({ page }) => {
@@ -86,9 +87,9 @@ test.describe("SPA Navigation", () => {
   });
 
   test("deep link loads article page directly", async ({ page }) => {
-    await page.goto("/hello-pipeline/");
+    await page.goto(`/${CANONICAL.slug}/`);
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toHaveText(
-      "Hello, Pipeline!"
+      CANONICAL.title
     );
     await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
     await expect(page.locator('[data-component="footer"]')).toBeVisible();
@@ -163,7 +164,7 @@ test.describe("SPA Navigation - Russian locale", () => {
   });
 
   test("Russian article deep link loads correctly", async ({ page }) => {
-    await page.goto("/ru/hello-pipeline/");
+    await page.goto(`/ru/${CANONICAL.slug}/`);
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toBeVisible();
   });

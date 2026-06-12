@@ -46,8 +46,10 @@ jobs:
         with:
           node-version: 24
       - run: bun install --frozen-lockfile
-      # playwright.config.ts's `webServer` (scripts/preview.ts) serves the ALREADY-BUILT
-      # output dir — it has no build step of its own, so build first.
+      # Real-corpus build guard: e2e itself runs against the FIXTURE corpus
+      # (playwright.config.ts's webServer runs scripts/e2e-server.ts, which builds
+      # tests/fixtures/content into dist-e2e), so this build's only job is proving the
+      # REAL content/ still builds cleanly before a deploy can happen.
       - run: bun run build
       # All three engines from playwright.config.ts: chromium runs the full functional
       # suite; webkit + firefox still run the JS-boot guard (no-js-errors.spec.ts).

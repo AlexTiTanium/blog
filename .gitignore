@@ -4,6 +4,7 @@ node_modules
 # output
 out
 dist
+dist-e2e
 *.tgz
 
 # code coverage

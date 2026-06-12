@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { ARTICLES, CANONICAL, PAGE_SIZE, PAGINATED, TAGS } from "./_content";
 
 // End-to-end link + navigation integrity, in BOTH modes:
 //   - direct load (full HTML request per URL, incl. the SPA's _data prefetches), and
@@ -8,22 +9,21 @@ import { expect, type Page, test } from "@playwright/test";
 
 const ORIGIN = "http://localhost:4173";
 
-// Representative set: every page TYPE × both locales (full 70-page sweep is unnecessary —
-// each type shares a template/route).
+// Representative set: every page TYPE × both locales (a full all-page sweep is unnecessary —
+// each type shares a template/route). Article/tag picks are derived from content/ so adding
+// an article never requires editing this spec.
 const PAGES = [
   "/",
   "/ru/",
-  "/page/2/",
-  "/ru/page/2/",
   "/archive/",
   "/ru/archive/",
-  "/archive/page/2/",
   "/about/",
   "/ru/about/",
-  "/hello-pipeline/",
-  "/ru/hello-pipeline/",
-  "/tags/testing/",
-  "/ru/tags/testing/"
+  `/${CANONICAL.slug}/`,
+  `/ru/${CANONICAL.slug}/`,
+  `/tags/${TAGS[0]}/`,
+  `/ru/tags/${TAGS[0]}/`,
+  ...(PAGINATED ? ["/page/2/", "/ru/page/2/", "/archive/page/2/"] : [])
 ];
 
 /** Attach listeners that record any same-origin >=400 response, page error, or console error. */
@@ -60,7 +60,7 @@ test.describe("direct load — no failed requests, no JS errors", () => {
 test("link integrity — every internal link resolves (no dead links)", async ({ page, request }) => {
   // Crawl one page of each type and collect every internal href, then verify each resolves (<400).
   const internal = new Set<string>();
-  for (const start of ["/", "/ru/", "/archive/", "/about/", "/hello-pipeline/"]) {
+  for (const start of ["/", "/ru/", "/archive/", "/about/", `/${CANONICAL.slug}/`]) {
     await page.goto(start);
     const hrefs = await page.$$eval("a[href]", anchors =>
       anchors.map(a => a.getAttribute("href") ?? "")
@@ -82,9 +82,7 @@ test("link integrity — every internal link resolves (no dead links)", async ({
 });
 
 test.describe("SPA client navigation — no failed requests through a click path", () => {
-  test("nav tabs + article + pagination + lang switch all swap without errors", async ({
-    page
-  }) => {
+  test("nav tabs + article + lang switch all swap without errors", async ({ page }) => {
     const failures = watchFailures(page);
     await page.goto("/");
 
@@ -101,11 +99,9 @@ test.describe("SPA client navigation — no failed requests through a click path
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toBeVisible();
     await page.waitForLoadState("networkidle");
 
-    // Back home, then page 2 via pagination
+    // Back home
     await page.click('[data-component="tab-nav"] a[href="/"]');
     await page.waitForURL(/\/$/);
-    await page.click('[data-component="pagination"] [data-next]:not([data-hidden])');
-    await page.waitForURL(/\/page\/2\//);
     await page.waitForLoadState("networkidle");
 
     // Language switch (en -> ru) via the lang switcher
@@ -119,25 +115,29 @@ test.describe("SPA client navigation — no failed requests through a click path
 
   test("CONSECUTIVE same-route navs keep content (no blank swap region)", async ({ page }) => {
     // Regression: two client navs in a row into the same route used to render an empty
-    // swap region (Preact vdom desynced from the DOM). Walk the home pagination and
-    // assert cards render on EACH page, then round-trip the about locale.
+    // swap region (Preact vdom desynced from the DOM). Hop article -> article (same route
+    // twice in a row) and assert the body renders on EACH page, then round-trip the
+    // about locale.
     await page.goto("/");
     await expect(
       page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
-    ).toHaveCount(10);
+    ).toHaveCount(Math.min(ARTICLES.length, PAGE_SIZE));
 
-    await page.click('[data-component="pagination"] [data-next]:not([data-hidden])');
-    await page.waitForURL(/\/page\/2\//);
-    await expect(
-      page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
-    ).toHaveCount(10);
+    // First nav into the article route (first card on the dashboard).
+    const firstCard = page.locator('[data-component="dashboard"] h2 a').first();
+    const firstHref = await firstCard.getAttribute("href");
+    await firstCard.click();
+    await page.waitForURL(url => new URL(url).pathname === firstHref);
+    await expect(page.locator("[data-content]")).toBeVisible();
 
-    await page.click('[data-component="pagination"] [data-next]:not([data-hidden])');
-    await page.waitForURL(/\/page\/3\//);
-    // page 3 (3 articles) — must NOT be empty.
-    await expect(
-      page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
-    ).toHaveCount(3);
+    // Second, CONSECUTIVE nav into the same article route — must NOT be empty.
+    // The recent-posts pane lists the current article first, so the second entry is
+    // always a DIFFERENT article (the corpus has ≥2 posts).
+    const recent = page.locator("[data-recent] a").nth(1);
+    const recentHref = await recent.getAttribute("href");
+    await recent.click();
+    await page.waitForURL(url => new URL(url).pathname === recentHref);
+    await expect(page.locator("[data-content]")).toBeVisible();
 
     // About locale round-trip (en -> ru -> en) — content must persist each time.
     await page.goto("/about/");

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { CANONICAL, PAGINATED, TAGS } from "./_content";
 
 // Regression guard for client-bundle runtime crashes. The SSG HTML renders fine even when
 // main.js throws on load (e.g. a Node-ism like `process.env` leaking into the browser bundle
@@ -7,15 +8,15 @@ import { expect, test } from "@playwright/test";
 const PAGES = [
   "/",
   "/ru/",
-  "/hello-pipeline/",
-  "/ru/hello-pipeline/",
+  `/${CANONICAL.slug}/`,
+  `/ru/${CANONICAL.slug}/`,
   "/archive/",
   "/ru/archive/",
   "/about/",
   "/ru/about/",
-  "/tags/testing/",
-  "/ru/tags/testing/",
-  "/page/2/"
+  `/tags/${TAGS[0]}/`,
+  `/ru/tags/${TAGS[0]}/`,
+  ...(PAGINATED ? ["/page/2/"] : [])
 ];
 
 for (const path of PAGES) {
