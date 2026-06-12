@@ -18,6 +18,20 @@
       font-family: inherit;
     }
   }
+
+  /* Mermaid diagrams -- build-time SVG in <figure class="mermaid-diagram">.
+     Same block chrome as pre.shiki, content centered; the SVG's own colors are
+     baked at build time from the warm-mermaid theme (src/lib/mermaid-theme.ts),
+     fixed dark like Shiki's inline styles. */
+  figure.mermaid-diagram {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    overflow-x: auto;
+    border: 1px solid var(--border-default);
+    background: var(--color-stone-975);
+  }
 }
 
 @media (max-width: 600px) {

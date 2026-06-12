@@ -25,6 +25,7 @@ import {
 import { SITE } from "./config";
 import { i18nConfig } from "./i18n/index";
 import { islands } from "./islands";
+import { warmMermaidTheme } from "./lib/mermaid-theme";
 import { warmSyntaxTheme } from "./lib/shiki-theme";
 import { OgDefaultCard } from "./og/default-card";
 import { OgTemplate } from "./og/template";
@@ -80,7 +81,11 @@ export const makeApp = (stage: Stage, { contentDir = "./content", outDir = "dist
           fileSystemContent({
             contentDir,
             shikiTheme: warmSyntaxTheme,
-            trustedContent: true
+            trustedContent: true,
+            // Build-time ```mermaid fences → static inline SVG (requires trustedContent; the
+            // renderer is lazy-loaded, so content without diagrams pays nothing). Themed at
+            // blog level like code blocks: warm-mermaid mirrors warm-syntax (src/lib/).
+            mermaid: { mermaidConfig: warmMermaidTheme }
           })
         ]
       },
