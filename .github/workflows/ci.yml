@@ -31,6 +31,9 @@ jobs:
       - run: bun run lint
       - run: bunx tsc --noEmit
       - run: bun run test:unit
+      # The integration tests build the real corpus, and mermaid-isomorphic renders
+      # ```mermaid fences through playwright's chromium headless shell at build time.
+      - run: bunx playwright install --with-deps chromium-headless-shell
       - run: bun run test:integration
 
   e2e:
@@ -46,14 +49,16 @@ jobs:
         with:
           node-version: 24
       - run: bun install --frozen-lockfile
+      # All three engines from playwright.config.ts: chromium runs the full functional
+      # suite; webkit + firefox still run the JS-boot guard (no-js-errors.spec.ts).
+      # Installed BEFORE the build: mermaid-isomorphic renders ```mermaid fences through
+      # chromium's headless shell at build time (installed alongside chromium).
+      - run: bunx playwright install --with-deps chromium webkit firefox
       # Real-corpus build guard: e2e itself runs against the FIXTURE corpus
       # (playwright.config.ts's webServer runs scripts/e2e-server.ts, which builds
       # tests/fixtures/content into dist-e2e), so this build's only job is proving the
       # REAL content/ still builds cleanly before a deploy can happen.
       - run: bun run build
-      # All three engines from playwright.config.ts: chromium runs the full functional
-      # suite; webkit + firefox still run the JS-boot guard (no-js-errors.spec.ts).
-      - run: bunx playwright install --with-deps chromium webkit firefox
       # Functional + seo specs only. The visual snapshot specs (baseline, lang-switcher)
       # are excluded: zero *-linux baselines are committed, so visual tests are local-only
       # until linux baselines land. Keep this filter in sync with

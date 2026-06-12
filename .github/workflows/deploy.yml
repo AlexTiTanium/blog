@@ -30,6 +30,9 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
       - run: bun install --frozen-lockfile
+      # mermaid-isomorphic renders ```mermaid fences through playwright's chromium
+      # headless shell during the build — the runner needs the browser binary.
+      - run: bunx playwright install --with-deps chromium-headless-shell
       - run: bun run build
       - uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:

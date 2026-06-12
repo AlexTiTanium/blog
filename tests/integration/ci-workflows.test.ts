@@ -41,14 +41,26 @@ describe("ci.yml e2e job", () => {
     expect(grepInvertPattern()).toBeDefined();
   });
 
-  it("builds the site and installs browsers before running playwright", () => {
-    const buildAt = ciYml.indexOf("bun run build");
-    const installAt = ciYml.indexOf("playwright install");
-    const testAt = ciYml.indexOf("playwright test");
+  it("installs browsers before the build, and builds before running playwright", () => {
+    // Install must precede the build since web 1.9.0: mermaid-isomorphic launches
+    // chromium's headless shell while rendering ```mermaid fences at build time.
+    const e2eJob = ciYml.slice(ciYml.indexOf("\n  e2e:"));
+    const installAt = e2eJob.indexOf("playwright install");
+    const buildAt = e2eJob.indexOf("bun run build");
+    const testAt = e2eJob.indexOf("playwright test");
 
-    expect(buildAt).toBeGreaterThan(-1);
-    expect(installAt).toBeGreaterThan(buildAt);
-    expect(testAt).toBeGreaterThan(installAt);
+    expect(installAt).toBeGreaterThan(-1);
+    expect(buildAt).toBeGreaterThan(installAt);
+    expect(testAt).toBeGreaterThan(buildAt);
+  });
+
+  it("validate job installs the headless shell before the corpus-building integration tests", () => {
+    const validateJob = ciYml.slice(ciYml.indexOf("\n  validate:"), ciYml.indexOf("\n  e2e:"));
+    const installAt = validateJob.indexOf("playwright install");
+    const integrationAt = validateJob.indexOf("test:integration");
+
+    expect(installAt).toBeGreaterThan(-1);
+    expect(integrationAt).toBeGreaterThan(installAt);
   });
 
   it("excludes exactly the snapshot-bearing specs — no more, no less", () => {
@@ -100,5 +112,13 @@ describe("deploy.yml gating", () => {
     // The SHA-pinned checkout leaves git detached, so wrangler infers branch "head"
     // and Cloudflare files the deploy as a preview. `--branch main` forces promotion.
     expect(deployYml).toContain("pages deploy dist --project-name geek-life --branch main");
+  });
+
+  it("installs the headless shell before its build (mermaid renders at build time)", () => {
+    const installAt = deployYml.indexOf("playwright install");
+    const buildAt = deployYml.indexOf("bun run build");
+
+    expect(installAt).toBeGreaterThan(-1);
+    expect(buildAt).toBeGreaterThan(installAt);
   });
 });
