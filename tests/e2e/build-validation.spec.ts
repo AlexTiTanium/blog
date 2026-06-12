@@ -1,7 +1,8 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
+import { ARTICLES, pageCount, SLUGS, TAGS } from "./_content";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(__dirname, "../../dist");
@@ -11,33 +12,20 @@ const DIST = path.join(__dirname, "../../dist");
 // (no /en/ prefix). English is ALSO emitted under /en/ as a real alias (identical content,
 // canonical pointing at the bare url). Non-default locales (ru, uk, es) stay prefixed.
 //
-//   Per locale (18 pages):
-//     index + about + archive + 6 articles + 9 tags = 18
-//   (All 6 articles fit on one page, so no /page/N/ or /archive/page/N/ are emitted.)
+//   Per locale: index + about + archive + one page per article + one page per tag
+//   + /page/N/ and /archive/page/N/ overflow pages when the corpus outgrows PAGE_SIZE.
 //
-//   Five page sets: bare-en + en-alias + ru + uk + es = 18 × 5 = 90 pages.
+//   Five page sets: bare-en + en-alias + ru + uk + es.
+//
+// The article/tag lists are DERIVED from content/ (see _content.ts), so adding an
+// article never requires editing this spec.
 // ---------------------------------------------------------------
 
-const ARTICLES = [
-  "bad-monday",
-  "ball-factory",
-  "descent-journeys-in-the-dark",
-  "fun-da-vinci",
-  "monaco-2026-drama",
-  "stds"
-];
-
-const TAGS = [
-  "ball-factory",
-  "board-games",
-  "descent",
-  "formula1",
-  "fun-da-vinci",
-  "gamedev",
-  "life",
-  "opinion",
-  "stds"
-];
+/** `/page/2/..N/` suffixes under `base` when listings overflow a single page. */
+function overflowPages(base: string): string[] {
+  const pages = pageCount(ARTICLES.length);
+  return Array.from({ length: pages - 1 }, (_, i) => `${base}page/${i + 2}/index.html`);
+}
 
 /**
  * Build the full page list for one locale's URL prefix.
@@ -49,7 +37,9 @@ function localePages(prefix: string): string[] {
     `${prefix}index.html`,
     `${prefix}about/index.html`,
     `${prefix}archive/index.html`,
-    ...ARTICLES.map(slug => `${prefix}${slug}/index.html`),
+    ...overflowPages(prefix),
+    ...overflowPages(`${prefix}archive/`),
+    ...SLUGS.map(slug => `${prefix}${slug}/index.html`),
     ...TAGS.map(tag => `${prefix}tags/${tag}/index.html`)
   ];
 }
@@ -67,10 +57,26 @@ function stripBuildId(html: string): string {
   return html.replaceAll(/<meta name="build-id" content="[^"]*">/g, "");
 }
 
+/** Every `**\/index.html` actually present in dist, as locale-prefixed relative paths. */
+function distPages(): string[] {
+  const found: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name === "index.html") found.push(path.relative(DIST, full));
+    }
+  };
+  walk(DIST);
+  return found;
+}
+
 test.describe("Build Validation", () => {
-  test("emits exactly 90 pages", () => {
-    // 18 pages × 5 sets (bare-en + en-alias + ru + uk + es).
-    expect(EXPECTED_PAGES).toHaveLength(90);
+  test("dist page set EXACTLY matches the content-derived expectation", () => {
+    // Set equality both ways: a missing page means content was dropped; an extra page
+    // means the build emits routes the content tree doesn't explain.
+    const actual = distPages().toSorted();
+    expect(actual).toEqual(EXPECTED_PAGES.toSorted());
   });
 
   test("all expected HTML pages exist after build", () => {
@@ -107,13 +113,11 @@ test.describe("Build Validation", () => {
     expect(existsSync(path.join(DIST, "404.html"))).toBe(true);
   });
 
-  test("emits one OG image per article (slug-named)", () => {
-    for (const slug of ARTICLES) {
-      const og = path.join(DIST, "og", `${slug}.png`);
-      expect(existsSync(og), `Missing OG image: og/${slug}.png`).toBe(true);
-    }
-    // 6 articles -> 6 OG images.
-    expect(ARTICLES).toHaveLength(6);
+  test("emits exactly one OG image per article (slug-named)", () => {
+    const emitted = readdirSync(path.join(DIST, "og"))
+      .filter(file => file.endsWith(".png"))
+      .toSorted();
+    expect(emitted).toEqual(SLUGS.map(slug => `${slug}.png`).toSorted());
   });
 });
 
@@ -150,9 +154,6 @@ test.describe("Root Path Content", () => {
 
     const dashboard = page.locator('[data-component="dashboard"]');
     await expect(dashboard).toBeVisible();
-
-    // All 6 articles fit on one page, so no pagination renders.
-    await expect(page.locator('[data-component="pagination"]')).toHaveCount(0);
   });
 
   test("/ content matches /en/ alias content", async ({ page }) => {

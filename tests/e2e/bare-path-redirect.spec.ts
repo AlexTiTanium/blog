@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
 import { SITE } from "../../src/config";
+import { CANONICAL, escapeRegExp, TAGS } from "./_content";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST = path.join(__dirname, "../../dist");
@@ -28,13 +29,13 @@ test.describe("Bare Path English", () => {
     await expect(page).toHaveTitle(/About/);
   });
 
-  test("/tags/formula1/ serves real English tag content", async ({ page }) => {
-    await page.goto("/tags/formula1/");
+  test("bare tag page serves real English tag content", async ({ page }) => {
+    await page.goto(`/tags/${TAGS[0]}/`);
     await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
   });
 
-  test("/monaco-2026-drama/ serves real English article content", async ({ page }) => {
-    await page.goto("/monaco-2026-drama/");
+  test("bare article path serves real English article content", async ({ page }) => {
+    await page.goto(`/${CANONICAL.slug}/`);
     await expect(page.locator('[data-component="split-pane"] article > header h1')).toBeVisible();
   });
 });
@@ -46,14 +47,12 @@ test.describe("/en/ alias serves English directly (not a redirect)", () => {
     await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
   });
 
-  test("/en/monaco-2026-drama/ stays at /en/monaco-2026-drama/ with bare canonical", async ({
-    page
-  }) => {
-    await page.goto("/en/monaco-2026-drama/");
-    await expect(page).toHaveURL(/\/en\/monaco-2026-drama\/$/);
+  test("/en/<article>/ stays at /en/<article>/ with bare canonical", async ({ page }) => {
+    await page.goto(`/en/${CANONICAL.slug}/`);
+    await expect(page).toHaveURL(new RegExp(`/en/${escapeRegExp(CANONICAL.slug)}/$`));
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      `${SITE.url}/monaco-2026-drama/`
+      `${SITE.url}/${CANONICAL.slug}/`
     );
   });
 });

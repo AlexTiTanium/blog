@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { SITE } from "../../src/config";
+import { CANONICAL, escapeRegExp } from "./_content";
 
 // Identity is sourced from SITE (single source of truth) so these assertions
 // track config.ts rather than hardcoding the host/author.
@@ -19,11 +20,11 @@ test.describe("SEO & Metadata", () => {
   });
 
   test("article page has OG tags and JSON-LD", async ({ page }) => {
-    await page.goto("/monaco-2026-drama/");
+    await page.goto(`/${CANONICAL.slug}/`);
 
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
       "content",
-      /Monaco 2026/
+      new RegExp(escapeRegExp(CANONICAL.title))
     );
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "article");
     await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /\.png$/);
@@ -36,14 +37,14 @@ test.describe("SEO & Metadata", () => {
   });
 
   test("article page has description meta tag", async ({ page }) => {
-    await page.goto("/monaco-2026-drama/");
+    await page.goto(`/${CANONICAL.slug}/`);
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /.+/);
   });
 
   test("OG image url is slug-named and matches an emitted PNG", async ({ page }) => {
-    await page.goto("/monaco-2026-drama/");
+    await page.goto(`/${CANONICAL.slug}/`);
     const content = await page.locator('meta[property="og:image"]').getAttribute("content");
-    expect(content).toMatch(/\/og\/monaco-2026-drama\.png$/);
+    expect(content).toMatch(new RegExp(String.raw`/og/${escapeRegExp(CANONICAL.slug)}\.png$`));
   });
 
   test("RSS feed link exists", async ({ page }) => {
@@ -68,8 +69,8 @@ const ALL_PAGES = [
   { name: "archive-ru", path: "/ru/archive/", isArticle: false },
   { name: "about-en", path: "/about/", isArticle: false },
   { name: "about-ru", path: "/ru/about/", isArticle: false },
-  { name: "article-en", path: "/monaco-2026-drama/", isArticle: true },
-  { name: "article-ru", path: "/ru/monaco-2026-drama/", isArticle: true }
+  { name: "article-en", path: `/${CANONICAL.slug}/`, isArticle: true },
+  { name: "article-ru", path: `/ru/${CANONICAL.slug}/`, isArticle: true }
 ];
 
 test.describe("SEO: All pages", () => {

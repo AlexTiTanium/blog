@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import { ARTICLES, CANONICAL, PAGE_SIZE, PAGINATED, TAGS } from "./_content";
 
 // End-to-end link + navigation integrity, in BOTH modes:
 //   - direct load (full HTML request per URL, incl. the SPA's _data prefetches), and
@@ -9,7 +10,8 @@ import { expect, type Page, test } from "@playwright/test";
 const ORIGIN = "http://localhost:4173";
 
 // Representative set: every page TYPE × both locales (a full all-page sweep is unnecessary —
-// each type shares a template/route).
+// each type shares a template/route). Article/tag picks are derived from content/ so adding
+// an article never requires editing this spec.
 const PAGES = [
   "/",
   "/ru/",
@@ -17,10 +19,11 @@ const PAGES = [
   "/ru/archive/",
   "/about/",
   "/ru/about/",
-  "/monaco-2026-drama/",
-  "/ru/monaco-2026-drama/",
-  "/tags/formula1/",
-  "/ru/tags/formula1/"
+  `/${CANONICAL.slug}/`,
+  `/ru/${CANONICAL.slug}/`,
+  `/tags/${TAGS[0]}/`,
+  `/ru/tags/${TAGS[0]}/`,
+  ...(PAGINATED ? ["/page/2/", "/ru/page/2/", "/archive/page/2/"] : [])
 ];
 
 /** Attach listeners that record any same-origin >=400 response, page error, or console error. */
@@ -57,7 +60,7 @@ test.describe("direct load — no failed requests, no JS errors", () => {
 test("link integrity — every internal link resolves (no dead links)", async ({ page, request }) => {
   // Crawl one page of each type and collect every internal href, then verify each resolves (<400).
   const internal = new Set<string>();
-  for (const start of ["/", "/ru/", "/archive/", "/about/", "/monaco-2026-drama/"]) {
+  for (const start of ["/", "/ru/", "/archive/", "/about/", `/${CANONICAL.slug}/`]) {
     await page.goto(start);
     const hrefs = await page.$$eval("a[href]", anchors =>
       anchors.map(a => a.getAttribute("href") ?? "")
@@ -118,18 +121,22 @@ test.describe("SPA client navigation — no failed requests through a click path
     await page.goto("/");
     await expect(
       page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
-    ).toHaveCount(6);
+    ).toHaveCount(Math.min(ARTICLES.length, PAGE_SIZE));
 
-    // First nav into the article route.
-    await page.click('[data-component="dashboard"] h2 a[href="/monaco-2026-drama/"]');
-    await page.waitForURL(/\/monaco-2026-drama\//);
+    // First nav into the article route (first card on the dashboard).
+    const firstCard = page.locator('[data-component="dashboard"] h2 a').first();
+    const firstHref = await firstCard.getAttribute("href");
+    await firstCard.click();
+    await page.waitForURL(url => new URL(url).pathname === firstHref);
     await expect(page.locator("[data-content]")).toBeVisible();
 
     // Second, CONSECUTIVE nav into the same article route — must NOT be empty.
-    // (The article page links /bad-monday/ twice — recent-posts pane + prev/next — so
-    // take the first match instead of a strict single-element click.)
-    await page.locator('a[href="/bad-monday/"]').first().click();
-    await page.waitForURL(/\/bad-monday\//);
+    // The recent-posts pane lists the current article first, so the second entry is
+    // always a DIFFERENT article (the corpus has ≥2 posts).
+    const recent = page.locator("[data-recent] a").nth(1);
+    const recentHref = await recent.getAttribute("href");
+    await recent.click();
+    await page.waitForURL(url => new URL(url).pathname === recentHref);
     await expect(page.locator("[data-content]")).toBeVisible();
 
     // About locale round-trip (en -> ru -> en) — content must persist each time.
