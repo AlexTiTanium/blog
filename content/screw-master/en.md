@@ -36,7 +36,7 @@ And now for the biggest problem of all.
 
 > Bugs are what AI generates best. And what bugs — honestly, you just stand there marveling.
 
-The real challenge was even *explaining* what the bug was. Especially when the AI had to do something concrete: say, several animations have to drop bolts onto their slots *at the same time*. It simply lost its mind over that. No, you can't do it the pretty way, with a queue or a stack — you need exactly this weird contraption and nothing else. Hundreds of prompts. Pure pain.
+The real challenge was even *explaining* what the bug was. Especially when the AI had to do something asynchronous: say, several animations have to drop bolts onto their slots *at the same time*. It simply lost its mind over that. No, you can't do it the pretty way, with a queue or a stack — you need exactly this weird contraption and nothing else. Hundreds of prompts. Pure pain.
 
 ## So, Can You Make Games This Way?
 
