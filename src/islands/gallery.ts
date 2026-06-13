@@ -8,7 +8,7 @@
  */
 import { createComponent } from "@moku-labs/web/browser";
 import type { LightboxSlide } from "./lightbox";
-import { openLightbox } from "./lightbox";
+import { openLightbox, trackLoad } from "./lightbox";
 
 /** Per-gallery teardown callbacks, keyed by the mounted element. */
 const teardowns = new WeakMap<Element, () => void>();
@@ -113,6 +113,9 @@ function enhanceGallery(root: HTMLElement): () => void {
     src: (slide as HTMLImageElement).currentSrc || (slide as HTMLImageElement).src,
     alt: (slide as HTMLImageElement).alt
   }));
+
+  // Shimmer each slide until it decodes (lazy slides load as they scroll into view).
+  for (const slide of slides) trackLoad(slide as HTMLImageElement);
 
   // Arrow keys page the focused gallery.
   root.tabIndex = 0;

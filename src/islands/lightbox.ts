@@ -31,9 +31,6 @@ const SWIPE_PAGE_THRESHOLD = 70;
 /** How far (px) a downward drag must travel to close the lightbox. */
 const SWIPE_CLOSE_THRESHOLD = 90;
 
-/** How far (px) an upward drag must travel to lock into the zoomed view. */
-const SWIPE_ZOOM_THRESHOLD = 70;
-
 /** Drag distance (px) past which the trailing click must not close the dialog. */
 const DRAG_CLICK_SUPPRESS = 10;
 
@@ -43,8 +40,8 @@ const CLOSE_FADE_MS = 220;
 /** Duration (ms) of the paging push — matches the CSS transform transition. */
 const PAGE_PUSH_MS = 320;
 
-/** Scale factor of the zoomed view. */
-const ZOOM_SCALE = 2.4;
+/** Largest extra scale an upward drag previews before springing back (no permanent zoom). */
+const PULL_UP_MAX_GROW = 0.5;
 
 /** Accumulated trackpad deltaX (px) that pages one slide. */
 const WHEEL_PAGE_THRESHOLD = 80;
@@ -78,9 +75,6 @@ let pager: { slides: LightboxSlide[]; index: number } | undefined;
 
 /** Active drag state while a pointer is down on the dialog body. */
 let drag: { x: number; y: number; axis: "x" | "y" | undefined } | undefined;
-
-/** Zoom state: scale 1 = normal, ZOOM_SCALE = zoomed-and-pannable; pan is the committed offset. */
-let zoom = { scale: 1, panX: 0, panY: 0 };
 
 /** Accumulated trackpad deltaX between paging steps. */
 let wheelAccum = 0;
@@ -126,39 +120,31 @@ function placeInstant(image: HTMLImageElement, transform: string, opacity: strin
 }
 
 /**
- * CSS transform for the current zoom + pan of the active buffer.
+ * Show a shimmer placeholder on a buffer until its image loads (or errors). Cleared immediately
+ * when the image is already decoded (cache hit).
  *
- * @param extraX - Live drag dx to add to the committed pan.
- * @param extraY - Live drag dy to add to the committed pan.
- * @returns The transform string.
+ * @param image - The image whose current `src` is loading (a lightbox buffer or a gallery slide).
  * @example
- * active.style.transform = zoomTransform(dx, dy);
+ * image.src = slide.src;
+ * trackLoad(image);
  */
-function zoomTransform(extraX = 0, extraY = 0): string {
-  return `translate(${zoom.panX + extraX}px, ${zoom.panY + extraY}px) scale(${zoom.scale})`;
-}
-
-/**
- * Whether the lightbox is currently zoomed in.
- *
- * @returns True when the active buffer is scaled up.
- * @example
- * if (isZoomed()) exitZoom();
- */
-function isZoomed(): boolean {
-  return zoom.scale !== 1;
-}
-
-/**
- * Leave the zoomed view and spring the image back to its fitted size.
- *
- * @example
- * exitZoom();
- */
-function exitZoom(): void {
-  zoom = { scale: 1, panX: 0, panY: 0 };
-  if (active) active.style.transform = "";
-  if (ui) delete ui.body.dataset.zoomed;
+export function trackLoad(image: HTMLImageElement): void {
+  if (image.complete && image.naturalWidth > 0) {
+    delete image.dataset.loading;
+    return;
+  }
+  image.dataset.loading = "";
+  /**
+   * Drop the shimmer once the image resolves (loaded or errored).
+   *
+   * @example
+   * image.addEventListener("load", clear, { once: true });
+   */
+  const clear = (): void => {
+    delete image.dataset.loading;
+  };
+  image.addEventListener("load", clear, { once: true });
+  image.addEventListener("error", clear, { once: true });
 }
 
 /**
@@ -215,7 +201,6 @@ function resetView(instant: boolean): void {
  */
 function showSlide(index: number, fromOffset = 0): void {
   if (!ui || !pager || !active) return;
-  if (isZoomed()) exitZoom();
 
   const clamped = Math.max(0, Math.min(pager.slides.length - 1, index));
   const direction = Math.sign(clamped - pager.index);
@@ -235,6 +220,7 @@ function showSlide(index: number, fromOffset = 0): void {
   const incoming = ui.views[0] === active ? ui.views[1] : ui.views[0];
   incoming.src = slide.src;
   incoming.alt = slide.alt;
+  trackLoad(incoming);
   placeInstant(incoming, `translateX(${direction * push}px)`, "1");
   placeInstant(outgoing, `translateX(${fromOffset}px)`, "1");
 
@@ -284,7 +270,7 @@ function requestClose(): void {
  * page(1);
  */
 function page(delta: number): void {
-  if (!pager || isZoomed()) return;
+  if (!pager) return;
   showSlide(pager.index + delta);
 }
 
@@ -300,17 +286,15 @@ function onResize(): void {
   if (!lb?.dialog.open) return;
   settlePush?.();
   drag = undefined;
-  zoom = { scale: 1, panX: 0, panY: 0 };
   lb.dialog.style.opacity = "";
-  delete lb.body.dataset.zoomed;
   if (active) placeInstant(active, "", "");
   const standby = lb.views[0] === active ? lb.views[1] : lb.views[0];
   placeInstant(standby, "", "0");
 }
 
 /**
- * Document-level key handler while the dialog is open: arrows page, Escape closes/unzooms — all
- * consumed so nothing leaks to the page (or the gallery) underneath.
+ * Document-level key handler while the dialog is open: arrows page, Escape closes — all consumed
+ * so nothing leaks to the page (or the gallery) underneath.
  *
  * @param event - The keydown event.
  * @example
@@ -321,11 +305,7 @@ function onKeydown(event: KeyboardEvent): void {
 
   event.preventDefault();
   event.stopPropagation();
-  if (event.key === "Escape") {
-    if (isZoomed()) exitZoom();
-    else requestClose();
-    return;
-  }
+  if (event.key === "Escape") requestClose();
   if (event.key === "ArrowLeft") page(-1);
   if (event.key === "ArrowRight") page(1);
 }
@@ -339,7 +319,7 @@ function onKeydown(event: KeyboardEvent): void {
  * dialog.addEventListener("wheel", onWheel, { passive: false });
  */
 function onWheel(event: WheelEvent): void {
-  if (!ui?.dialog.open || isZoomed()) return;
+  if (!ui?.dialog.open) return;
   if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
 
   // Claim the horizontal gesture so macOS/Chrome can't turn it into a page back/forward.
@@ -368,9 +348,8 @@ function onPointerDown(event: PointerEvent): void {
 }
 
 /**
- * Live-follow the drag. Zoomed: pan the image. Otherwise: horizontal moves the image 1:1
- * (paging), downward pulls it away (closing) with the dialog fading, upward scales it up (zoom
- * preview).
+ * Live-follow the drag: horizontal moves the image 1:1 (paging), downward pulls it away (closing)
+ * with the dialog fading, upward gives an elastic grow preview that springs back on release.
  *
  * @param event - The pointermove event.
  * @example
@@ -380,12 +359,6 @@ function onPointerMove(event: PointerEvent): void {
   if (!ui || !drag || !active) return;
   const dx = event.clientX - drag.x;
   const dy = event.clientY - drag.y;
-
-  if (isZoomed()) {
-    active.style.transition = "none";
-    active.style.transform = zoomTransform(dx, dy);
-    return;
-  }
 
   if (!drag.axis) {
     if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
@@ -400,16 +373,15 @@ function onPointerMove(event: PointerEvent): void {
     active.style.transform = `translateY(${dy}px) scale(${Math.max(0.85, 1 - dy / 1200)})`;
     ui.dialog.style.opacity = String(Math.max(0.3, 1 - dy / 500));
   } else if (drag.axis === "y" && dy < 0) {
-    // pull up → grow toward the zoom scale (zoom preview)
-    const grow = Math.min(ZOOM_SCALE - 1, -dy / 260);
-    active.style.transform = `translateY(${dy * 0.4}px) scale(${1 + grow})`;
+    // pull up → elastic grow preview only (springs back on release; no permanent zoom)
+    const grow = Math.min(PULL_UP_MAX_GROW, -dy / 600);
+    active.style.transform = `translateY(${dy * 0.3}px) scale(${1 + grow})`;
   }
 }
 
 /**
- * Finish the drag. Zoomed: commit the pan, or exit on a tap. Otherwise: page on a long
- * horizontal swipe (handing the offset to the push), close on a long pull-down, enter zoom on a
- * long pull-up, spring back otherwise.
+ * Finish the drag: page on a long horizontal swipe (handing the offset to the push), close on a
+ * long pull-down, spring back otherwise (a pull-up always springs back — no permanent zoom).
  *
  * @param event - The pointerup event.
  * @example
@@ -426,15 +398,6 @@ function onPointerUp(event: PointerEvent): void {
     dragConsumedClick = true;
   }
 
-  if (isZoomed()) {
-    // Commit the pan; a tap (no real movement) is handled by the click→exitZoom path.
-    zoom.panX += dx;
-    zoom.panY += dy;
-    active.style.transition = "";
-    active.style.transform = zoomTransform();
-    return;
-  }
-
   active.style.transition = "";
   ui.dialog.style.opacity = "";
 
@@ -449,25 +412,7 @@ function onPointerUp(event: PointerEvent): void {
     requestClose();
     return;
   }
-  if (axis === "y" && dy < -SWIPE_ZOOM_THRESHOLD) {
-    enterZoom();
-    return;
-  }
   resetView(false);
-}
-
-/**
- * Enter the zoomed, pannable view.
- *
- * @example
- * enterZoom();
- */
-function enterZoom(): void {
-  if (!ui || !active) return;
-  zoom = { scale: ZOOM_SCALE, panX: 0, panY: 0 };
-  active.style.transition = "";
-  active.style.transform = zoomTransform();
-  ui.body.dataset.zoomed = "";
 }
 
 /**
@@ -530,11 +475,9 @@ function buildUi(): LightboxUi {
   });
   dialog.addEventListener("close", () => {
     closing = false;
-    zoom = { scale: 1, panX: 0, panY: 0 };
     wheelAccum = 0;
     delete dialog.dataset.closing;
     dialog.style.removeProperty("opacity");
-    delete body.dataset.zoomed;
     document.removeEventListener("keydown", onKeydown, true);
   });
 
@@ -549,15 +492,14 @@ function buildUi(): LightboxUi {
   });
   window.addEventListener("resize", onResize);
 
-  // Tap/click off the controls: exit zoom if zoomed, else close (a drag's trailing click is no-op).
+  // Tap/click off the controls closes (a drag's trailing click is a no-op).
   body.addEventListener("click", event => {
     if (dragConsumedClick) {
       dragConsumedClick = false;
       return;
     }
     if ((event.target as Element).closest("button")) return;
-    if (isZoomed()) exitZoom();
-    else requestClose();
+    requestClose();
   });
 
   return { dialog, body, views, counter, previous, next };
@@ -578,9 +520,7 @@ export function openLightbox(slides: LightboxSlide[], index: number): void {
 
   ui ??= buildUi();
   settlePush?.();
-  zoom = { scale: 1, panX: 0, panY: 0 };
   wheelAccum = 0;
-  delete ui.body.dataset.zoomed;
 
   const clamped = Math.max(0, Math.min(slides.length - 1, index));
   pager = { slides, index: clamped };
@@ -598,6 +538,7 @@ export function openLightbox(slides: LightboxSlide[], index: number): void {
   if (slide) {
     active.src = slide.src;
     active.alt = slide.alt;
+    trackLoad(active);
   }
 
   syncChrome();

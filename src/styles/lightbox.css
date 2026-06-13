@@ -7,6 +7,17 @@
    touch devices where swipe is the pager.
    ============================================================ */
 
+/* Shared image-loading shimmer (gallery slides + lightbox buffers). Keyframes are global; the
+   islands toggle `data-loading` on each <img> until it decodes. */
+@keyframes moku-img-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
 dialog[data-lightbox] {
   position: fixed;
   inset: 0;
@@ -61,13 +72,17 @@ dialog[data-lightbox] {
       will-change: transform;
     }
 
-    /* zoomed view: panning cursor, image rendered above the controls' click zone */
-    &[data-zoomed] {
-      cursor: grab;
-
-      & img {
-        cursor: grab;
-      }
+    /* shimmer placeholder until the buffer's image decodes (islands set data-loading) */
+    & img[data-loading] {
+      background:
+        linear-gradient(
+          100deg,
+          var(--color-stone-975) 30%,
+          color-mix(in srgb, var(--accent-primary) 14%, var(--color-stone-975)) 50%,
+          var(--color-stone-975) 70%
+        );
+      background-size: 200% 100%;
+      animation: moku-img-shimmer 1.2s linear infinite;
     }
   }
 
