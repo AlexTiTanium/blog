@@ -496,13 +496,15 @@ function buildUi(): LightboxUi {
     page(1);
   });
 
-  // Up: hold to magnify, release to spring back. stopPropagation so the body drag never starts.
+  // Up: hold to magnify, release to spring back. Capture the pointer so the hold survives the
+  // mouse moving (otherwise pointerleave fires on the slightest drift and drops the zoom — a
+  // real mouse always jitters); stopPropagation so the body drag never starts.
   up.addEventListener("pointerdown", event => {
     event.stopPropagation();
+    up.setPointerCapture(event.pointerId);
     setZoomHold(true);
   });
   up.addEventListener("pointerup", endZoomHold);
-  up.addEventListener("pointerleave", endZoomHold);
   up.addEventListener("pointercancel", endZoomHold);
 
   // Down: close (the desktop analog of the mobile swipe-down).
