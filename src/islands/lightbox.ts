@@ -43,11 +43,8 @@ const PAGE_PUSH_MS = 320;
 /** Largest extra scale an upward drag previews before springing back (no permanent zoom). */
 const PULL_UP_MAX_GROW = 0.5;
 
-/** Accumulated trackpad deltaX (px) that pages one slide. */
-const WHEEL_PAGE_THRESHOLD = 80;
-
-/** Quiet gap (ms) with no wheel events that ends a trackpad gesture and re-arms paging. */
-const WHEEL_GESTURE_GAP_MS = 140;
+/** Scale the up button magnifies the image to while held (springs back on release). */
+const BUTTON_ZOOM_SCALE = 2;
 
 /** The dialog and its chrome, built once by {@link buildUi}. */
 type LightboxUi = {
@@ -63,6 +60,10 @@ type LightboxUi = {
   previous: HTMLButtonElement;
   /** Right arrow (pointer devices). */
   next: HTMLButtonElement;
+  /** Up button — hold to magnify (pointer devices). */
+  up: HTMLButtonElement;
+  /** Down button — close (pointer devices). */
+  down: HTMLButtonElement;
 };
 
 let ui: LightboxUi | undefined;
@@ -78,15 +79,6 @@ let pager: { slides: LightboxSlide[]; index: number } | undefined;
 
 /** Active drag state while a pointer is down on the dialog body. */
 let drag: { x: number; y: number; axis: "x" | "y" | undefined } | undefined;
-
-/** Accumulated trackpad deltaX within the current wheel gesture. */
-let wheelAccum = 0;
-
-/** True after a wheel gesture has paged once — ignores its momentum tail (one swipe = one page). */
-let wheelLocked = false;
-
-/** Timer that unlocks wheel paging once the gesture's momentum stops (reset on every tick). */
-let wheelEndTimer: ReturnType<typeof setTimeout> | undefined;
 
 /** True right after a drag — suppresses the trailing click so it cannot close the dialog. */
 let dragConsumedClick = false;
@@ -197,6 +189,33 @@ function resetView(instant: boolean): void {
   }
   active.style.transform = "";
   active.style.opacity = "";
+}
+
+/**
+ * Hold-to-zoom for the up button: magnify the active image while pressed, spring back on release
+ * (the desktop analog of the mobile pull-up — transient, never a permanent zoom).
+ *
+ * @param on - True to magnify, false to spring back.
+ * @example
+ * up.addEventListener("pointerdown", () => setZoomHold(true));
+ */
+function setZoomHold(on: boolean): void {
+  if (!active) return;
+  active.style.transition = "";
+  active.style.transform = on ? `scale(${BUTTON_ZOOM_SCALE})` : "";
+}
+
+/**
+ * End the up-button hold-zoom (pointerup / pointerleave / pointercancel): swallow the event so the
+ * body drag never starts, and spring the image back.
+ *
+ * @param event - The pointer event ending the hold.
+ * @example
+ * up.addEventListener("pointerup", endZoomHold);
+ */
+function endZoomHold(event: Event): void {
+  event.stopPropagation();
+  setZoomHold(false);
 }
 
 /**
@@ -320,10 +339,9 @@ function onKeydown(event: KeyboardEvent): void {
 }
 
 /**
- * Trackpad / wheel handler: a horizontal swipe pages ONE slide (and is prevented so the browser
- * can't turn it into history back/forward); a vertical wheel is left alone. A trackpad flick fires
- * a long momentum tail of wheel events — so after paging once the gesture is locked and its tail
- * ignored until the momentum stops (a quiet gap), making one physical swipe page exactly once.
+ * Wheel handler: while the lightbox is open, a horizontal trackpad swipe is swallowed so the
+ * browser can't turn it into a history back/forward navigation. Paging is buttons + arrow keys
+ * only (the trackpad swipe was unreliable), so this no longer pages — it only blocks the gesture.
  *
  * @param event - The wheel event.
  * @example
@@ -331,27 +349,8 @@ function onKeydown(event: KeyboardEvent): void {
  */
 function onWheel(event: WheelEvent): void {
   if (!ui?.dialog.open) return;
-  if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
-
-  // Claim the horizontal gesture so macOS/Chrome can't turn it into a page back/forward.
-  event.preventDefault();
-  if (!pager) return;
-
-  // Each tick pushes back the "gesture ended" unlock — it fires only after the momentum settles.
-  if (wheelEndTimer) clearTimeout(wheelEndTimer);
-  wheelEndTimer = setTimeout(() => {
-    wheelLocked = false;
-    wheelAccum = 0;
-    wheelEndTimer = undefined;
-  }, WHEEL_GESTURE_GAP_MS);
-
-  if (wheelLocked) return;
-  wheelAccum += event.deltaX;
-  if (Math.abs(wheelAccum) >= WHEEL_PAGE_THRESHOLD) {
-    page(wheelAccum > 0 ? 1 : -1);
-    wheelLocked = true;
-    wheelAccum = 0;
-  }
+  // Swallow horizontal scroll so a trackpad swipe doesn't trigger browser back/forward.
+  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) event.preventDefault();
 }
 
 /**
@@ -468,15 +467,23 @@ function buildUi(): LightboxUi {
   close.dataset.lightboxClose = "";
   top.append(counter, close);
 
-  // Side arrows (hidden on touch devices by CSS — swipe is the pager there).
+  // Directional buttons (hidden on touch devices by CSS — the swipe gestures cover them there).
+  // Desktop is button-only: left/right page, up magnifies while held, down closes — mirroring the
+  // mobile swipe set, since the trackpad swipe is removed (it tripped browser back/forward).
   const previous = makeControl("<", "Previous photo");
   previous.dataset.lightboxNav = "";
   previous.dataset.side = "prev";
   const next = makeControl(">", "Next photo");
   next.dataset.lightboxNav = "";
   next.dataset.side = "next";
+  const up = makeControl("⌃", "Zoom (hold)");
+  up.dataset.lightboxNav = "";
+  up.dataset.side = "up";
+  const down = makeControl("⌄", "Close");
+  down.dataset.lightboxNav = "";
+  down.dataset.side = "down";
 
-  dialog.append(body, top, previous, next);
+  dialog.append(body, top, previous, next, up, down);
   document.body.append(dialog);
 
   close.addEventListener("click", requestClose);
@@ -489,6 +496,22 @@ function buildUi(): LightboxUi {
     page(1);
   });
 
+  // Up: hold to magnify, release to spring back. stopPropagation so the body drag never starts.
+  up.addEventListener("pointerdown", event => {
+    event.stopPropagation();
+    setZoomHold(true);
+  });
+  up.addEventListener("pointerup", endZoomHold);
+  up.addEventListener("pointerleave", endZoomHold);
+  up.addEventListener("pointercancel", endZoomHold);
+
+  // Down: close (the desktop analog of the mobile swipe-down).
+  down.addEventListener("pointerdown", event => event.stopPropagation());
+  down.addEventListener("click", event => {
+    event.stopPropagation();
+    requestClose();
+  });
+
   // Native cancel (Escape outside our key handler) routes through the animated close.
   dialog.addEventListener("cancel", event => {
     event.preventDefault();
@@ -496,10 +519,6 @@ function buildUi(): LightboxUi {
   });
   dialog.addEventListener("close", () => {
     closing = false;
-    wheelAccum = 0;
-    wheelLocked = false;
-    if (wheelEndTimer) clearTimeout(wheelEndTimer);
-    wheelEndTimer = undefined;
     delete dialog.dataset.closing;
     dialog.style.removeProperty("opacity");
     document.removeEventListener("keydown", onKeydown, true);
@@ -528,7 +547,7 @@ function buildUi(): LightboxUi {
     requestClose();
   });
 
-  return { dialog, body, views, counter, previous, next };
+  return { dialog, body, views, counter, previous, next, up, down };
 }
 
 /**
@@ -546,7 +565,6 @@ export function openLightbox(slides: LightboxSlide[], index: number): void {
 
   ui ??= buildUi();
   settlePush?.();
-  wheelAccum = 0;
 
   const clamped = Math.max(0, Math.min(slides.length - 1, index));
   pager = { slides, index: clamped };

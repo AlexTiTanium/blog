@@ -185,20 +185,44 @@ dialog[data-lightbox] {
 
   & [data-lightbox-nav] {
     position: fixed;
+  }
+
+  /* left / right — vertically centered on the image edges */
+  & [data-lightbox-nav][data-side="prev"],
+  & [data-lightbox-nav][data-side="next"] {
     top: 50%;
     transform: translateY(-50%);
 
     &:hover:not(:disabled) {
       transform: translateY(-50%) scale(1.08);
     }
+  }
 
-    &[data-side="prev"] {
-      left: 1rem;
-    }
+  & [data-lightbox-nav][data-side="prev"] {
+    left: 1rem;
+  }
 
-    &[data-side="next"] {
-      right: 1rem;
+  & [data-lightbox-nav][data-side="next"] {
+    right: 1rem;
+  }
+
+  /* up (hold to zoom) / down (close) — horizontally centered, top & bottom */
+  & [data-lightbox-nav][data-side="up"],
+  & [data-lightbox-nav][data-side="down"] {
+    left: 50%;
+    transform: translateX(-50%);
+
+    &:hover:not(:disabled) {
+      transform: translateX(-50%) scale(1.08);
     }
+  }
+
+  & [data-lightbox-nav][data-side="up"] {
+    top: 1rem;
+  }
+
+  & [data-lightbox-nav][data-side="down"] {
+    bottom: 1rem;
   }
 }
 
