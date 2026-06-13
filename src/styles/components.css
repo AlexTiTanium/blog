@@ -24,6 +24,8 @@
 
 /* Content typography */
 @import "./article.css";
+@import "./gallery.css";
+@import "./lightbox.css";
 @import "./code.css";
 
 /* Hero section */

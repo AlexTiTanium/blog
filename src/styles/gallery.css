@@ -1,0 +1,172 @@
+/* ============================================================
+   Article Photo Gallery
+   A markdown paragraph holding 2+ adjacent images (consecutive
+   image lines, no blank line between) is a gallery. Without JS it
+   renders as a plain swipeable scroll-snap strip (the base rule);
+   the gallery island (islands/gallery.ts) wraps it in a
+   [data-gallery] frame: one full-width slide at a time, overlay
+   chevrons on the stage, and an amber dot rail underneath. The
+   frame is keyboard-focusable and pages with the arrow keys.
+   Scoped via [data-content] like the rest of the article styles.
+   ============================================================ */
+
+@scope ([data-content]) {
+  /* ---------- base strip: also the no-JS fallback ---------- */
+  p:has(> img + img) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    margin: var(--space-10) 0;
+
+    & img {
+      flex: 0 0 auto;
+      scroll-snap-align: center;
+      height: clamp(240px, 38vw, 440px);
+      width: auto;
+      max-width: 92%;
+      object-fit: contain;
+      margin: 0;
+    }
+  }
+
+  /* ---------- gallery frame (island-built) ---------- */
+  [data-gallery] {
+    margin: var(--space-10) 0;
+    outline: none;
+
+    /* keyboard-focus cue: a soft halo on the current dot (no box outline around the frame) */
+    &:focus-visible [data-gallery-dots] button[data-current]::before {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-primary) 30%, transparent);
+    }
+
+    /* the strip becomes the slide track: one full-width slide per view */
+    & p:has(> img + img) {
+      margin: 0;
+      gap: 0;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      & img {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+        height: clamp(240px, 42vw, 480px);
+        background: var(--color-stone-975);
+      }
+    }
+
+    & button {
+      font-family: var(--font-code);
+      font-size: 0.8rem;
+      color: var(--accent-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.4rem 0.6rem;
+
+      &:hover:not(:disabled) {
+        color: var(--text-primary);
+      }
+
+      &:disabled {
+        color: var(--text-muted);
+        opacity: 0.5;
+        cursor: default;
+      }
+    }
+  }
+
+  [data-gallery-stage] {
+    position: relative;
+  }
+
+  /* overlay chevrons */
+  [data-gallery-zone] {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-2);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 1;
+
+    &[data-side="prev"] {
+      left: 0;
+    }
+
+    &[data-side="next"] {
+      right: 0;
+    }
+
+    & > span {
+      display: grid;
+      place-items: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      background: color-mix(in srgb, black 55%, transparent);
+      font-size: 0.9rem;
+      line-height: 1;
+      transition: transform 0.15s ease;
+    }
+
+    &:hover:not(:disabled) > span {
+      transform: scale(1.1);
+    }
+  }
+
+  [data-gallery-stage]:hover [data-gallery-zone]:not(:disabled) {
+    opacity: 1;
+  }
+
+  /* amber dot rail */
+  [data-gallery-dots] {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+
+    & button {
+      padding: 0.3rem;
+
+      &::before {
+        content: "";
+        display: block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        border: 1px solid var(--accent-primary);
+        transition:
+          background 0.15s ease,
+          transform 0.15s ease;
+      }
+
+      &[data-current]::before {
+        background: var(--accent-primary);
+        transform: scale(1.25);
+      }
+    }
+  }
+
+  /* touch devices: overlay chevrons stay visible */
+  @media (hover: none) {
+    [data-gallery] [data-gallery-zone] {
+      opacity: 0.85;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-gallery] *,
+    [data-gallery] img {
+      transition: none !important;
+    }
+  }
+}
