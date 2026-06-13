@@ -1,0 +1,188 @@
+/* ============================================================
+   Lightbox — fullscreen image viewer
+   The dialog DOM is built lazily by islands/lightbox.ts and lives
+   directly under <body> (outside [data-content]), so these styles
+   are top-level rather than article-scoped. Round terminal-amber
+   controls match the in-article gallery chevrons; arrows hide on
+   touch devices where swipe is the pager.
+   ============================================================ */
+
+dialog[data-lightbox] {
+  position: fixed;
+  inset: 0;
+  width: 100dvw;
+  height: 100dvh;
+  max-width: 100dvw;
+  max-height: 100dvh;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: color-mix(in srgb, black 96%, transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+
+  &[open] {
+    opacity: 1;
+
+    /* the dialog comes from display:none — without a starting style the open fade never runs */
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  &[data-closing] {
+    opacity: 0;
+  }
+
+  &::backdrop {
+    background: none;
+  }
+
+  & [data-lightbox-body] {
+    position: absolute;
+    inset: 0;
+    touch-action: none;
+
+    /* two stacked buffers — paging slides them together as one continuous push */
+    & img {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      max-width: min(94vw, 1500px);
+      max-height: 86dvh;
+      object-fit: contain;
+      border-radius: 4px;
+      cursor: pointer;
+      transition:
+        transform 0.32s ease,
+        opacity 0.25s ease;
+      will-change: transform;
+    }
+  }
+
+  /* entrance: the photo eases in with a slight zoom-up */
+  &[open] [data-lightbox-body] img {
+    @starting-style {
+      opacity: 0;
+      transform: scale(0.92) translateY(10px);
+    }
+  }
+
+  /* exit: the photo settles back while the dialog fades */
+  &[data-closing] [data-lightbox-body] img {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  & [data-lightbox-top] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0.8rem;
+    font-family: var(--font-code);
+    pointer-events: none;
+  }
+
+  & [data-lightbox-counter] {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: color-mix(in srgb, black 55%, transparent);
+    padding: 0.25rem 0.7rem;
+    border-radius: 4px;
+  }
+
+  /* round controls, same family as the gallery chevrons */
+  & button {
+    pointer-events: auto;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    font-family: var(--font-code);
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--accent-primary);
+    background: color-mix(in srgb, black 55%, transparent);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      background 0.15s ease,
+      transform 0.15s ease;
+
+    /* `hidden` must win over the explicit display above (standalone photos hide the pager) */
+    &[hidden] {
+      display: none;
+    }
+
+    &:hover:not(:disabled) {
+      color: var(--text-primary);
+      border-color: color-mix(in srgb, var(--accent-primary) 60%, transparent);
+      background: color-mix(in srgb, black 35%, transparent);
+      transform: scale(1.08);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      border-color: var(--accent-primary);
+    }
+  }
+
+  & [data-lightbox-close] {
+    margin-left: auto;
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.3rem;
+
+    &:hover:not(:disabled) {
+      transform: scale(1.08) rotate(90deg);
+    }
+  }
+
+  & [data-lightbox-nav] {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-50%) scale(1.08);
+    }
+
+    &[data-side="prev"] {
+      left: 1rem;
+    }
+
+    &[data-side="next"] {
+      right: 1rem;
+    }
+  }
+}
+
+@media (hover: none) {
+  dialog[data-lightbox] [data-lightbox-nav] {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog[data-lightbox],
+  dialog[data-lightbox] [data-lightbox-body] img,
+  dialog[data-lightbox] button {
+    transition: none;
+  }
+}

@@ -4,7 +4,8 @@
  * fixtures are a frozen article set, fully independent of the real `content/` — publishing a
  * real article never touches the e2e suite or its visual baselines. The fixtures deliberately
  * keep cases the live corpus may lack: >PAGE_SIZE articles (pagination), en-only articles
- * (locale-fallback notice), and code blocks (Shiki highlighting).
+ * (locale-fallback notice), code blocks (Shiki highlighting), and an `::embed` directive
+ * (the click-to-play lazy-embed facade).
  *
  * Expectations are still DERIVED by scanning the fixture tree at test time, so editing the
  * fixture corpus is also edit-free for the specs. Frontmatter is parsed with a minimal line
@@ -40,6 +41,8 @@ export interface ContentArticle {
   locales: string[];
   /** Whether the English body contains a fenced code block (renders as `pre.shiki`). */
   hasCodeBlock: boolean;
+  /** Parsed `::embed{src title}` directive from the English body (renders as the lazy-embed facade), if any. */
+  embed?: { src: string; title: string };
 }
 
 /** Pull a quoted (or bare) scalar value for `key:` out of a frontmatter block. */
@@ -73,6 +76,7 @@ function scanArticle(slug: string): ContentArticle {
   const fmMatch = en.match(/^---\n([\s\S]*?)\n---/);
   const frontmatter = fmMatch?.[1] ?? "";
   const body = en.slice(fmMatch?.[0].length ?? 0);
+  const embedMatch = body.match(/^::embed\{src="([^"]+)" title="([^"]+)"\}/m);
 
   return {
     slug,
@@ -80,7 +84,11 @@ function scanArticle(slug: string): ContentArticle {
     date: scalar(frontmatter, "date"),
     tags: tagList(frontmatter),
     locales,
-    hasCodeBlock: body.includes("```")
+    hasCodeBlock: body.includes("```"),
+    // Spread (not `embed: undefined`) — `exactOptionalPropertyTypes` forbids explicit undefined.
+    ...(embedMatch?.[1] && embedMatch[2]
+      ? { embed: { src: embedMatch[1], title: embedMatch[2] } }
+      : {})
   };
 }
 
@@ -120,6 +128,13 @@ export const CANONICAL: ContentArticle =
   (() => {
     throw new Error(`no articles found in ${CONTENT_DIR}`);
   })();
+
+/**
+ * The article carrying an `::embed{src title}` directive — the click-to-play lazy-embed facade
+ * (`@moku-labs/web` 1.10.0: `embed: true` + the `lazyEmbed` island). A fixture-kept case: the
+ * live corpus may lack one. `undefined` skips the embed spec.
+ */
+export const EMBEDDED: ContentArticle | undefined = ARTICLES.find(article => article.embed);
 
 /** Escape a literal string for embedding in a RegExp. */
 export function escapeRegExp(literal: string): string {

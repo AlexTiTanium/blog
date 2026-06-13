@@ -29,6 +29,8 @@ function processData(data: UserRecord[]): number[] {
 }
 ```
 
+::embed{src="/about/" title="TypeScript Playground"}
+
 The real joy came about a month in, when the compiler caught a bug I was about to introduce. I'd renamed a field in an interface, and TypeScript immediately highlighted every file that referenced the old name. In JavaScript, that rename would have been a ticking time bomb -- working fine in development, exploding in production three weeks later when someone hit the one code path that used the old field name.
 
 ## The Verdict
