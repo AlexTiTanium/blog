@@ -24,6 +24,8 @@ And here, in fact, is what came out of it. You can unscrew a few bolts without l
 
 ::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master" width="450" height="800"}
 
+All the code is on GitHub, PRs and video proofs and all: [AlexTiTanium/screw-master](https://github.com/AlexTiTanium/screw-master).
+
 ## Figma, MCP, and the Battle for Sanity
 
 The entire interface went through Figma. I assembled the scenes the way they were supposed to look, then the Figma MCP gave the model access to the data and the assets — and the UI got built from that.

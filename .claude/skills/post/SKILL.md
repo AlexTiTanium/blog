@@ -103,6 +103,12 @@ when you draft.
   Note the source in the report; add attribution in the post if the license requires it.
 - **Asset on a page** ("take the chart from this post") → fetch the page, locate the asset URL,
   vendor it as above with alt text describing what it actually shows.
+- **"Embed the game / demo / let readers play it"** ("here's the game, put it in the article",
+  "people should be able to try it", a deploy URL for a thing-you-can-use) → this is an `::embed`,
+  not an image. Drop the `::embed{src="…" title="…"}` directive at the right beat (Step 4
+  formatting palette → "Embedding a live demo"). If they hand you a pre-built bundle (a folder/zip
+  with an `index.html`), vendor it to `content/<slug>/game/` and use `src="./game/index.html"`; if
+  they give a URL, use it directly. Pick `width`/`height` from the content's real aspect ratio.
 - **Editorial directives** ("make it short", "more sarcasm", "don't mention the company") →
   note them and obey them through every later step. They override the skill's defaults (length
   heuristics, tone calibration) but not the prime directives.
@@ -289,6 +295,7 @@ The renderer is remark-gfm + a couple of custom bits. Use these; they all render
 | Table | GFM pipe tables | standard table |
 | Link | `[text](url)` | accent link |
 | Image | `![alt](./images/name.webp)` | see Step 5 |
+| Live embed (game / demo / playground) | `::embed{src="…" title="…"}` on its own line | click-to-play facade → lazy `<iframe>` — see "Embedding a live demo" below |
 
 Two quirks to respect:
 
@@ -299,6 +306,47 @@ Two quirks to respect:
   the actual articles do it (`grep -rl ':::' content/` for pull quotes, `grep -rl '^> ' content/`
   for blockquotes) and match that. When the corpus diverges from a flourish, default to the simpler
   element. If you *do* use `:::pullquote`, keep it one short paragraph, used once.
+
+### Embedding a live demo / game / playground (`::embed`)
+
+When the post is *about* a thing the reader can try — a game, a web demo, an interactive
+playground — embed it so they can play it **inside the article**. The directive renders a static
+"click to load" facade at build time and only swaps in the real `<iframe>` when the reader clicks,
+so it's **non-blocking**: zero network, zero third-party JS, no layout shift until they opt in.
+This is enabled on the blog (`embed` in `src/app.ts`, framework feature shipped in
+`@moku-labs/web` ≥ 1.11.0) — you just write the directive. First use: the `screw-master` post.
+
+```md
+::embed{src="https://my-game.example.com/" title="My Game"}
+```
+
+- **`src`** (required) — what to embed. Three forms:
+  - an **external URL** (`https://…`) — the common case (a deployed game/demo);
+  - a **root-relative path** (`/games/x/`) — something already under `public/`;
+  - a **co-located relative path** (`./game/index.html`) — a **pre-built** static bundle dropped
+    next to the article at `content/<slug>/game/`, exactly like the `images/` dir. Nothing is
+    built or bundled — it ships as-is, and the build copies the whole folder to the output. Use
+    this when the author hands you a self-contained game/demo build to host with the post.
+- **`title`** (required) — the human label shown on the facade (and the iframe title). Localize it
+  per locale like any other prose.
+- **`width` / `height`** (optional, integer **pixels**, set together) — reserve the frame at its
+  true aspect ratio so there's no layout shift. **Match the embedded content's real ratio** — a
+  portrait phone game is `width="450" height="800"` (9:16); a landscape demo might be
+  `width="800" height="500"`. Omit both for the default ~16/10 box. Don't guess wildly: if you
+  can, check the target's canvas/viewport ratio (the screw-master game canvas is 1080×1920 → 9:16
+  → 450×800).
+
+Rules that keep it clean:
+
+- Put the directive **on its own line** (blank line above and below), at the natural beat — right
+  after the paragraph that introduces the thing ("here's what came out of it, try it:"). One per
+  post is plenty.
+- The directive line is **byte-identical across all locales** (like a code block or image path):
+  only the surrounding prose and the `title=` text are translated — `src`, `width`, `height` stay
+  the same. Keep `title` in the post's language.
+- It's a real directive, so it can't be inside a blockquote or list — top level only.
+- The facade's chrome (the "click to load" button styling) is the blog's, not yours to design in
+  the post — just write the directive.
 
 ## Step 5 — Place the images / charts
 
@@ -372,7 +420,7 @@ version.
 rhythm instead of writing in the target language's.
 
 **Translate:** `title`, `description`, every heading, all prose, blockquotes, `:::pullquote`
-content, and image **alt text**.
+content, image **alt text**, and the `title=` of an `::embed` directive.
 
 **Keep byte-identical across all locales:**
 
@@ -380,6 +428,8 @@ content, and image **alt text**.
 - Code blocks, including comments and string literals — keep code in English so it stays
   maintainable and matches the en source.
 - URLs, proper nouns, product/library names, and the `:::pullquote` / `---` syntax itself.
+- An `::embed` directive's `src`, `width`, and `height` (only its `title=` is translated) — the
+  whole line stays identical except the title text.
 
 **Change:** the `language:` field to the locale. Keep `draft: false`. No `author:` field.
 
@@ -443,7 +493,8 @@ them):
 ```bash
 bun run build 2>&1 | tail -3                                # whole-site build; green = valid end-to-end
 ls content/<slug>/                                          # every locale present?
-grep -rl ':::' dist/*/<slug>/index.html && echo "DIRECTIVE LEAKED"   # raw ::: must not reach HTML
+grep -rlE ':::|::embed' dist/*/<slug>/index.html && echo "DIRECTIVE LEAKED"  # raw ::: / ::embed must not reach HTML
+grep -rho 'data-component="lazy-embed"' dist/*/<slug>/index.html | head -1   # if the post embeds: facade present (built, not leaked)
 grep -rno ' -- ' content/<slug>/*.md                        # bare double-hyphens in prose → make them —
 
 # Cliché lint — the greppable tells, per locale (hits = go fix, then re-grep):

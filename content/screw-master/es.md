@@ -24,6 +24,8 @@ Y esto es, de hecho, lo que salió. Puedes desenroscar un par de tornillos sin m
 
 ::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master" width="450" height="800"}
 
+Todo el código está en GitHub, con esos PR y vídeos de prueba incluidos: [AlexTiTanium/screw-master](https://github.com/AlexTiTanium/screw-master).
+
 ## Figma, MCP y la batalla por la cordura
 
 Toda la interfaz pasó por Figma. Yo montaba las escenas tal y como debían verse; luego el Figma MCP le daba al modelo acceso a los datos y a los recursos, y a partir de eso se construía la UI.

@@ -24,6 +24,8 @@ draft: false
 
 ::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master" width="450" height="800"}
 
+Увесь код — на GitHub, разом із тими самими PR і відео-пруфами: [AlexTiTanium/screw-master](https://github.com/AlexTiTanium/screw-master).
+
 ## Figma, MCP і боротьба за здоровий глузд
 
 Увесь інтерфейс робився через Figma. Я збирав сцени такими, якими вони мають бути на вигляд, потім Figma MCP віддавав моделі доступ до даних і ресурсів — і вже на цьому будувався UI.
