@@ -13,6 +13,7 @@
 @import "../components/ArticleLayout.css";
 @import "../components/MetaPanel.css";
 @import "../components/ShareButtons.css";
+@import "../components/EmbedFacade.css";
 
 /* Pages */
 @import "../components/DashboardGrid.css";

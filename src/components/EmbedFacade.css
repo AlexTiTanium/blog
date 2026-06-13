@@ -1,0 +1,86 @@
+/* EmbedFacade -- `::embed` click-to-activate facade.
+   The framework owns <figure class="lazy-embed"> (data-component + data-embed-*
+   hooks + reserved-box sizing inline style); this styles the box chrome, the
+   facade inner content (src/components/EmbedFacade.tsx, data-* attrs), and the
+   activated iframe. Scoped to the article body, same as code/article typography. */
+
+@scope ([data-content]) {
+  /* The facade box. Default ratio applies when the `::embed` sets no size; an
+     explicit width/height wins via the framework's inline aspect-ratio +
+     max-width. `auto` insets center a width-capped (e.g. portrait) frame. */
+  figure.lazy-embed {
+    margin: 1.5rem auto;
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--border-default);
+    background: var(--color-stone-975);
+    overflow: hidden;
+  }
+
+  /* Launch button — fills the box; a calm wash on hover/focus. */
+  figure.lazy-embed [data-launch] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-family: var(--font-code);
+    color: var(--text-secondary);
+    transition: background 120ms ease;
+  }
+
+  figure.lazy-embed [data-launch]:hover,
+  figure.lazy-embed [data-launch]:focus-visible {
+    background: color-mix(in srgb, var(--accent-primary) 7%, transparent);
+    outline: none;
+  }
+
+  /* Play ring — the focal glyph. */
+  figure.lazy-embed [data-ring] {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.25rem;
+    border: 1px solid var(--border-default);
+    border-radius: 50%;
+    color: var(--accent-primary);
+    transition:
+      border-color 120ms ease,
+      transform 120ms ease;
+  }
+
+  figure.lazy-embed [data-launch]:hover [data-ring],
+  figure.lazy-embed [data-launch]:focus-visible [data-ring] {
+    border-color: var(--accent-primary);
+    transform: scale(1.06);
+  }
+
+  figure.lazy-embed [data-label] {
+    font-size: 1rem;
+    color: var(--text-primary);
+  }
+
+  figure.lazy-embed [data-cmd] {
+    font-size: 0.78rem;
+    opacity: 0.7;
+  }
+
+  figure.lazy-embed [data-hint] {
+    font-size: 0.72rem;
+    opacity: 0.5;
+  }
+
+  /* Activated state — the real iframe fills the reserved box. */
+  figure.lazy-embed .lazy-embed-frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+}
