@@ -46,6 +46,9 @@ const PULL_UP_MAX_GROW = 0.5;
 /** Accumulated trackpad deltaX (px) that pages one slide. */
 const WHEEL_PAGE_THRESHOLD = 80;
 
+/** Quiet gap (ms) with no wheel events that ends a trackpad gesture and re-arms paging. */
+const WHEEL_GESTURE_GAP_MS = 140;
+
 /** The dialog and its chrome, built once by {@link buildUi}. */
 type LightboxUi = {
   /** The fullscreen `<dialog>`. */
@@ -76,8 +79,14 @@ let pager: { slides: LightboxSlide[]; index: number } | undefined;
 /** Active drag state while a pointer is down on the dialog body. */
 let drag: { x: number; y: number; axis: "x" | "y" | undefined } | undefined;
 
-/** Accumulated trackpad deltaX between paging steps. */
+/** Accumulated trackpad deltaX within the current wheel gesture. */
 let wheelAccum = 0;
+
+/** True after a wheel gesture has paged once — ignores its momentum tail (one swipe = one page). */
+let wheelLocked = false;
+
+/** Timer that unlocks wheel paging once the gesture's momentum stops (reset on every tick). */
+let wheelEndTimer: ReturnType<typeof setTimeout> | undefined;
 
 /** True right after a drag — suppresses the trailing click so it cannot close the dialog. */
 let dragConsumedClick = false;
@@ -311,8 +320,10 @@ function onKeydown(event: KeyboardEvent): void {
 }
 
 /**
- * Trackpad / wheel handler: a horizontal swipe pages (and is prevented so the browser does not
- * trigger history back/forward), a vertical wheel is left alone.
+ * Trackpad / wheel handler: a horizontal swipe pages ONE slide (and is prevented so the browser
+ * can't turn it into history back/forward); a vertical wheel is left alone. A trackpad flick fires
+ * a long momentum tail of wheel events — so after paging once the gesture is locked and its tail
+ * ignored until the momentum stops (a quiet gap), making one physical swipe page exactly once.
  *
  * @param event - The wheel event.
  * @example
@@ -326,9 +337,19 @@ function onWheel(event: WheelEvent): void {
   event.preventDefault();
   if (!pager) return;
 
+  // Each tick pushes back the "gesture ended" unlock — it fires only after the momentum settles.
+  if (wheelEndTimer) clearTimeout(wheelEndTimer);
+  wheelEndTimer = setTimeout(() => {
+    wheelLocked = false;
+    wheelAccum = 0;
+    wheelEndTimer = undefined;
+  }, WHEEL_GESTURE_GAP_MS);
+
+  if (wheelLocked) return;
   wheelAccum += event.deltaX;
   if (Math.abs(wheelAccum) >= WHEEL_PAGE_THRESHOLD) {
     page(wheelAccum > 0 ? 1 : -1);
+    wheelLocked = true;
     wheelAccum = 0;
   }
 }
@@ -476,6 +497,9 @@ function buildUi(): LightboxUi {
   dialog.addEventListener("close", () => {
     closing = false;
     wheelAccum = 0;
+    wheelLocked = false;
+    if (wheelEndTimer) clearTimeout(wheelEndTimer);
+    wheelEndTimer = undefined;
     delete dialog.dataset.closing;
     dialog.style.removeProperty("opacity");
     document.removeEventListener("keydown", onKeydown, true);
@@ -490,7 +514,9 @@ function buildUi(): LightboxUi {
     resetView(false);
     dialog.style.opacity = "";
   });
-  window.addEventListener("resize", onResize);
+  globalThis.addEventListener("resize", onResize);
+  // iOS fires orientationchange (sometimes before resize settles) — re-snap on both.
+  globalThis.addEventListener("orientationchange", onResize);
 
   // Tap/click off the controls closes (a drag's trailing click is a no-op).
   body.addEventListener("click", event => {

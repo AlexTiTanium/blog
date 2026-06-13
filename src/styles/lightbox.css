@@ -56,13 +56,16 @@ dialog[data-lightbox] {
     inset: 0;
     touch-action: none;
 
-    /* two stacked buffers — paging slides them together as one continuous push */
+    /* two stacked buffers — paging slides them together as one continuous push.
+       Sizing is % of this inset:0 body (which fills the fixed dialog), NOT vw/dvh —
+       iOS Safari leaves dynamic-viewport units stale right after a rotate, but the
+       fixed+inset:0 box re-fills immediately, so percentages stay correct. */
     & img {
       position: absolute;
       inset: 0;
       margin: auto;
-      max-width: min(94vw, 1500px);
-      max-height: 86dvh;
+      max-width: min(94%, 1500px);
+      max-height: 86%;
       object-fit: contain;
       border-radius: 4px;
       cursor: pointer;
