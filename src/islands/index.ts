@@ -1,6 +1,7 @@
 /**
  * @file Island registry — passed to pluginConfigs.spa.components.
  */
+import { lazyEmbed } from "@moku-labs/web/browser";
 import { dashboard } from "./dashboard";
 import { langSwitcher } from "./lang-switcher";
 import { lightbox } from "./lightbox";
@@ -16,6 +17,8 @@ export const islands = [
   langSwitcher,
   titleBar,
   lightbox,
+  // Framework-provided: activates `::embed` facades (click → lazy iframe).
+  lazyEmbed,
   shareButtons,
   pageFx,
   dashboard,
