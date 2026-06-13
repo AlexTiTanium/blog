@@ -36,7 +36,7 @@ Y ahora, el mayor problema de todos.
 
 > Los bugs son lo que mejor genera la IA. Y qué bugs — de verdad, te quedas mirándolos maravillado.
 
-El verdadero reto era incluso *explicar* cuál era el bug. Sobre todo cuando la IA tenía que hacer algo concreto: digamos, varias animaciones tienen que soltar los tornillos en sus huecos *a la vez*. Con eso perdía la cabeza directamente. No, no se puede hacer bonito, con una cola o una pila: hay que montar exactamente esa mierda enrevesada y nada más. Cientos de prompts. Dolor en estado puro.
+El verdadero reto era incluso *explicar* cuál era el bug. Sobre todo cuando la IA tenía que hacer algo concreto: digamos, varias animaciones tienen que soltar los tornillos en sus huecos *a la vez*. Con eso perdía la cabeza directamente. No, no se puede hacer bonito, con una cola o una pila: hay que montar exactamente esa mierda enrevesada y nada más: cancelando promesas, pausándolas. Vamos, la manera más directa de fabricarte un montón de problemas. Cientos de prompts. Dolor en estado puro.
 
 ## Entonces, ¿se pueden hacer juegos así?
 
