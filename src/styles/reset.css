@@ -11,21 +11,22 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Root scroller stays at the browser default `auto` (instant) — NEVER `smooth`. The
+     SPA nav scroll-to-top runs as scrollTo({ top: 0, behavior: "auto" }) in the
+     framework's pre-swap hook (we set viewTransitions:false), so that "auto" reads THIS
+     value. `scroll-behavior: smooth` here turns the reset into an animation that races
+     the synchronous content swap: the swap drops the tall outgoing page for shorter
+     content mid-flight, the in-flight animation is clamped to the new, smaller max scroll
+     and WebKit cancels it there — so the page strands near the old position instead of
+     reaching the top (the "press Home, it doesn't scroll up" race). Instant lands every
+     new page at its top, deterministically. The deliberate same-tab "scroll to top" still
+     animates: the framework passes an explicit behavior:"smooth" there, overriding this. */
   scrollbar-gutter: stable;
   /* Lock the text scale: without this, iOS Safari auto-inflates every font on a
      portrait→landscape rotate (the whole page appears to zoom). 100% keeps the
      natural size while still allowing the user to pinch-zoom. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-}
-
-/* Honour reduced-motion: no smooth scroll-to-top on navigation (the spa scroll defers to
-   this via behavior:"auto" when view transitions are off), and no smooth anchor jumps. */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
 }
 
 a {
