@@ -13,6 +13,11 @@
 html {
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
+  /* Lock the text scale: without this, iOS Safari auto-inflates every font on a
+     portrait→landscape rotate (the whole page appears to zoom). 100% keeps the
+     natural size while still allowing the user to pinch-zoom. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Honour reduced-motion: no smooth scroll-to-top on navigation (the spa scroll defers to
