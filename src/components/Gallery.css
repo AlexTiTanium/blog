@@ -48,6 +48,9 @@
       margin: 0;
       background: var(--color-stone-975);
       cursor: zoom-in;
+      /* kill the ~300ms double-tap-zoom wait so the tap opens the lightbox instantly on touch;
+         `manipulation` still allows the horizontal pan, so the swipe pager is unaffected */
+      touch-action: manipulation;
     }
 
     /* shimmer placeholder until a slide decodes (the gallery island sets data-loading) */
@@ -129,6 +132,8 @@
       border: none;
       background: none;
       cursor: pointer;
+      /* same: tap a dot to page with no double-tap-zoom delay */
+      touch-action: manipulation;
 
       &::before {
         content: "";

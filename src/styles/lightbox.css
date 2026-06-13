@@ -31,6 +31,10 @@ dialog[data-lightbox] {
   background: color-mix(in srgb, black 96%, transparent);
   opacity: 0;
   transition: opacity 0.25s ease;
+  /* the dialog is programmatically focused on open so it can capture arrow keys; suppress the UA
+     focus ring (a white/blue box at the screen edges on desktop when paging by keyboard) — the
+     actionable buttons keep their own :focus-visible outline */
+  outline: none;
   /* claim horizontal gestures so a trackpad swipe can't trigger browser back/forward */
   overscroll-behavior: contain;
 
