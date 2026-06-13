@@ -22,7 +22,7 @@ draft: false
 
 Ось, власне, що з цього вийшло. Можна викрутити пару гвинтиків, не відходячи від статті:
 
-::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master"}
+::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master" width="450" height="800"}
 
 ## Figma, MCP і боротьба за здоровий глузд
 

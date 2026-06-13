@@ -22,7 +22,7 @@ The idea was this: Playwright plays the game. It gets the whole harness and the 
 
 And here, in fact, is what came out of it. You can unscrew a few bolts without leaving the article:
 
-::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master"}
+::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master" width="450" height="800"}
 
 ## Figma, MCP, and the Battle for Sanity
 

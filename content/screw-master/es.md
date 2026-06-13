@@ -22,7 +22,7 @@ La idea era esta: Playwright juega al juego. Recibe todo el andamiaje y la instr
 
 Y esto es, de hecho, lo que salió. Puedes desenroscar un par de tornillos sin moverte del artículo:
 
-::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master"}
+::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master" width="450" height="800"}
 
 ## Figma, MCP y la batalla por la cordura
 
