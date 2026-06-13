@@ -22,6 +22,7 @@ import {
   fileSystemContent,
   processEnv
 } from "@moku-labs/web";
+import { EmbedFacade } from "./components/EmbedFacade";
 import { SITE } from "./config";
 import { i18nConfig } from "./i18n/index";
 import { islands } from "./islands";
@@ -88,9 +89,9 @@ export const makeApp = (stage: Stage, { contentDir = "./content", outDir = "dist
             mermaid: { mermaidConfig: warmMermaidTheme },
             // `::embed{src title}` → static click-to-activate facade (requires trustedContent;
             // no iframe — and none of the target's cost — until the reader clicks). The
-            // activation island is `lazyEmbed`, registered in src/islands; chrome in
-            // src/styles/code.css.
-            embed: true
+            // facade inner content is our own Preact component (src/components/EmbedFacade,
+            // styled in EmbedFacade.css); the activation island is `lazyEmbed` (src/islands).
+            embed: { facade: EmbedFacade }
           })
         ]
       },

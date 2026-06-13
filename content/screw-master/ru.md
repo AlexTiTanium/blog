@@ -22,7 +22,7 @@ draft: false
 
 Вот, собственно, что из этого получилось. Можно выкрутить пару винтиков, не отходя от статьи:
 
-::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master"}
+::embed{src="https://screw-master.kucherenko-email.workers.dev/" title="Screw Master" width="450" height="800"}
 
 ## Фигма, MCP и борьба за вменяемость
 

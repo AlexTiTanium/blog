@@ -25,7 +25,10 @@ test.describe("Lazy embed (::embed directive)", () => {
     await expect(facade).toHaveClass("lazy-embed");
     await expect(facade).toHaveAttribute("data-embed-src", src);
     await expect(facade).toHaveAttribute("data-embed-title", title);
-    await expect(facade.locator("button.lazy-embed-button")).toBeVisible();
+    // The facade's inner content is a consumer Preact component (the blog ships a custom
+    // one via content `embed.facade`), so we assert the contract — a focusable control
+    // exists — not a specific class. The island activates on a click anywhere inside.
+    await expect(facade.locator("button")).toBeVisible();
     // The whole point of the facade: zero iframes until the reader opts in.
     await expect(facade.locator("iframe")).toHaveCount(0);
   });
@@ -34,7 +37,7 @@ test.describe("Lazy embed (::embed directive)", () => {
     await page.goto(`/${slug}/`);
 
     const facade = page.locator(FACADE);
-    await facade.locator("button.lazy-embed-button").click();
+    await facade.locator("button").click();
 
     const iframe = facade.locator("iframe.lazy-embed-frame");
     await expect(iframe).toHaveAttribute("src", src);
@@ -51,7 +54,7 @@ test.describe("Lazy embed (::embed directive)", () => {
     await page.goto(`/${slug}/`);
 
     // Activate first, so coming back proves the swap delivered a FRESH facade.
-    await page.locator(`${FACADE} button.lazy-embed-button`).click();
+    await page.locator(`${FACADE} button`).click();
     await expect(page.locator(`${FACADE} iframe`)).toBeVisible();
 
     await page.click('a[href="/archive/"]');
@@ -69,7 +72,7 @@ test.describe("Lazy embed (::embed directive)", () => {
     await expect(facade.locator("iframe")).toHaveCount(0);
 
     // The click handler works only if the island re-mounted on the swapped-in content.
-    await facade.locator("button.lazy-embed-button").click();
+    await facade.locator("button").click();
     await expect(facade.locator("iframe.lazy-embed-frame")).toBeVisible();
   });
 });
