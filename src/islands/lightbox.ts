@@ -1,25 +1,38 @@
 /**
- * @file lightbox island — opens article images fullscreen in a `<dialog>` overlay. Mounts on
- * `[data-component="lightbox"]` (the article body wrapper). The dialog is a lazily-built
- * fullscreen singleton reused across article views (styles in styles/lightbox.css). When the
- * clicked image belongs to a photo gallery (islands/gallery.ts) it becomes a pager: side arrows
- * (pointer devices), document-level arrow keys, and drag-to-swipe with live follow on touch.
- * Paging is a single continuous push — two image buffers slide together, the old frame out and
- * the new one in. Swipe down closes, as does Escape, the round `×` button, or a tap anywhere off
- * the controls. Neighbor slides are preloaded. The article body is also where galleries live,
- * and one element hosts one island — so this island drives the gallery enhancement through the
- * same lifecycle.
+ * @file lightbox — a fullscreen `<dialog>` image viewer with a pager. Exposes {@link openLightbox}
+ * `(slides, index)` as the public entry: the `gallery` island (islands/gallery.ts) calls it with a
+ * gallery's full slide set; the `lightbox` island here calls it with a single-entry list for a
+ * lone article image. Controls: side arrows (pointer devices), document-level arrow keys, trackpad
+ * horizontal wheel, and drag-to-swipe with live follow on touch. Paging is a single continuous
+ * push — two image buffers slide together, the old frame out and the new one in. Drag down closes;
+ * drag up zooms into a pannable view. Escape, the round `×` button, or a tap off the controls also
+ * close. Neighbor slides are preloaded; a viewport change (phone rotate) re-snaps to a clean state.
+ * Styles in styles/lightbox.css.
  */
 import { createComponent } from "@moku-labs/web/browser";
 
-import type { GallerySlide } from "./gallery";
-import { forceReflow, galleryContextFor, mountGalleries, unmountGalleries } from "./gallery";
+/** One fullscreen slide: image URL + alt (galleries pass resolved slides; a lone image passes one). */
+export type LightboxSlide = { src: string; alt: string };
+
+/**
+ * Force a synchronous reflow so a just-set transform applies before transitions re-enable.
+ *
+ * @param element - The element to flush layout for.
+ * @example
+ * forceReflow(view);
+ */
+function forceReflow(element: HTMLElement): void {
+  element.getBoundingClientRect();
+}
 
 /** How far (px) a horizontal drag must travel to page to the next slide. */
 const SWIPE_PAGE_THRESHOLD = 70;
 
 /** How far (px) a downward drag must travel to close the lightbox. */
 const SWIPE_CLOSE_THRESHOLD = 90;
+
+/** How far (px) an upward drag must travel to lock into the zoomed view. */
+const SWIPE_ZOOM_THRESHOLD = 70;
 
 /** Drag distance (px) past which the trailing click must not close the dialog. */
 const DRAG_CLICK_SUPPRESS = 10;
@@ -29,6 +42,12 @@ const CLOSE_FADE_MS = 220;
 
 /** Duration (ms) of the paging push — matches the CSS transform transition. */
 const PAGE_PUSH_MS = 320;
+
+/** Scale factor of the zoomed view. */
+const ZOOM_SCALE = 2.4;
+
+/** Accumulated trackpad deltaX (px) that pages one slide. */
+const WHEEL_PAGE_THRESHOLD = 80;
 
 /** The dialog and its chrome, built once by {@link buildUi}. */
 type LightboxUi = {
@@ -54,11 +73,17 @@ let active: HTMLImageElement | undefined;
 /** Finalizer for an in-flight paging push (runs early if a new page starts mid-animation). */
 let settlePush: (() => void) | undefined;
 
-/** Pager state while a gallery image is open (undefined for standalone images). */
-let pager: { slides: GallerySlide[]; index: number } | undefined;
+/** Pager state while the lightbox is open (undefined when closed). */
+let pager: { slides: LightboxSlide[]; index: number } | undefined;
 
 /** Active drag state while a pointer is down on the dialog body. */
 let drag: { x: number; y: number; axis: "x" | "y" | undefined } | undefined;
+
+/** Zoom state: scale 1 = normal, ZOOM_SCALE = zoomed-and-pannable; pan is the committed offset. */
+let zoom = { scale: 1, panX: 0, panY: 0 };
+
+/** Accumulated trackpad deltaX between paging steps. */
+let wheelAccum = 0;
 
 /** True right after a drag — suppresses the trailing click so it cannot close the dialog. */
 let dragConsumedClick = false;
@@ -98,6 +123,42 @@ function placeInstant(image: HTMLImageElement, transform: string, opacity: strin
   image.style.opacity = opacity;
   forceReflow(image);
   image.style.transition = "";
+}
+
+/**
+ * CSS transform for the current zoom + pan of the active buffer.
+ *
+ * @param extraX - Live drag dx to add to the committed pan.
+ * @param extraY - Live drag dy to add to the committed pan.
+ * @returns The transform string.
+ * @example
+ * active.style.transform = zoomTransform(dx, dy);
+ */
+function zoomTransform(extraX = 0, extraY = 0): string {
+  return `translate(${zoom.panX + extraX}px, ${zoom.panY + extraY}px) scale(${zoom.scale})`;
+}
+
+/**
+ * Whether the lightbox is currently zoomed in.
+ *
+ * @returns True when the active buffer is scaled up.
+ * @example
+ * if (isZoomed()) exitZoom();
+ */
+function isZoomed(): boolean {
+  return zoom.scale !== 1;
+}
+
+/**
+ * Leave the zoomed view and spring the image back to its fitted size.
+ *
+ * @example
+ * exitZoom();
+ */
+function exitZoom(): void {
+  zoom = { scale: 1, panX: 0, panY: 0 };
+  if (active) active.style.transform = "";
+  if (ui) delete ui.body.dataset.zoomed;
 }
 
 /**
@@ -154,6 +215,7 @@ function resetView(instant: boolean): void {
  */
 function showSlide(index: number, fromOffset = 0): void {
   if (!ui || !pager || !active) return;
+  if (isZoomed()) exitZoom();
 
   const clamped = Math.max(0, Math.min(pager.slides.length - 1, index));
   const direction = Math.sign(clamped - pager.index);
@@ -215,20 +277,40 @@ function requestClose(): void {
 }
 
 /**
- * Page the lightbox by `delta` slides (no-op for standalone images).
+ * Page the lightbox by `delta` slides (no-op for standalone images or while zoomed).
  *
  * @param delta - Slide offset (-1 previous, +1 next).
  * @example
  * page(1);
  */
 function page(delta: number): void {
-  if (!pager) return;
+  if (!pager || isZoomed()) return;
   showSlide(pager.index + delta);
 }
 
 /**
- * Document-level key handler while the dialog is open: arrows page, Escape closes — all consumed
- * so nothing leaks to the page (or the gallery) underneath.
+ * Snap back to a clean state for the current slide — used on viewport changes (phone rotate),
+ * where cached pixel geometry and any in-flight transform go stale.
+ *
+ * @example
+ * window.addEventListener("resize", onResize);
+ */
+function onResize(): void {
+  const lb = ui;
+  if (!lb?.dialog.open) return;
+  settlePush?.();
+  drag = undefined;
+  zoom = { scale: 1, panX: 0, panY: 0 };
+  lb.dialog.style.opacity = "";
+  delete lb.body.dataset.zoomed;
+  if (active) placeInstant(active, "", "");
+  const standby = lb.views[0] === active ? lb.views[1] : lb.views[0];
+  placeInstant(standby, "", "0");
+}
+
+/**
+ * Document-level key handler while the dialog is open: arrows page, Escape closes/unzooms — all
+ * consumed so nothing leaks to the page (or the gallery) underneath.
  *
  * @param event - The keydown event.
  * @example
@@ -239,9 +321,36 @@ function onKeydown(event: KeyboardEvent): void {
 
   event.preventDefault();
   event.stopPropagation();
+  if (event.key === "Escape") {
+    if (isZoomed()) exitZoom();
+    else requestClose();
+    return;
+  }
   if (event.key === "ArrowLeft") page(-1);
   if (event.key === "ArrowRight") page(1);
-  if (event.key === "Escape") requestClose();
+}
+
+/**
+ * Trackpad / wheel handler: a horizontal swipe pages (and is prevented so the browser does not
+ * trigger history back/forward), a vertical wheel is left alone.
+ *
+ * @param event - The wheel event.
+ * @example
+ * dialog.addEventListener("wheel", onWheel, { passive: false });
+ */
+function onWheel(event: WheelEvent): void {
+  if (!ui?.dialog.open || isZoomed()) return;
+  if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+
+  // Claim the horizontal gesture so macOS/Chrome can't turn it into a page back/forward.
+  event.preventDefault();
+  if (!pager) return;
+
+  wheelAccum += event.deltaX;
+  if (Math.abs(wheelAccum) >= WHEEL_PAGE_THRESHOLD) {
+    page(wheelAccum > 0 ? 1 : -1);
+    wheelAccum = 0;
+  }
 }
 
 /**
@@ -259,8 +368,9 @@ function onPointerDown(event: PointerEvent): void {
 }
 
 /**
- * Live-follow the drag: horizontal moves the image 1:1 (paging), downward drags pull it away
- * (closing) with the dialog fading out underneath.
+ * Live-follow the drag. Zoomed: pan the image. Otherwise: horizontal moves the image 1:1
+ * (paging), downward pulls it away (closing) with the dialog fading, upward scales it up (zoom
+ * preview).
  *
  * @param event - The pointermove event.
  * @example
@@ -271,6 +381,12 @@ function onPointerMove(event: PointerEvent): void {
   const dx = event.clientX - drag.x;
   const dy = event.clientY - drag.y;
 
+  if (isZoomed()) {
+    active.style.transition = "none";
+    active.style.transform = zoomTransform(dx, dy);
+    return;
+  }
+
   if (!drag.axis) {
     if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
     drag.axis = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
@@ -280,14 +396,20 @@ function onPointerMove(event: PointerEvent): void {
   if (drag.axis === "x" && pager) {
     active.style.transform = `translateX(${dx}px)`;
   } else if (drag.axis === "y" && dy > 0) {
+    // pull down → shrink + fade the backdrop (close preview)
     active.style.transform = `translateY(${dy}px) scale(${Math.max(0.85, 1 - dy / 1200)})`;
     ui.dialog.style.opacity = String(Math.max(0.3, 1 - dy / 500));
+  } else if (drag.axis === "y" && dy < 0) {
+    // pull up → grow toward the zoom scale (zoom preview)
+    const grow = Math.min(ZOOM_SCALE - 1, -dy / 260);
+    active.style.transform = `translateY(${dy * 0.4}px) scale(${1 + grow})`;
   }
 }
 
 /**
- * Finish the drag: page on a long horizontal swipe (handing the current offset to the push so
- * the motion continues seamlessly), close on a long downward one, spring back otherwise.
+ * Finish the drag. Zoomed: commit the pan, or exit on a tap. Otherwise: page on a long
+ * horizontal swipe (handing the offset to the push), close on a long pull-down, enter zoom on a
+ * long pull-up, spring back otherwise.
  *
  * @param event - The pointerup event.
  * @example
@@ -299,12 +421,22 @@ function onPointerUp(event: PointerEvent): void {
   const dy = event.clientY - drag.y;
   const axis = drag.axis;
   drag = undefined;
-  active.style.transition = "";
-  ui.dialog.style.opacity = "";
 
   if (Math.abs(dx) > DRAG_CLICK_SUPPRESS || Math.abs(dy) > DRAG_CLICK_SUPPRESS) {
     dragConsumedClick = true;
   }
+
+  if (isZoomed()) {
+    // Commit the pan; a tap (no real movement) is handled by the click→exitZoom path.
+    zoom.panX += dx;
+    zoom.panY += dy;
+    active.style.transition = "";
+    active.style.transform = zoomTransform();
+    return;
+  }
+
+  active.style.transition = "";
+  ui.dialog.style.opacity = "";
 
   if (axis === "x" && pager && Math.abs(dx) > SWIPE_PAGE_THRESHOLD) {
     const target = pager.index + (dx < 0 ? 1 : -1);
@@ -317,7 +449,25 @@ function onPointerUp(event: PointerEvent): void {
     requestClose();
     return;
   }
+  if (axis === "y" && dy < -SWIPE_ZOOM_THRESHOLD) {
+    enterZoom();
+    return;
+  }
   resetView(false);
+}
+
+/**
+ * Enter the zoomed, pannable view.
+ *
+ * @example
+ * enterZoom();
+ */
+function enterZoom(): void {
+  if (!ui || !active) return;
+  zoom = { scale: ZOOM_SCALE, panX: 0, panY: 0 };
+  active.style.transition = "";
+  active.style.transform = zoomTransform();
+  ui.body.dataset.zoomed = "";
 }
 
 /**
@@ -380,11 +530,15 @@ function buildUi(): LightboxUi {
   });
   dialog.addEventListener("close", () => {
     closing = false;
+    zoom = { scale: 1, panX: 0, panY: 0 };
+    wheelAccum = 0;
     delete dialog.dataset.closing;
     dialog.style.removeProperty("opacity");
+    delete body.dataset.zoomed;
     document.removeEventListener("keydown", onKeydown, true);
   });
 
+  dialog.addEventListener("wheel", onWheel, { passive: false });
   body.addEventListener("pointerdown", onPointerDown);
   body.addEventListener("pointermove", onPointerMove);
   body.addEventListener("pointerup", onPointerUp);
@@ -393,84 +547,105 @@ function buildUi(): LightboxUi {
     resetView(false);
     dialog.style.opacity = "";
   });
+  window.addEventListener("resize", onResize);
 
-  // Tap/click anywhere off the controls closes (a drag's trailing click does not).
+  // Tap/click off the controls: exit zoom if zoomed, else close (a drag's trailing click is no-op).
   body.addEventListener("click", event => {
     if (dragConsumedClick) {
       dragConsumedClick = false;
       return;
     }
     if ((event.target as Element).closest("button")) return;
-    requestClose();
+    if (isZoomed()) exitZoom();
+    else requestClose();
   });
 
   return { dialog, body, views, counter, previous, next };
 }
 
 /**
- * Open the clicked article image in the fullscreen lightbox. Gallery images open with the pager
- * armed on their slide set.
+ * Open the fullscreen lightbox on a slide set, paged from `index`. The public entry: the gallery
+ * island passes a gallery's resolved slides; the lightbox island passes a single-entry list for a
+ * lone article image. The pager chrome (arrows + counter) shows only for sets of 2+.
  *
- * @param event - The click event from the article body.
+ * @param slides - The slide set ({@link LightboxSlide} list); empty is a no-op.
+ * @param index - The slide to open on (clamped into range).
  * @example
- * element.addEventListener("click", openImage);
+ * openLightbox(gallerySlides, 2);
  */
-function openImage(event: Event): void {
-  const image = (event.target as Element).closest("img");
-  if (!image) return;
-  const source = image.getAttribute("src");
-  if (!source) return;
+export function openLightbox(slides: LightboxSlide[], index: number): void {
+  if (slides.length === 0) return;
 
   ui ??= buildUi();
   settlePush?.();
-  const context = galleryContextFor(image);
-  pager = context ? { slides: context.slides, index: context.index } : undefined;
+  zoom = { scale: 1, panX: 0, panY: 0 };
+  wheelAccum = 0;
+  delete ui.body.dataset.zoomed;
 
-  const paged = pager !== undefined;
+  const clamped = Math.max(0, Math.min(slides.length - 1, index));
+  pager = { slides, index: clamped };
+
+  const paged = slides.length > 1;
   ui.previous.hidden = !paged;
   ui.next.hidden = !paged;
   ui.counter.hidden = !paged;
 
-  // Reset the buffers: first one shows the clicked slide, the other parks hidden.
+  // Reset the buffers: first one shows the opening slide, the other parks hidden.
   active = ui.views[0];
   placeInstant(active, "", "");
   placeInstant(ui.views[1], "", "0");
-  active.src = pager ? (pager.slides[pager.index]?.src ?? source) : source;
-  active.alt = image.getAttribute("alt") ?? "";
+  const slide = slides[clamped];
+  if (slide) {
+    active.src = slide.src;
+    active.alt = slide.alt;
+  }
 
   syncChrome();
-  if (pager) {
-    preload(pager.index - 1);
-    preload(pager.index + 1);
-  }
+  preload(clamped - 1);
+  preload(clamped + 1);
 
   document.addEventListener("keydown", onKeydown, true);
   ui.dialog.showModal();
   ui.dialog.focus();
 }
 
-/** Lightbox island: article image click → fullscreen dialog overlay (+ gallery pager). */
+/**
+ * Open a lone article image (one not inside a gallery — those are handled by the gallery island,
+ * which owns the full slide set) in the lightbox, with no pager chrome.
+ *
+ * @param event - The click event from the article body.
+ * @example
+ * element.addEventListener("click", openLoneImage);
+ */
+function openLoneImage(event: Event): void {
+  const image = (event.target as Element).closest("img");
+  if (!image) return;
+  if (image.closest('[data-component="gallery"]')) return;
+  const source = image.getAttribute("src");
+  if (!source) return;
+  openLightbox([{ src: source, alt: image.getAttribute("alt") ?? "" }], 0);
+}
+
+/** Lightbox island: a lone article image click → fullscreen dialog (no pager). */
 export const lightbox = createComponent("lightbox", {
   /**
-   * Bind the image-click handler and build galleries when the article body mounts.
+   * Bind the lone-image click handler when the article body mounts.
    *
    * @param context - The island lifecycle context.
    * @example
    * onMount(context);
    */
   onMount(context) {
-    context.el.addEventListener("click", openImage);
-    mountGalleries(context.el);
+    context.el.addEventListener("click", openLoneImage);
   },
   /**
-   * Remove the image-click handler and tear down galleries when the article body is destroyed.
+   * Remove the lone-image click handler when the article body is destroyed.
    *
    * @param context - The island lifecycle context.
    * @example
    * onDestroy(context);
    */
   onDestroy(context) {
-    context.el.removeEventListener("click", openImage);
-    unmountGalleries(context.el);
+    context.el.removeEventListener("click", openLoneImage);
   }
 });

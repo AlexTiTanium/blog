@@ -1,0 +1,150 @@
+/* ============================================================
+   Photo gallery (::gallery directive)
+   The framework wraps the Gallery.tsx output in
+   <div class="gallery" data-component="gallery">. Inside: a
+   full-width scroll-snap slide track, overlay chevrons, and a dot
+   rail. With no JS it is already a swipeable strip (this CSS is the
+   fallback); the `gallery` island adds active-dot sync, chevron/
+   keyboard paging and click-to-lightbox. Scoped to the article body
+   like the rest of the content styling.
+   ============================================================ */
+
+@scope ([data-content]) {
+  .gallery {
+    margin: var(--space-10) 0;
+    outline: none;
+
+    /* keyboard-focus cue: a soft halo on the current dot (no box around the frame) */
+    &:focus-visible [data-gallery-dot][data-current]::before {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-primary) 30%, transparent);
+    }
+  }
+
+  [data-gallery-viewport] {
+    position: relative;
+  }
+
+  /* one full-width slide at a time; native scroll-snap = swipe with no JS */
+  [data-gallery-track] {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    /* keep a trackpad swipe inside the strip — don't let it page browser history */
+    overscroll-behavior-x: contain;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    & [data-gallery-slide] {
+      flex: 0 0 100%;
+      scroll-snap-align: center;
+      width: 100%;
+      max-width: 100%;
+      height: clamp(240px, 42vw, 480px);
+      object-fit: contain;
+      margin: 0;
+      background: var(--color-stone-975);
+      cursor: zoom-in;
+    }
+  }
+
+  /* overlay chevrons — hover on pointer devices, always shown on touch */
+  [data-gallery-nav] {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-2);
+    border: none;
+    background: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 1;
+
+    &[data-gallery-nav="prev"] {
+      left: 0;
+    }
+
+    &[data-gallery-nav="next"] {
+      right: 0;
+    }
+
+    & > span {
+      display: grid;
+      place-items: center;
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      background: color-mix(in srgb, black 55%, transparent);
+      font-family: var(--font-code);
+      font-size: 0.9rem;
+      line-height: 1;
+      color: var(--accent-primary);
+      transition: transform 0.15s ease;
+    }
+
+    &:hover:not(:disabled) > span {
+      transform: scale(1.1);
+      color: var(--text-primary);
+    }
+
+    &:disabled {
+      opacity: 0 !important;
+      cursor: default;
+    }
+  }
+
+  [data-gallery-viewport]:hover [data-gallery-nav]:not(:disabled) {
+    opacity: 1;
+  }
+
+  /* amber dot rail */
+  [data-gallery-dots] {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+
+    & [data-gallery-dot] {
+      padding: 0.3rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+
+      &::before {
+        content: "";
+        display: block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        border: 1px solid var(--accent-primary);
+        transition:
+          background 0.15s ease,
+          transform 0.15s ease;
+      }
+
+      &[data-current]::before {
+        background: var(--accent-primary);
+        transform: scale(1.25);
+      }
+    }
+  }
+
+  @media (hover: none) {
+    .gallery [data-gallery-nav] {
+      opacity: 0.85;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery *,
+    .gallery [data-gallery-slide] {
+      transition: none !important;
+    }
+  }
+}
