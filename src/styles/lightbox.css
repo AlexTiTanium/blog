@@ -20,6 +20,8 @@ dialog[data-lightbox] {
   background: color-mix(in srgb, black 96%, transparent);
   opacity: 0;
   transition: opacity 0.25s ease;
+  /* claim horizontal gestures so a trackpad swipe can't trigger browser back/forward */
+  overscroll-behavior: contain;
 
   &[open] {
     opacity: 1;
@@ -57,6 +59,15 @@ dialog[data-lightbox] {
         transform 0.32s ease,
         opacity 0.25s ease;
       will-change: transform;
+    }
+
+    /* zoomed view: panning cursor, image rendered above the controls' click zone */
+    &[data-zoomed] {
+      cursor: grab;
+
+      & img {
+        cursor: grab;
+      }
     }
   }
 

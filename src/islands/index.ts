@@ -3,6 +3,7 @@
  */
 import { lazyEmbed } from "@moku-labs/web/browser";
 import { dashboard } from "./dashboard";
+import { gallery } from "./gallery";
 import { langSwitcher } from "./lang-switcher";
 import { lightbox } from "./lightbox";
 import { pageFx } from "./page-fx";
@@ -17,6 +18,8 @@ export const islands = [
   langSwitcher,
   titleBar,
   lightbox,
+  // Enhances `::gallery` blocks (paging + click-to-lightbox); opens the lightbox island's viewer.
+  gallery,
   // Framework-provided: activates `::embed` facades (click → lazy iframe).
   lazyEmbed,
   shareButtons,

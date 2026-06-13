@@ -23,9 +23,7 @@ All combat is dice-rolling -- there are both melee and ranged attacks. And of co
 
 The game features both standalone missions and campaigns. A campaign is a set of individual missions tied together by an overarching story. Heroes can carry their hard-earned (read: looted) gear into the next mission, accumulating a small fortune by the end of the campaign. You won't finish a campaign in a single day -- it takes dozens of hours, and the game thoughtfully provides a save system: a notebook and pencil.
 
-![Campaign map board showing the land of Terrinoth with cities and quest locations](./images/dj-5.jpg)
-
-![Descent rulebooks, campaign board, cards, dice, and token bags spread out on table](./images/dj-6.webp)
+::gallery{src="./images/board/" caption="Descent campaign board and rulebooks spread out on the table"}
 
 ## Impressions
 
@@ -33,24 +31,10 @@ Haven't actually played yet -- haven't even finished reading the rules (a 20-pag
 
 The miniatures are impressive -- they're quite detailed and genuinely menacing. I liked the tile system: you lay out the dungeon map from tiles, and since there are so many of them, it gives the game great replayability and variety.
 
-![Hero and monster miniatures: small gray heroes, cream creatures, and large red demons including a dragon](./images/dj-2.webp)
-
-![Close-up of a red Overlord monster miniature with detailed scales and claws](./images/dj-3.webp)
-
-![White and red dragon miniatures with spread wings towering over smaller figures](./images/dj-4.webp)
+::gallery{src="./images/miniatures/" caption="Descent hero and monster miniatures: heroes, cream creatures and red demons with a dragon"}
 
 On the downside, there's the balance issue. From what I've read in the rules, playing the Overlord seems kind of dull, and the heroes almost always have the upper hand -- they're essentially immortal.
 
-![All miniatures lined up with cards, dice, and token bags in front](./images/dj-7.webp)
+::gallery{src="./images/closeups/" caption="Descent miniatures lined up, with close-ups of the monster figures"}
 
-![Red winged demon miniature close-up standing on the rulebook cover](./images/dj-8.webp)
-
-![Cream-colored tentacled monster miniature close-up on the rulebook](./images/dj-9.webp)
-
-![Dungeon map tiles assembled: fiery caverns, stone halls, and treasure rooms](./images/dj-10.webp)
-
-![Dungeon tiles showing icy caves and underground corridors](./images/dj-11.webp)
-
-![Close-up of a dungeon tile with scattered treasure and skeleton details](./images/dj-12.webp)
-
-![Full dungeon layout assembled from multiple interlocking map tiles](./images/dj-13.webp)
+::gallery{src="./images/tiles/" caption="Descent dungeon tiles: fiery caverns, icy corridors and a full assembled map layout"}

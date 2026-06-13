@@ -23,9 +23,7 @@ Todo el combate consiste en tirar dados: hay ataques cuerpo a cuerpo y a distanc
 
 El juego consta tanto de misiones independientes como de una campaña. Una campaña es un conjunto de misiones sueltas unidas por una trama común. Los héroes pueden llevarse su botín, conseguido con el duro esfuerzo del saqueo, a la siguiente misión, acumulando así toda una fortuna para el final de la campaña. Una campaña no la terminarás en un solo día: lleva decenas de horas y, precisamente para eso, el juego ofrece un sistema de guardado: una libreta y un lápiz.
 
-![Tablero de la campaña con el mapa de la tierra de Terrinoth, sus ciudades y los lugares de las misiones](./images/dj-5.jpg)
-
-![Libros de reglas de Descent, tablero de campaña, cartas, dados y bolsas de fichas sobre la mesa](./images/dj-6.webp)
+::gallery{src="./images/board/" caption="Tablero de campaña de Descent y los libros de reglas sobre la mesa"}
 
 ## Impresiones
 
@@ -33,24 +31,10 @@ Todavía no lo he probado, y ni siquiera he terminado de leer las reglas (un lib
 
 Las figuras impresionan, están bastante detalladas e infunden verdadero terror. Me gustó la solución de las losetas: con ellas se monta el mapa de la mazmorra y, como hay tantísimas, eso le da al juego una gran rejugabilidad y variedad.
 
-![Miniaturas de héroes y monstruos: pequeños héroes grises, criaturas color crema y grandes demonios rojos con un dragón](./images/dj-2.webp)
-
-![Primer plano de la miniatura roja de un monstruo del Señor Oscuro con escamas y garras detalladas](./images/dj-3.webp)
-
-![Miniaturas de dragones blanco y rojo con las alas extendidas alzándose sobre figuras más pequeñas](./images/dj-4.webp)
+::gallery{src="./images/miniatures/" caption="Miniaturas de héroes y monstruos de Descent: héroes, criaturas color crema y demonios rojos con un dragón"}
 
 En cuanto a lo negativo, está el balance; a juzgar por lo que leí en las reglas, jugar como Señor Oscuro resulta algo aburrido, y los héroes casi siempre llevan la ventaja, son prácticamente inmortales.
 
-![Todas las miniaturas en fila con cartas, dados y bolsas de fichas delante](./images/dj-7.webp)
+::gallery{src="./images/closeups/" caption="Miniaturas de Descent en fila y primeros planos de los monstruos"}
 
-![Primer plano de la miniatura roja de un demonio alado sobre la portada del libro de reglas](./images/dj-8.webp)
-
-![Primer plano de la miniatura color crema de un monstruo con tentáculos sobre el libro de reglas](./images/dj-9.webp)
-
-![Losetas de mazmorra ensambladas: cavernas de fuego, salas de piedra y salas del tesoro](./images/dj-10.webp)
-
-![Losetas de mazmorra con cuevas heladas y corredores subterráneos](./images/dj-11.webp)
-
-![Primer plano de una loseta de mazmorra con tesoros desperdigados y detalles de esqueletos](./images/dj-12.webp)
-
-![Disposición completa de la mazmorra ensamblada a partir de múltiples losetas de mapa entrelazadas](./images/dj-13.webp)
+::gallery{src="./images/tiles/" caption="Losetas de mazmorra de Descent: cavernas de fuego, corredores helados y el mapa completo montado"}

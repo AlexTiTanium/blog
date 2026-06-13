@@ -21,8 +21,7 @@ People ask me this all the time. At its peak my collection ran to [three hundred
 
 [Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars) is something else. Over two hundred cards, unbelievable combinations of things you can build, and no two games ever look alike. I don't know what you call the genre where you get a huge pile of cards and try to squeeze the maximum out of a random deal every time, but every game is a battle with my wife and every game is a new experience. Fair warning: the standard edition has some issues with component quality and the player boards, so buy the organizer and the proper dual-layer boards right away. I also picked up metal cubes, but that's pure indulgence. As a two-player game it's an absolute hit in our family.
 
-![Our Terraforming Mars game in progress: the board, wooden organizer trays and player mats](./images/terraforming-mars.webp)
-![Project cards, organizer trays and metal resource cubes up close](./images/terraforming-mars-2.webp)
+::gallery{src="./images/terraforming-mars/" caption="Our Terraforming Mars game in progress: the board, wooden organizer trays and player mats"}
 
 ## Clank!
 
@@ -58,24 +57,19 @@ My little love, and Martin Wallace again, see above. [London](https://boardgameg
 
 The monster civilization game, the mother and father of all civilization games. [Through the Ages](https://boardgamegeek.com/boardgame/182028/through-the-ages-a-new-story-of-civilization) is a minimum, again, a *minimum* of eight hours of uninterrupted play with two players. Don't even attempt it with three or four: you will never, ever finish. The game has three small boards, no world map at all, really just mats for holding playing cards. And hundreds of cards: war is in there, peace, science, culture. How any of this works, I have no idea, but it works. You sit down intending to quietly build a civilization with your wife and see who scores more points, and it all rapidly turns into a bloodbath: the constant threat of war, resource shortages, the fight for colonies. And all of it on ordinary playing cards. How, tell me, how does this all work?! I can only recommend it if you're a proper geek. Not just any geek — that exact breed of nerd who's ready to fight with a friend or a spouse for eight hours straight — and not fall out, and not get divorced, when that snake declares war on you out of nowhere.
 
-![Our Through the Ages session: card rows, a civilization board and resource cubes](./images/through-the-ages.webp)
-![The full Through the Ages table: card rows and player boards](./images/through-the-ages-2.webp)
-![Through the Ages card row up close: Moses and the score track](./images/through-the-ages-3.webp)
+::gallery{src="./images/through-the-ages/" caption="Our Through the Ages session: card rows, a civilization board and resource cubes"}
 
 ## Mage Knight
 
 Some games have mechanics better than the game itself. The deck-building in [Mage Knight](https://boardgamegeek.com/boardgame/96848/mage-knight-board-game) is absolutely brilliant, but everything around it is so convoluted that I'm not prepared to actually play it. I just sit down sometimes purely for the deck-building system itself, for that card synergy: chaining combo after combo, wriggling like an eel in a frying pan to squeeze out one more play and deal damage to some nameless monster. At its core it's tabletop Heroes of Might and Magic: you move, you flip a tile, you hire units, you kill monsters — that's it, there's nothing else. I could spend hours criticizing this game: how tangled it is, how dull the missions are, how arbitrary the random monsters feel. But god, the card mechanics in there are gorgeous. Oh, if only there were an option to get this engine in some other wrapper.
 
-![Our Mage Knight session: the hex map with hero miniatures and enemy tokens](./images/mage-knight.webp)
-![Mage Knight fame board, cards and skill tokens](./images/mage-knight-2.webp)
-![The full Mage Knight table: hex map, fame board and fans of cards](./images/mage-knight-3.webp)
+::gallery{src="./images/mage-knight/" caption="Our Mage Knight session: the hex map with hero miniatures and enemy tokens"}
 
 ## Alchemists
 
 There's this thing called a puzzle. Now imagine solving a puzzle while playing a board game: that's [Alchemists](https://boardgamegeek.com/boardgame/161970/alchemists). I haven't played a harder game — and not because the rules are complicated. The point is that you have to crack something like a sudoku puzzle and somehow play the game at the same time. Your solution, even a partial one, has to be woven into your play: publishing theories, debunking your rival's publications and even your own, taking risks, guessing, exploiting your opponent to extract more information for the puzzle. Only to find out later that you got it wrong, solved the whole thing incorrectly — and won anyway. That's Alchemists for you.
 
-![Our Alchemists game: the main board, a lab screen with the potion grid and the ingredient triangle](./images/alchemists.webp)
-![Top-down view of an Alchemists game: the board and players' hands over the tokens](./images/alchemists-2.webp)
+::gallery{src="./images/alchemists/" caption="Our Alchemists game: the main board, a lab screen with the potion grid and the ingredient triangle"}
 
 ## Cosmic Encounter
 

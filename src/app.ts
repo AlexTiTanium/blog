@@ -23,6 +23,7 @@ import {
   processEnv
 } from "@moku-labs/web";
 import { EmbedFacade } from "./components/EmbedFacade";
+import { Gallery } from "./components/Gallery";
 import { SITE } from "./config";
 import { i18nConfig } from "./i18n/index";
 import { islands } from "./islands";
@@ -91,7 +92,12 @@ export const makeApp = (stage: Stage, { contentDir = "./content", outDir = "dist
             // no iframe — and none of the target's cost — until the reader clicks). The
             // facade inner content is our own Preact component (src/components/EmbedFacade,
             // styled in EmbedFacade.css); the activation island is `lazyEmbed` (src/islands).
-            embed: { facade: EmbedFacade }
+            embed: { facade: EmbedFacade },
+            // `::gallery{src="./images/<folder>/" caption="…"}` → the folder's images, SSR'd via
+            // our `Gallery` component (src/components/Gallery) into a `[data-component="gallery"]`
+            // block, enhanced by the `gallery` island. Styled in Gallery.css. Requires
+            // trustedContent (raw component markup the sanitize pass would strip).
+            gallery: { component: Gallery }
           })
         ]
       },

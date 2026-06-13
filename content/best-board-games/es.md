@@ -21,8 +21,7 @@ Me lo preguntan todo el tiempo. En sus mejores días mi colección llegó a [tre
 
 [Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars) es otra cosa. Más de doscientas cartas, combinaciones increíbles de cosas que puedes construir, y no hay dos partidas que se parezcan. No sé cómo se llama el género en el que te dan una pila enorme de cartas y cada vez intentas exprimir al máximo un reparto aleatorio, pero cada partida es una batalla con mi mujer y cada vez una experiencia nueva. Aviso: la edición estándar tiene problemillas con la calidad de los componentes y los tableros de jugador, así que comprad de entrada el organizador y los tableros especiales. Yo además me pillé los cubos metálicos, pero eso ya es puro capricho. A dos jugadores es un éxito absoluto en nuestra familia.
 
-![Nuestra partida de Terraforming Mars: el tablero, organizador de madera y tableros de jugador](./images/terraforming-mars.webp)
-![Cartas de proyecto, organizador y cubos metálicos de recursos de cerca](./images/terraforming-mars-2.webp)
+::gallery{src="./images/terraforming-mars/" caption="Nuestra partida de Terraforming Mars: el tablero, organizador de madera y tableros de jugador"}
 
 ## ¡Clank!
 
@@ -58,24 +57,19 @@ Mi pequeño amor, y otra vez Martin Wallace, ver arriba. [London](https://boardg
 
 El monstruo de civilizaciones, la madre y el padre de todos los juegos de civilizaciones. [Through the Ages](https://boardgamegeek.com/boardgame/182028/through-the-ages-a-new-story-of-civilization) son como mínimo, repito, como *mínimo* ocho horas de juego ininterrumpido a dos jugadores. A tres o cuatro ni lo intentéis: no la terminaréis en la vida. El juego trae tres tableros pequeños, sin mapa del mundo siquiera, simples bases para colocar cartas. Y cientos de cartas: ahí está la guerra, la paz, la ciencia y la cultura. Cómo funciona todo esto, no lo sé. Pero funciona. Te sientas con la intención de construir tranquilamente una civilización con tu mujer y ver quién hace más puntos, y todo degenera rapidísimo en un enfrentamiento sangriento: la amenaza eterna de la guerra, la escasez de recursos, la pelea por las colonias. Y todo eso sobre simples cartas. ¿Cómo, decidme, cómo funciona todo esto? Puedo recomendarlo si eres un friki de verdad. No un friki cualquiera — esa raza exacta de nerd capaz de pelearse ocho horas seguidas con un amigo o con su mujer, y no enfadarse ni divorciarse cuando esa víbora le declara la guerra por la espalda.
 
-![Nuestra partida de Through the Ages: filas de cartas, tablero de civilización y cubos de recursos](./images/through-the-ages.webp)
-![La mesa completa de Through the Ages: filas de cartas y tableros de jugador](./images/through-the-ages-2.webp)
-![Fila de cartas de Through the Ages de cerca: Moisés y el track de puntos](./images/through-the-ages-3.webp)
+::gallery{src="./images/through-the-ages/" caption="Nuestra partida de Through the Ages: filas de cartas, tablero de civilización y cubos de recursos"}
 
 ## Mage Knight
 
 Hay juegos donde la mecánica es mejor que el propio juego. La construcción de mazos de [Mage Knight](https://boardgamegeek.com/boardgame/96848/mage-knight-board-game) es absolutamente genial, pero todo lo demás es tan enrevesado que no estoy dispuesto a jugarlo. A veces me siento a jugar solo por el sistema de mazos en sí, por esa sinergia de cartas: encadenando combo tras combo, retorciéndote como una anguila en la sartén para exprimir una jugada más y hacerle daño a algún monstruo sin nombre. En el fondo es un Heroes of Might and Magic de mesa: te mueves, revelas una loseta, contratas tropas, matas monstruos — y ya, no hay nada más. Podría pasarme horas criticando este juego: lo lioso que es, lo aburridas que son las misiones, lo arbitrarios que resultan los monstruos aleatorios. Pero dios, qué bonitas son las mecánicas de cartas que hay ahí dentro. Ay, si existiera la opción de llevarse este motor a otro envoltorio.
 
-![Nuestra partida de Mage Knight: el mapa de hexágonos con miniaturas de héroes y fichas de enemigos](./images/mage-knight.webp)
-![Tablero de fama de Mage Knight, cartas y fichas de habilidad](./images/mage-knight-2.webp)
-![La mesa completa de Mage Knight: mapa de hexágonos, tablero de fama y abanicos de cartas](./images/mage-knight-3.webp)
+::gallery{src="./images/mage-knight/" caption="Nuestra partida de Mage Knight: el mapa de hexágonos con miniaturas de héroes y fichas de enemigos"}
 
 ## Alchemists
 
 Hay una cosa que se llama rompecabezas. Ahora imaginad resolver un rompecabezas mientras jugáis a un juego de mesa: eso es [Alchemists](https://boardgamegeek.com/boardgame/161970/alchemists). No he jugado a nada más difícil — y no porque las reglas sean complicadas. La gracia es que tienes que resolver una especie de sudoku y, mientras tanto, jugar la partida de alguna manera. La solución, aunque sea parcial, hay que tejerla dentro de tu juego: publicar teorías, refutar las publicaciones del rival e incluso las tuyas, arriesgar, adivinar, usar a tu oponente para sacar más información para el puzle. Para luego descubrir que te equivocaste, que lo resolviste todo mal — y aun así ganar. Eso es Alchemists.
 
-![Nuestra partida de Alchemists: el tablero, la pantalla de laboratorio con la cuadrícula de pociones y el triángulo de ingredientes](./images/alchemists.webp)
-![Vista cenital de una partida de Alchemists: el tablero y las manos de los jugadores sobre las fichas](./images/alchemists-2.webp)
+::gallery{src="./images/alchemists/" caption="Nuestra partida de Alchemists: el tablero, la pantalla de laboratorio con la cuadrícula de pociones y el triángulo de ingredientes"}
 
 ## Cosmic Encounter
 
