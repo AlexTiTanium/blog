@@ -21,19 +21,29 @@ import type { VNode } from "preact";
  */
 export function Gallery({ slides }: GalleryProps): VNode {
   return (
-    <div data-gallery-viewport>
-      <div data-gallery-track>
-        {slides.map(slide => (
-          <img key={slide.src} src={slide.src} alt={slide.alt} loading="lazy" data-gallery-slide />
-        ))}
-      </div>
+    <>
+      {/* viewport wraps ONLY the track, so the overlay chevrons center on the image (the dot rail
+          lives outside it — otherwise the chevrons center over track+dots and sit too low). */}
+      <div data-gallery-viewport>
+        <div data-gallery-track>
+          {slides.map(slide => (
+            <img
+              key={slide.src}
+              src={slide.src}
+              alt={slide.alt}
+              loading="lazy"
+              data-gallery-slide
+            />
+          ))}
+        </div>
 
-      <button type="button" data-gallery-nav="prev" aria-label="Previous photo">
-        <span>{"<"}</span>
-      </button>
-      <button type="button" data-gallery-nav="next" aria-label="Next photo">
-        <span>{">"}</span>
-      </button>
+        <button type="button" data-gallery-nav="prev" aria-label="Previous photo">
+          <span>{"<"}</span>
+        </button>
+        <button type="button" data-gallery-nav="next" aria-label="Next photo">
+          <span>{">"}</span>
+        </button>
+      </div>
 
       <div data-gallery-dots>
         {slides.map((slide, index) => (
@@ -45,6 +55,6 @@ export function Gallery({ slides }: GalleryProps): VNode {
           />
         ))}
       </div>
-    </div>
+    </>
   );
 }
