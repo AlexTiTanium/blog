@@ -13,6 +13,18 @@ import type { ArticleData } from "../lib/articles";
  * @param props - The article-route page data ({@link ArticleData}) plus the active locale.
  * @returns The article page content.
  */
-export function ArticlePage({ article, recent, locale }: ArticleData & { locale: string }): VNode {
-  return <ArticleLayout article={article} locale={locale as Locale} recentArticles={recent} />;
+export function ArticlePage({
+  article,
+  recent,
+  related,
+  locale
+}: ArticleData & { locale: string }): VNode {
+  return (
+    <ArticleLayout
+      article={article}
+      locale={locale as Locale}
+      recentArticles={recent}
+      relatedArticles={related}
+    />
+  );
 }

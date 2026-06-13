@@ -15,7 +15,7 @@
 import { createUrls, defineRoutes, route } from "@moku-labs/web/browser";
 import { SITE } from "./config";
 import { DEFAULT_LOCALE } from "./i18n/index";
-import { byTag, paginate } from "./lib/articles";
+import { byTag, paginate, relatedArticles } from "./lib/articles";
 import { allArticles, articleBySlug, pagedRouteParameters } from "./lib/content";
 import { articleHead, pageHead, pageStrings, pageTitle } from "./lib/head";
 import { layout } from "./lib/route-helpers";
@@ -86,12 +86,19 @@ export const routes = defineRoutes({
     .generate(async ctx =>
       (await allArticles(ctx)).map(a => ({ lang: ctx.locale, slug: a.computed.slug }))
     )
-    .load(async ctx => ({
-      article: await articleBySlug(ctx),
-      recent: (await allArticles(ctx)).slice(0, 5)
-    }))
+    .load(async ctx => {
+      const all = await allArticles(ctx);
+      const article = await articleBySlug(ctx);
+      const others = all.filter(a => a.computed.slug !== article.computed.slug);
+      return { article, recent: others.slice(0, 5), related: relatedArticles(all, article, 5) };
+    })
     .render(ctx => (
-      <ArticlePage article={ctx.data.article} recent={ctx.data.recent} locale={ctx.locale} />
+      <ArticlePage
+        article={ctx.data.article}
+        recent={ctx.data.recent}
+        related={ctx.data.related}
+        locale={ctx.locale}
+      />
     ))
     .head(ctx => articleHead(ctx, ctx.data.article))
     .meta({ activeTab: "none" }),

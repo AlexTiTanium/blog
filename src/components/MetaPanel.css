@@ -110,12 +110,16 @@
     }
   }
 
+  /* Explorer: anchor fills the row so the whole row is the click target (no padding to move). */
+  ul[data-explorer] li a {
+    display: block;
+  }
+
   /* Recent posts */
   ul[data-recent] {
     list-style: none;
 
     li {
-      padding: 0.35rem 0;
       font-size: 0.72rem;
       color: var(--text-body);
       border-bottom: 1px solid color-mix(in srgb, var(--color-stone-800) 40%, transparent);
@@ -124,6 +128,12 @@
       &:last-child {
         border-bottom: none;
       }
+    }
+
+    /* Anchor carries the row padding so the full row — not just the text — is clickable. */
+    a {
+      display: block;
+      padding: 0.35rem 0;
     }
   }
 

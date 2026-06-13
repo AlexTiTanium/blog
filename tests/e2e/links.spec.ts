@@ -130,10 +130,10 @@ test.describe("SPA client navigation — no failed requests through a click path
     await page.waitForURL(url => new URL(url).pathname === firstHref);
     await expect(page.locator("[data-content]")).toBeVisible();
 
-    // Second, CONSECUTIVE nav into the same article route — must NOT be empty.
-    // The recent-posts pane lists the current article first, so the second entry is
-    // always a DIFFERENT article (the corpus has ≥2 posts).
-    const recent = page.locator("[data-recent] a").nth(1);
+    // Second, CONSECUTIVE nav into another article route — must NOT be empty.
+    // The recent-posts pane excludes the current article, so every entry is a
+    // DIFFERENT article (the corpus has ≥2 posts).
+    const recent = page.locator("[data-recent] a").first();
     const recentHref = await recent.getAttribute("href");
     await recent.click();
     await page.waitForURL(url => new URL(url).pathname === recentHref);

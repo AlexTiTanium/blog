@@ -20,19 +20,23 @@ interface Props {
   article: Content.Article;
   /** Active locale (for section labels + tag links). */
   locale: Locale;
-  /** Recent articles for the explorer + recent-posts lists. */
+  /** Newest articles (current excluded) for the "Recent Posts" list. */
   recentArticles: Content.Article[];
+  /** Tag-related articles for the "Explorer" what-to-read-next list. */
+  relatedArticles: Content.Article[];
 }
 
 /**
- * Render the article sidebar with file info, tags, explorer, and recent posts.
+ * Render the article sidebar with file info, tags, explorer, and recent posts. The Explorer lists
+ * tag-related posts ("what to read next"); Recent Posts lists the newest posts — two distinct lists.
  *
- * @param props - The article, active locale, and recent articles.
+ * @param props - The article, active locale, and the related + recent article lists.
  * @returns The sidebar panel.
  */
-export function MetaPanel({ article, locale, recentArticles }: Props) {
+export function MetaPanel({ article, locale, recentArticles, relatedArticles }: Props) {
   const ui = t(locale);
-  const sidebarArticles = recentArticles.slice(0, SIDEBAR_LIST_LIMIT);
+  const explorerList = relatedArticles.slice(0, SIDEBAR_LIST_LIMIT);
+  const recentList = recentArticles.slice(0, SIDEBAR_LIST_LIMIT);
 
   return (
     <aside data-component="meta-panel">
@@ -73,8 +77,8 @@ export function MetaPanel({ article, locale, recentArticles }: Props) {
 
       <section>
         <h3>Explorer</h3>
-        <ul>
-          {sidebarArticles.map(a => (
+        <ul data-explorer>
+          {explorerList.map(a => (
             <li key={a.computed.slug}>
               <a href={a.url}>{a.computed.slug}.md</a>
             </li>
@@ -85,7 +89,7 @@ export function MetaPanel({ article, locale, recentArticles }: Props) {
       <section>
         <h3>{ui.recentPosts}</h3>
         <ul data-recent>
-          {sidebarArticles.map(a => (
+          {recentList.map(a => (
             <li key={a.computed.slug}>
               <a href={a.url}>{a.frontmatter.title}</a>
             </li>

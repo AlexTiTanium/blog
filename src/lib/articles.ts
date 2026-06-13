@@ -24,12 +24,14 @@ export type Paginated = {
   latest: string | undefined;
 };
 
-/** Article-route page data: the resolved article plus the recent-articles sidebar list. */
+/** Article-route page data: the resolved article plus the two sidebar lists. */
 export type ArticleData = {
   /** The resolved article. */
   article: Content.Article;
-  /** Recent articles for the sidebar. */
+  /** Newest articles (current excluded) for the "Recent Posts" list. */
   recent: Content.Article[];
+  /** Tag-related articles for the "Explorer" / what-to-read-next list. */
+  related: Content.Article[];
 };
 
 /** Tag-route page data: a tag name plus the articles carrying it. */
@@ -125,6 +127,41 @@ export function pageWindow(current: number, total: number, siblings = 1): (numbe
  */
 export function byTag(arts: Content.Article[], tag: string): Content.Article[] {
   return arts.filter(a => a.frontmatter.tags.includes(tag));
+}
+
+/**
+ * Rank articles by relevance to `current` for the "what to read next" sidebar: most shared tags
+ * first, newer date breaking ties. The current article is excluded (matched by slug). Articles that
+ * share no tag fall to the tail ordered by recency, so the result is "related first, then filled
+ * with recent" — never empty while other articles exist.
+ *
+ * @param all - All articles for the locale, date-descending (the content pipeline's order).
+ * @param current - The article being read; excluded from the result.
+ * @param limit - Maximum number of articles to return.
+ * @returns Up to `limit` articles, most-related first.
+ * @example
+ * const suggestions = relatedArticles(posts, currentPost, 5);
+ */
+export function relatedArticles(
+  all: Content.Article[],
+  current: Content.Article,
+  limit = 5
+): Content.Article[] {
+  const currentTags = new Set(current.frontmatter.tags);
+  // Score each other article by how many of `current`'s tags it shares, then rank: most shared
+  // first, newer date breaking ties (so tagless / 0-share posts fill the tail by recency).
+  return all
+    .filter(a => a.computed.slug !== current.computed.slug)
+    .map(a => ({
+      article: a,
+      shared: a.frontmatter.tags.filter(tag => currentTags.has(tag)).length
+    }))
+    .toSorted(
+      (x, y) =>
+        y.shared - x.shared || y.article.frontmatter.date.localeCompare(x.article.frontmatter.date)
+    )
+    .slice(0, limit)
+    .map(ranked => ranked.article);
 }
 
 /**

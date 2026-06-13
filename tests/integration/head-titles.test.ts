@@ -96,7 +96,11 @@ const CASES: { label: string; title: () => string }[] = [
       renderedTitle(
         "article",
         { lang: "en", slug: "hello-pipeline" },
-        { article: makeArticle({ slug: "hello-pipeline", title: "Hello, Pipeline!" }), recent: [] }
+        {
+          article: makeArticle({ slug: "hello-pipeline", title: "Hello, Pipeline!" }),
+          recent: [],
+          related: []
+        }
       )
   }
 ];

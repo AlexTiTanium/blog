@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { byTag, PER_PAGE, pageWindow, paginate, postId } from "../../src/lib/articles";
+import {
+  byTag,
+  PER_PAGE,
+  pageWindow,
+  paginate,
+  postId,
+  relatedArticles
+} from "../../src/lib/articles";
 import { makeArticle } from "./_factory";
 
 /** Clone a factory article, overriding its computed.contentId (the only field postId reads). */
@@ -125,6 +132,75 @@ describe("byTag", () => {
 
   it("returns an empty list for an empty input", () => {
     expect(byTag([], "typescript")).toEqual([]);
+  });
+});
+
+describe("relatedArticles", () => {
+  it("ranks by shared-tag count, most overlap first", () => {
+    const current = makeArticle({ slug: "cur", tags: ["ts", "tools"], date: "2026-01-10" });
+    // Dates run OPPOSITE to tag overlap, proving the tag count — not recency — drives the order.
+    const all = [
+      makeArticle({ slug: "two", tags: ["ts", "tools"], date: "2026-01-01" }),
+      makeArticle({ slug: "one", tags: ["ts"], date: "2026-01-02" }),
+      makeArticle({ slug: "zero", tags: ["x"], date: "2026-01-03" }),
+      current
+    ];
+    expect(relatedArticles(all, current).map(a => a.computed.slug)).toEqual(["two", "one", "zero"]);
+  });
+
+  it("breaks ties on recency (newer first)", () => {
+    const current = makeArticle({ slug: "cur", tags: ["ts"] });
+    const all = [
+      makeArticle({ slug: "older", tags: ["ts"], date: "2026-01-01" }),
+      makeArticle({ slug: "newer", tags: ["ts"], date: "2026-02-01" }),
+      current
+    ];
+    expect(relatedArticles(all, current).map(a => a.computed.slug)).toEqual(["newer", "older"]);
+  });
+
+  it("excludes the current article", () => {
+    const current = makeArticle({ slug: "cur", tags: ["ts"] });
+    const all = [current, makeArticle({ slug: "other", tags: ["ts"] })];
+    expect(relatedArticles(all, current).map(a => a.computed.slug)).toEqual(["other"]);
+  });
+
+  it("falls back to pure recency when the current article has no tags", () => {
+    const current = makeArticle({ slug: "cur", tags: [] });
+    const all = [
+      makeArticle({ slug: "old", tags: ["a"], date: "2026-01-01" }),
+      makeArticle({ slug: "mid", tags: ["b"], date: "2026-01-02" }),
+      makeArticle({ slug: "new", tags: ["c"], date: "2026-01-03" }),
+      current
+    ];
+    expect(relatedArticles(all, current).map(a => a.computed.slug)).toEqual(["new", "mid", "old"]);
+  });
+
+  it("keeps unrelated posts as a recency-ordered tail (related first, then fill)", () => {
+    const current = makeArticle({ slug: "cur", tags: ["ts"], date: "2026-01-10" });
+    const all = [
+      makeArticle({ slug: "rel", tags: ["ts"], date: "2026-01-01" }), // shares 1 → first
+      makeArticle({ slug: "fill-new", tags: ["x"], date: "2026-03-01" }), // 0 shared, newest fill
+      makeArticle({ slug: "fill-old", tags: ["y"], date: "2026-02-01" }), // 0 shared, older fill
+      current
+    ];
+    expect(relatedArticles(all, current).map(a => a.computed.slug)).toEqual([
+      "rel",
+      "fill-new",
+      "fill-old"
+    ]);
+  });
+
+  it("respects the limit", () => {
+    const current = makeArticle({ slug: "cur", tags: ["pipeline"] });
+    const all = [current, ...makeArticles(8)];
+    expect(relatedArticles(all, current, 3)).toHaveLength(3);
+    expect(relatedArticles(all, current)).toHaveLength(5);
+  });
+
+  it("returns an empty list when there are no other articles", () => {
+    const current = makeArticle({ slug: "cur" });
+    expect(relatedArticles([current], current)).toEqual([]);
+    expect(relatedArticles([], current)).toEqual([]);
   });
 });
 

@@ -17,8 +17,10 @@ interface Props {
   article: Content.Article;
   /** Active locale (for breadcrumb/share links and the translation notice). */
   locale: Locale;
-  /** Recent articles for the sidebar. */
+  /** Newest articles for the sidebar's "Recent Posts" list. */
   recentArticles: Content.Article[];
+  /** Tag-related articles for the sidebar's "Explorer" list. */
+  relatedArticles: Content.Article[];
 }
 
 /**
@@ -27,7 +29,7 @@ interface Props {
  * @param props - The article, active locale, and recent articles.
  * @returns The article view.
  */
-export function ArticleLayout({ article, locale, recentArticles }: Props) {
+export function ArticleLayout({ article, locale, recentArticles, relatedArticles }: Props) {
   const year = article.frontmatter.date.split("-")[0];
   const author = article.frontmatter.author || SITE.author;
 
@@ -73,7 +75,12 @@ export function ArticleLayout({ article, locale, recentArticles }: Props) {
         </article>
       </main>
 
-      <MetaPanel article={article} locale={locale} recentArticles={recentArticles} />
+      <MetaPanel
+        article={article}
+        locale={locale}
+        recentArticles={recentArticles}
+        relatedArticles={relatedArticles}
+      />
     </div>
   );
 }
