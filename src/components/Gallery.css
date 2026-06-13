@@ -64,7 +64,8 @@
     }
   }
 
-  /* overlay chevrons — hover on pointer devices, always shown on touch */
+  /* overlay chevrons — shown on hover (pointer devices); hidden on touch, where they'd otherwise
+     overlay the slide edges and swallow the swipe-start (see the @media (hover: none) block below) */
   [data-gallery-nav] {
     position: absolute;
     top: 0;
@@ -148,9 +149,16 @@
     }
   }
 
+  /* Touch devices: drop the overlay chevrons entirely. position:absolute over the slide edges,
+     they sit ABOVE the scroll track (a sibling, not an ancestor), so a swipe that starts on a
+     chevron has no scrollable ancestor — it never pages the gallery and leaks to the page instead
+     (the jerky "swipe only works from the center" bug). Without arrows the whole frame is the
+     swipe zone; the dot rail stays as the indicator and pages on tap. Mirrors the lightbox, which
+     also hides its nav on (hover: none). display:none (not opacity:0) is required so they leave
+     hit-testing — an opacity:0 button still eats the touch. */
   @media (hover: none) {
     .gallery [data-gallery-nav] {
-      opacity: 0.85;
+      display: none;
     }
   }
 
