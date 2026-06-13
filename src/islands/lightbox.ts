@@ -2,12 +2,13 @@
  * @file lightbox — a fullscreen `<dialog>` image viewer with a pager. Exposes {@link openLightbox}
  * `(slides, index)` as the public entry: the `gallery` island (islands/gallery.ts) calls it with a
  * gallery's full slide set; the `lightbox` island here calls it with a single-entry list for a
- * lone article image. Controls: side arrows (pointer devices), document-level arrow keys, trackpad
- * horizontal wheel, and drag-to-swipe with live follow on touch. Paging is a single continuous
- * push — two image buffers slide together, the old frame out and the new one in. Drag down closes;
- * drag up zooms into a pannable view. Escape, the round `×` button, or a tap off the controls also
- * close. Neighbor slides are preloaded; a viewport change (phone rotate) re-snaps to a clean state.
- * Styles in styles/lightbox.css.
+ * lone article image. Controls: side `<`/`>` arrows (pointer devices) and keyboard arrows — ←/→
+ * page, ↑ magnifies while held (springs back on release), ↓ closes. On touch: drag-to-swipe with
+ * live follow, drag down closes, drag up previews an elastic zoom that springs back. Paging is a
+ * single continuous push — two image buffers slide together, the old frame out and the new one in.
+ * Escape, the round `×` button, or a tap off the controls also close. A horizontal trackpad wheel
+ * is swallowed so it can't trigger browser back/forward. Neighbor slides are preloaded; a viewport
+ * change (phone rotate) re-snaps to a clean state. Styles in styles/lightbox.css.
  */
 import { createComponent } from "@moku-labs/web/browser";
 
@@ -43,8 +44,8 @@ const PAGE_PUSH_MS = 320;
 /** Largest extra scale an upward drag previews before springing back (no permanent zoom). */
 const PULL_UP_MAX_GROW = 0.5;
 
-/** Scale the up button magnifies the image to while held (springs back on release). */
-const BUTTON_ZOOM_SCALE = 2;
+/** Scale the held ↑ arrow magnifies the image to (springs back on release). */
+const HOLD_ZOOM_SCALE = 2;
 
 /** The dialog and its chrome, built once by {@link buildUi}. */
 type LightboxUi = {
@@ -60,10 +61,6 @@ type LightboxUi = {
   previous: HTMLButtonElement;
   /** Right arrow (pointer devices). */
   next: HTMLButtonElement;
-  /** Up button — hold to magnify (pointer devices). */
-  up: HTMLButtonElement;
-  /** Down button — close (pointer devices). */
-  down: HTMLButtonElement;
 };
 
 let ui: LightboxUi | undefined;
@@ -85,6 +82,9 @@ let dragConsumedClick = false;
 
 /** True while the closing fade plays, so a second close request is ignored. */
 let closing = false;
+
+/** Pending `dialog.close()` timer for the closing fade — cancelled if the lightbox reopens first. */
+let closeTimer: ReturnType<typeof setTimeout> | undefined;
 
 /**
  * Build a round lightbox control button.
@@ -192,30 +192,17 @@ function resetView(instant: boolean): void {
 }
 
 /**
- * Hold-to-zoom for the up button: magnify the active image while pressed, spring back on release
+ * Hold-to-zoom for the ↑ arrow key: magnify the active image while held, spring back on release
  * (the desktop analog of the mobile pull-up — transient, never a permanent zoom).
  *
  * @param on - True to magnify, false to spring back.
  * @example
- * up.addEventListener("pointerdown", () => setZoomHold(true));
+ * setZoomHold(true); // on ArrowUp keydown
  */
 function setZoomHold(on: boolean): void {
   if (!active) return;
   active.style.transition = "";
-  active.style.transform = on ? `scale(${BUTTON_ZOOM_SCALE})` : "";
-}
-
-/**
- * End the up-button hold-zoom (pointerup / pointerleave / pointercancel): swallow the event so the
- * body drag never starts, and spring the image back.
- *
- * @param event - The pointer event ending the hold.
- * @example
- * up.addEventListener("pointerup", endZoomHold);
- */
-function endZoomHold(event: Event): void {
-  event.stopPropagation();
-  setZoomHold(false);
+  active.style.transform = on ? `scale(${HOLD_ZOOM_SCALE})` : "";
 }
 
 /**
@@ -287,7 +274,7 @@ function requestClose(): void {
   if (!ui || closing || !ui.dialog.open) return;
   closing = true;
   ui.dialog.dataset.closing = "";
-  setTimeout(() => ui?.dialog.close(), CLOSE_FADE_MS);
+  closeTimer = setTimeout(() => ui?.dialog.close(), CLOSE_FADE_MS);
 }
 
 /**
@@ -320,22 +307,55 @@ function onResize(): void {
   placeInstant(standby, "", "0");
 }
 
+/** Keyboard keys the lightbox handles (everything else passes through). */
+const HANDLED_KEYS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Escape"]);
+
 /**
- * Document-level key handler while the dialog is open: arrows page, Escape closes — all consumed
- * so nothing leaks to the page (or the gallery) underneath.
+ * Document-level keydown while the dialog is open: ←/→ page, ↑ magnifies (held), ↓ and Escape
+ * close — all consumed so nothing leaks to the page (or the gallery) underneath.
  *
  * @param event - The keydown event.
  * @example
  * document.addEventListener("keydown", onKeydown, true);
  */
 function onKeydown(event: KeyboardEvent): void {
-  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight" && event.key !== "Escape") return;
+  if (!HANDLED_KEYS.has(event.key)) return;
 
   event.preventDefault();
   event.stopPropagation();
-  if (event.key === "Escape") requestClose();
-  if (event.key === "ArrowLeft") page(-1);
-  if (event.key === "ArrowRight") page(1);
+  switch (event.key) {
+    case "Escape":
+    case "ArrowDown": {
+      requestClose();
+      break;
+    }
+    case "ArrowUp": {
+      setZoomHold(true); // held ↑ magnifies (auto-repeat is harmless)
+      break;
+    }
+    case "ArrowLeft": {
+      page(-1);
+      break;
+    }
+    case "ArrowRight": {
+      page(1);
+      break;
+    }
+  }
+}
+
+/**
+ * Document-level keyup while the dialog is open: releasing ↑ springs the magnified image back.
+ *
+ * @param event - The keyup event.
+ * @example
+ * document.addEventListener("keyup", onKeyup, true);
+ */
+function onKeyup(event: KeyboardEvent): void {
+  if (event.key !== "ArrowUp") return;
+  event.preventDefault();
+  event.stopPropagation();
+  setZoomHold(false);
 }
 
 /**
@@ -467,23 +487,16 @@ function buildUi(): LightboxUi {
   close.dataset.lightboxClose = "";
   top.append(counter, close);
 
-  // Directional buttons (hidden on touch devices by CSS — the swipe gestures cover them there).
-  // Desktop is button-only: left/right page, up magnifies while held, down closes — mirroring the
-  // mobile swipe set, since the trackpad swipe is removed (it tripped browser back/forward).
+  // Left/right page buttons (hidden on touch devices by CSS — swipe is the pager there). The
+  // up/down actions are keyboard-only: ↑ holds to magnify, ↓ closes (see onKeydown/onKeyup).
   const previous = makeControl("<", "Previous photo");
   previous.dataset.lightboxNav = "";
   previous.dataset.side = "prev";
   const next = makeControl(">", "Next photo");
   next.dataset.lightboxNav = "";
   next.dataset.side = "next";
-  const up = makeControl("⌃", "Zoom (hold)");
-  up.dataset.lightboxNav = "";
-  up.dataset.side = "up";
-  const down = makeControl("⌄", "Close");
-  down.dataset.lightboxNav = "";
-  down.dataset.side = "down";
 
-  dialog.append(body, top, previous, next, up, down);
+  dialog.append(body, top, previous, next);
   document.body.append(dialog);
 
   close.addEventListener("click", requestClose);
@@ -496,24 +509,6 @@ function buildUi(): LightboxUi {
     page(1);
   });
 
-  // Up: hold to magnify, release to spring back. Capture the pointer so the hold survives the
-  // mouse moving (otherwise pointerleave fires on the slightest drift and drops the zoom — a
-  // real mouse always jitters); stopPropagation so the body drag never starts.
-  up.addEventListener("pointerdown", event => {
-    event.stopPropagation();
-    up.setPointerCapture(event.pointerId);
-    setZoomHold(true);
-  });
-  up.addEventListener("pointerup", endZoomHold);
-  up.addEventListener("pointercancel", endZoomHold);
-
-  // Down: close (the desktop analog of the mobile swipe-down).
-  down.addEventListener("pointerdown", event => event.stopPropagation());
-  down.addEventListener("click", event => {
-    event.stopPropagation();
-    requestClose();
-  });
-
   // Native cancel (Escape outside our key handler) routes through the animated close.
   dialog.addEventListener("cancel", event => {
     event.preventDefault();
@@ -521,9 +516,11 @@ function buildUi(): LightboxUi {
   });
   dialog.addEventListener("close", () => {
     closing = false;
+    closeTimer = undefined;
     delete dialog.dataset.closing;
     dialog.style.removeProperty("opacity");
     document.removeEventListener("keydown", onKeydown, true);
+    document.removeEventListener("keyup", onKeyup, true);
   });
 
   dialog.addEventListener("wheel", onWheel, { passive: false });
@@ -549,7 +546,7 @@ function buildUi(): LightboxUi {
     requestClose();
   });
 
-  return { dialog, body, views, counter, previous, next, up, down };
+  return { dialog, body, views, counter, previous, next };
 }
 
 /**
@@ -567,6 +564,15 @@ export function openLightbox(slides: LightboxSlide[], index: number): void {
 
   ui ??= buildUi();
   settlePush?.();
+
+  // Cancel any in-flight close: reopening mid-fade must not leave the dialog stuck invisible
+  // (data-closing → opacity:0) with a pending timer about to close the just-reopened dialog.
+  if (closeTimer !== undefined) {
+    clearTimeout(closeTimer);
+    closeTimer = undefined;
+  }
+  closing = false;
+  delete ui.dialog.dataset.closing;
 
   const clamped = Math.max(0, Math.min(slides.length - 1, index));
   pager = { slides, index: clamped };
@@ -592,6 +598,7 @@ export function openLightbox(slides: LightboxSlide[], index: number): void {
   preload(clamped + 1);
 
   document.addEventListener("keydown", onKeydown, true);
+  document.addEventListener("keyup", onKeyup, true);
   ui.dialog.showModal();
   ui.dialog.focus();
 }
