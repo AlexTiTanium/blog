@@ -71,14 +71,140 @@
     border-radius: 2px;
   }
 
+  /* Lists -- terminal markers: an amber pointer for bullets, mono
+     line-numbers for ordered. Native markers are removed and redrawn in
+     ::before so they pick up the accent colour and the code font. */
   ul,
   ol {
-    margin: var(--space-6) 0 var(--space-8) var(--space-8);
+    list-style: none;
+    margin: var(--space-6) 0 var(--space-8);
+    padding-left: var(--space-1);
   }
 
   li {
-    margin-bottom: var(--space-2);
-    line-height: 1.7;
+    position: relative;
+    margin-bottom: var(--space-3);
+    line-height: 1.75;
+  }
+
+  li::before {
+    position: absolute;
+    left: 0;
+    color: var(--accent-primary);
+    font-family: var(--font-code);
+  }
+
+  ul > li {
+    padding-left: 1.6em;
+  }
+
+  ul > li::before {
+    content: "\25B8"; /* ▸ */
+    top: 0.02em;
+    font-size: 0.85em;
+  }
+
+  ol {
+    counter-reset: ol-item;
+  }
+
+  ol > li {
+    padding-left: 2.2em;
+    counter-increment: ol-item;
+  }
+
+  ol > li::before {
+    content: counter(ol-item) ".";
+    width: 1.6em;
+    text-align: right;
+    font-weight: 600;
+    font-size: 0.85em;
+  }
+
+  /* Nested lists: tighter spacing, dimmer secondary-accent marker. */
+  li > ul,
+  li > ol {
+    margin: var(--space-3) 0 var(--space-1);
+  }
+
+  ul ul > li::before {
+    content: "\25B9"; /* ▹ */
+    color: var(--accent-secondary);
+  }
+
+  /* GFM task lists: the checkbox is the marker. */
+  li:has(> input[type="checkbox"]) {
+    padding-left: 1.8em;
+  }
+
+  li:has(> input[type="checkbox"])::before {
+    content: none;
+  }
+
+  li > input[type="checkbox"] {
+    position: absolute;
+    left: 0;
+    top: 0.42em;
+    width: 0.95em;
+    height: 0.95em;
+    accent-color: var(--accent-primary);
+  }
+
+  /* Tables -- terminal data-grid: monospace cells so figures line up, an
+     amber-underlined header, hairline row rules + faint zebra, a hover
+     highlight, and horizontal scroll instead of clipping on narrow screens. */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-8) 0;
+    font-family: var(--font-code);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    border: 1px solid var(--border-default);
+  }
+
+  thead {
+    background: var(--surface-card);
+  }
+
+  th {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    white-space: nowrap;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-normal);
+    border-bottom: 2px solid var(--accent-primary);
+  }
+
+  td {
+    padding: var(--space-2) var(--space-4);
+    color: var(--text-body);
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  tbody tr:nth-child(even) {
+    background: color-mix(in srgb, var(--surface-card) 35%, transparent);
+  }
+
+  tbody tr:hover {
+    background: color-mix(in srgb, var(--accent-primary) 9%, transparent);
+  }
+
+  tbody td:first-child {
+    color: var(--text-secondary);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Bold cells -- e.g. best-in-class benchmark values -- take the accent. */
+  td strong {
+    color: var(--accent-primary);
+    font-weight: 600;
   }
 
   a {
@@ -110,5 +236,15 @@
 
   em {
     font-style: italic;
+  }
+}
+
+/* On narrow screens a full-width data table can exceed the viewport; let it
+   scroll horizontally instead of clipping (the content scope is overflow:hidden).
+   Outside @scope so it targets the same [data-content] table. */
+@media (max-width: 600px) {
+  [data-content] table {
+    display: block;
+    overflow-x: auto;
   }
 }
