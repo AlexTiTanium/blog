@@ -6,6 +6,7 @@ import { dashboard } from "./dashboard";
 import { gallery } from "./gallery";
 import { langSwitcher } from "./lang-switcher";
 import { lightbox } from "./lightbox";
+import { linkPrefetch } from "./link-prefetch";
 import { pageFx } from "./page-fx";
 import { shareButtons } from "./share-buttons";
 import { status } from "./status";
@@ -25,5 +26,7 @@ export const islands = [
   shareButtons,
   pageFx,
   dashboard,
-  status
+  status,
+  // Warms a hovered/touched page's JSON before the click → data-path nav feels instant.
+  linkPrefetch
 ];
