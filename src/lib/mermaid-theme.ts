@@ -25,6 +25,22 @@
  */
 export const warmMermaidTheme: Record<string, unknown> = {
   theme: "base",
+  // Render node labels as SVG <text>, not foreignObject HTML. The build-time headless
+  // renderer lacks the vendored Fira Code webfont, so it measures label widths in a
+  // narrower fallback; the published page then shows the wider Fira Code. In HTML-label
+  // mode the surplus is *clipped* by the foreignObject box (labels lose their last
+  // glyphs). SVG <text> is never clipped — worst case it overflows slightly — and the
+  // generous flowchart padding below keeps even that inside the box.
+  htmlLabels: false,
+  flowchart: {
+    htmlLabels: false,
+    // Roomy node padding so labels never kiss the border even when the display font is
+    // wider than what the headless renderer measured.
+    padding: 22,
+    nodeSpacing: 45,
+    rankSpacing: 45,
+    useMaxWidth: true
+  },
   themeVariables: {
     // Diagram-wide text + measurement font; matches --font-code so labels render in Fira Code.
     fontFamily: '"Fira Code", "IBM Plex Mono", monospace',
