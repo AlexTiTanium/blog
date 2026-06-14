@@ -57,6 +57,67 @@ const app = createApp({
 
 Один файл — і видно, з чого блог зібраний.
 
+## Де що лежить
+
+Решта проєкту така ж пласка. Жодних чарівних папок, жодної прихованої проводки: відкриваєш директорію, і вона робить рівно те, що написано на дверях:
+
+```text
+blog/
+  src/
+    app.ts        # Node-side composition — the createApp() from above
+    spa.tsx       # browser entry — same routes, none of the Node plugins
+    routes.tsx    # THE route table — one source of truth (next section)
+    config.ts     # SITE identity: name, url, author
+    i18n/         # en · uk · ru · es — UI strings + locale config
+    pages/        # one Preact page per route (home, article, archive…)
+    components/   # SSR'd UI: nav, gallery, the embed facade
+    islands/      # the tiny client scripts, hydrated on demand
+    lib/          # pure helpers: articles, head, urls, dates
+    styles/       # CSS: tokens, fonts, article typography
+    og/           # build-time OG-image cards (Satori)
+  content/        # the articles — one folder per post (see above)
+  public/         # served as-is: fonts, _headers, favicons
+  scripts/        # one-liners: build / serve / preview / deploy
+  tests/          # unit · integration · e2e (the paranoia, below)
+```
+
+Два файли тримають на собі все: `app.ts`, який ви щойно бачили, і `routes.tsx`, а от він мені й дорогий.
+
+## Роутер — серце всього
+
+Якщо в блогу і є серце, то це `routes.tsx`. Одна таблиця, і читають її одразу троє: статична збірка (які сторінки генерувати), навігація в браузері (що відмалювати по кліку) і будівник посилань (кожен `href` на сайті). Описуєш сторінку один раз, в одному місці — і всі троє назавжди згодні між собою.
+
+Маршрут — це невеличкий ланцюжок декларацій:
+
+```typescript
+// src/routes.tsx — define a page once; the build, the SPA, and every link obey it.
+article: route("/{lang:?}/{slug}/")          // {lang:?}: bare "/slug/" for en, "/ru/slug/" for the rest
+  .generate(async ctx =>                       // which static pages to emit at build time
+    (await allArticles(ctx)).map(a => ({ lang: ctx.locale, slug: a.computed.slug }))
+  )
+  .load(async ctx => {                         // fetch the data — runs at build, persisted as JSON
+    const article = await articleBySlug(ctx);
+    const all = await allArticles(ctx);
+    return { article, related: relatedArticles(all, article, 5) };
+  })
+  .render(ctx => <ArticlePage article={ctx.data.article} related={ctx.data.related} />)
+  .head(ctx => articleHead(ctx, ctx.data.article))   // <title>, OG, canonical, hreflang
+```
+
+`.generate` каже, які сторінки створювати, по одній на статтю і локаль. `.load` вантажить дані. `.render` — це Preact-компонент. `.head` — сеошка. Ось і весь контракт.
+
+А тепер фокус, через який блог працює як SPA, хоч я й рядка цієї машинерії не написав. На збірці `.load` відпрацьовує, і результат запікається в HTML *і* кладеться поряд, як `_data/<lang>/<slug>/index.json`. Клікаєш по посиланню — браузер не перезавантажує сторінку, а підвантажує цей маленький JSON і ганяє той самий `.render`. Один код, два моменти: збірка у мене на машині, клік у тебе у вкладці.
+
+А раз посилання беруться з тієї ж таблиці, протухнути вони не можуть:
+
+```typescript
+// links come from the SAME table — a typed builder, so a link can't drift from a route:
+urls.toUrl("article", { lang: "en", slug: "spark" }); // "/spark/"     — en is bare
+urls.toUrl("article", { lang: "ru", slug: "spark" }); // "/ru/spark/"
+```
+
+URL руками я не пишу жодного разу. Прошу його в таблиці. А перейменую маршрут, і всі посилання переїдуть слідом. Ось чому роутер сидить у центрі, а все решта висить на ньому.
+
 ## Стаття — це просто папка
 
 Щоб написати пост, я не відкриваю жодну адмінку (привіт, WordPress). Я створюю папку `content/<slug>/` і кладу в неї по файлу на кожну мову:
@@ -136,7 +197,7 @@ graph LR
 
 Блог — це просто купа статичних файлів. Я роблю `git push`, CI запускає лінт і тести, і якщо все зелене — воно само їде на [Cloudflare Pages](https://pages.cloudflare.com). Статика на безкоштовному тарифі — це буквально нуль на місяць. Жодного сервера, який треба патчити, й оновлювати, й щотижня піднімати базу. Сторінка приїжджає до читача готовим HTML, а інтерактивність — крихітними острівцями (невеликі JS-скрипти, що чіпляються на контент або просто працюють на клієнті).
 
-Із семи доларів у нуль. Не розбагатів, звісно, але приємно.
+Із семи доларів у нуль. Не розбагатів, звісно, але заощадити приємно.
 
 ---
 

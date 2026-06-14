@@ -57,6 +57,67 @@ const app = createApp({
 
 One file, and you can see what the blog is made of.
 
+## Where Everything Lives
+
+The rest of the project is just as flat. No magic folders, no hidden wiring — you open a directory and it does what it says on the door:
+
+```text
+blog/
+  src/
+    app.ts        # Node-side composition — the createApp() from above
+    spa.tsx       # browser entry — same routes, none of the Node plugins
+    routes.tsx    # THE route table — one source of truth (next section)
+    config.ts     # SITE identity: name, url, author
+    i18n/         # en · uk · ru · es — UI strings + locale config
+    pages/        # one Preact page per route (home, article, archive…)
+    components/   # SSR'd UI: nav, gallery, the embed facade
+    islands/      # the tiny client scripts, hydrated on demand
+    lib/          # pure helpers: articles, head, urls, dates
+    styles/       # CSS: tokens, fonts, article typography
+    og/           # build-time OG-image cards (Satori)
+  content/        # the articles — one folder per post (see above)
+  public/         # served as-is: fonts, _headers, favicons
+  scripts/        # one-liners: build / serve / preview / deploy
+  tests/          # unit · integration · e2e (the paranoia, below)
+```
+
+Two files carry the weight: `app.ts`, the one you just saw, and `routes.tsx` — which is the part I actually care about.
+
+## The Router Is the Heart of It
+
+If the blog has a heart, it's `routes.tsx`. One table, and three different things read from it: the static build (which pages to generate), the in-browser navigation (what to render on a click), and the link builder (every `href` on the site). Define a page once, in one place, and all three agree forever.
+
+A route is a little chain of declarations:
+
+```typescript
+// src/routes.tsx — define a page once; the build, the SPA, and every link obey it.
+article: route("/{lang:?}/{slug}/")          // {lang:?}: bare "/slug/" for en, "/ru/slug/" for the rest
+  .generate(async ctx =>                       // which static pages to emit at build time
+    (await allArticles(ctx)).map(a => ({ lang: ctx.locale, slug: a.computed.slug }))
+  )
+  .load(async ctx => {                         // fetch the data — runs at build, persisted as JSON
+    const article = await articleBySlug(ctx);
+    const all = await allArticles(ctx);
+    return { article, related: relatedArticles(all, article, 5) };
+  })
+  .render(ctx => <ArticlePage article={ctx.data.article} related={ctx.data.related} />)
+  .head(ctx => articleHead(ctx, ctx.data.article))   // <title>, OG, canonical, hreflang
+```
+
+`.generate` says which pages to stamp out — one per article, per locale. `.load` fetches the data. `.render` is the Preact component. `.head` is the SEO. That's the whole contract.
+
+Here's the trick that turns it into a single-page app without me writing any of the plumbing. At build time `.load` runs, and its result is baked into the HTML *and* dropped next door as `_data/<lang>/<slug>/index.json`. Click a link and the browser doesn't reload — it fetches that little JSON file and runs the same `.render`. One piece of code, two moments: the build on my machine, the click in your tab.
+
+And because the links come out of the same table, they can't rot:
+
+```typescript
+// links come from the SAME table — a typed builder, so a link can't drift from a route:
+urls.toUrl("article", { lang: "en", slug: "spark" }); // "/spark/"     — en is bare
+urls.toUrl("article", { lang: "ru", slug: "spark" }); // "/ru/spark/"
+```
+
+I never type a URL by hand. I ask the table for one, and the day I rename a route, every link moves with it. That's why the router sits in the middle and everything else hangs off it.
+
 ## A Post Is Just a Folder
 
 To write a post I don't open an admin panel (hi, WordPress). I make a `content/<slug>/` folder and drop one file per language into it:
@@ -136,7 +197,7 @@ And now the money. Remember the seven dollars a month for WordPress? Here it's z
 
 The blog is just a pile of static files. I run `git push`, CI runs the lint and the tests, and if everything's green it ships itself to [Cloudflare Pages](https://pages.cloudflare.com). Static files on the free tier cost nothing a month. No server to patch, and update, and bring the database back up every week. The page arrives as finished HTML; the interactivity comes in as tiny islands (small JS scripts that hook onto the content, or just run on the client).
 
-From seven dollars a month to nothing. I didn't get rich, but it feels good.
+From seven dollars a month to nothing. I didn't get rich, but it's nice to save.
 
 ---
 

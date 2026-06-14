@@ -57,6 +57,67 @@ const app = createApp({
 
 Un archivo, y ves de qué está hecho el blog.
 
+## Dónde vive cada cosa
+
+El resto del proyecto es igual de plano. Nada de carpetas mágicas ni cableado oculto: abres un directorio y hace exactamente lo que pone en la puerta:
+
+```text
+blog/
+  src/
+    app.ts        # Node-side composition — the createApp() from above
+    spa.tsx       # browser entry — same routes, none of the Node plugins
+    routes.tsx    # THE route table — one source of truth (next section)
+    config.ts     # SITE identity: name, url, author
+    i18n/         # en · uk · ru · es — UI strings + locale config
+    pages/        # one Preact page per route (home, article, archive…)
+    components/   # SSR'd UI: nav, gallery, the embed facade
+    islands/      # the tiny client scripts, hydrated on demand
+    lib/          # pure helpers: articles, head, urls, dates
+    styles/       # CSS: tokens, fonts, article typography
+    og/           # build-time OG-image cards (Satori)
+  content/        # the articles — one folder per post (see above)
+  public/         # served as-is: fonts, _headers, favicons
+  scripts/        # one-liners: build / serve / preview / deploy
+  tests/          # unit · integration · e2e (the paranoia, below)
+```
+
+Dos archivos cargan con todo el peso: `app.ts`, el que acabas de ver, y `routes.tsx` — que es la parte que de verdad me importa.
+
+## El router es el corazón de todo
+
+Si el blog tiene un corazón, es `routes.tsx`. Una sola tabla, y de ella leen tres cosas distintas: la compilación estática (qué páginas generar), la navegación dentro del navegador (qué renderizar al hacer clic) y el constructor de enlaces (cada `href` del sitio). Defines una página una vez, en un único sitio, y los tres quedan de acuerdo para siempre.
+
+Una ruta es una pequeña cadena de declaraciones:
+
+```typescript
+// src/routes.tsx — define a page once; the build, the SPA, and every link obey it.
+article: route("/{lang:?}/{slug}/")          // {lang:?}: bare "/slug/" for en, "/ru/slug/" for the rest
+  .generate(async ctx =>                       // which static pages to emit at build time
+    (await allArticles(ctx)).map(a => ({ lang: ctx.locale, slug: a.computed.slug }))
+  )
+  .load(async ctx => {                         // fetch the data — runs at build, persisted as JSON
+    const article = await articleBySlug(ctx);
+    const all = await allArticles(ctx);
+    return { article, related: relatedArticles(all, article, 5) };
+  })
+  .render(ctx => <ArticlePage article={ctx.data.article} related={ctx.data.related} />)
+  .head(ctx => articleHead(ctx, ctx.data.article))   // <title>, OG, canonical, hreflang
+```
+
+`.generate` dice qué páginas estampar — una por artículo y por idioma. `.load` trae los datos. `.render` es el componente Preact. `.head` es el SEO. Ese es todo el contrato.
+
+Y aquí está el truco que lo convierte en una single-page app sin que yo escriba nada de esa fontanería. En la compilación se ejecuta `.load`, y su resultado se hornea en el HTML *y* se deja al lado, como `_data/<lang>/<slug>/index.json`. Haces clic en un enlace y el navegador no recarga: trae ese pequeño archivo JSON y ejecuta el mismo `.render`. Un solo trozo de código, dos momentos: la compilación en mi máquina, el clic en tu pestaña.
+
+Y como los enlaces salen de la misma tabla, no pueden pudrirse:
+
+```typescript
+// links come from the SAME table — a typed builder, so a link can't drift from a route:
+urls.toUrl("article", { lang: "en", slug: "spark" }); // "/spark/"     — en is bare
+urls.toUrl("article", { lang: "ru", slug: "spark" }); // "/ru/spark/"
+```
+
+Nunca escribo una URL a mano. Se la pido a la tabla, y el día que renombre una ruta, todos los enlaces se mudan con ella. Por eso el router se sienta en el centro y todo lo demás cuelga de él.
+
 ## Un artículo es solo una carpeta
 
 Para escribir un post no abro ningún panel de administración (hola, WordPress). Creo una carpeta `content/<slug>/` y meto dentro un archivo por idioma:
@@ -136,7 +197,7 @@ Y ahora, el dinero. ¿Te acuerdas de los siete pavos al mes de WordPress? Aquí 
 
 El blog no es más que un montón de archivos estáticos. Hago `git push`, la CI pasa el lint y los tests, y si todo está en verde se va él solo a [Cloudflare Pages](https://pages.cloudflare.com). Los archivos estáticos en el plan gratis cuestan literalmente cero al mes. Ningún servidor que parchear, y actualizar, y levantar la base de datos cada semana. La página ya llega como HTML completo, y la interactividad se reduce a unas islitas (pequeños scripts JS que se enganchan al contenido o que simplemente se ejecutan en el cliente).
 
-De siete dólares al mes a nada. No me hice rico, pero sienta bien.
+De siete dólares al mes a nada. No me hice rico, pero ahorrar sienta bien.
 
 ---
 
