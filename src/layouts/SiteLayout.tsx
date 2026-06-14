@@ -45,6 +45,10 @@ export function SiteLayout({ locale, activeTab, children }: SiteLayoutProps): VN
       </header>
       <section>{children}</section>
       <Footer />
+      {/* Persistent, zero-footprint host for the link-prefetch island: document-level hover/touch
+          listeners that warm a page's JSON before the click. Outside <section> so it is never
+          swapped (mounted once on boot). */}
+      <div data-component="link-prefetch" hidden />
     </main>
   );
 }
