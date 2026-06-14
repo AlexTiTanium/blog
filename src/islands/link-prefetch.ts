@@ -4,8 +4,8 @@
  * hover (`pointerover`, desktop) or first touch (`touchstart`, mobile) of an internal page link, it
  * pre-fetches that link's `/_data/.../index.json` — the SAME URL the framework's data reader fetches
  * ([[../routes]] → `ctx.require(contentPlugin)`) — into the HTTP cache, so the upcoming navigation
- * reuses it. Each target is warmed at most once. Mounts on the persistent `<div data-component=
- * "link-prefetch">` host in {@link SiteLayout} (its document-level listeners must outlive every nav).
+ * reuses it. Each target is warmed at most once. Mounts on the persistent `<body data-component=
+ * "link-prefetch">` host (src/index.html) — its document-level listeners must outlive every nav.
  */
 import { createComponent } from "@moku-labs/web/browser";
 

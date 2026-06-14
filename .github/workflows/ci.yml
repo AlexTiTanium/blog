@@ -33,7 +33,20 @@ jobs:
       - run: bun run test:unit
       # The integration tests build the real corpus, and mermaid-isomorphic renders
       # ```mermaid fences through playwright's chromium headless shell at build time.
-      - run: bunx playwright install --with-deps chromium-headless-shell
+      # Cache the browser binaries keyed by the resolved Playwright version, so the slow
+      # download only runs when the version changes; OS deps still install each run.
+      - id: pw-version
+        run: |
+          echo "v=$(bunx playwright --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')" >> "$GITHUB_OUTPUT"
+      - id: pw-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-shell-${{ steps.pw-version.outputs.v }}
+      - if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: bunx playwright install --with-deps chromium-headless-shell
+      - if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: bunx playwright install-deps chromium-headless-shell
       - run: bun run test:integration
 
   e2e:
@@ -52,8 +65,20 @@ jobs:
       # All three engines from playwright.config.ts: chromium runs the full functional
       # suite; webkit + firefox still run the JS-boot guard (no-js-errors.spec.ts).
       # Installed BEFORE the build: mermaid-isomorphic renders ```mermaid fences through
-      # chromium's headless shell at build time (installed alongside chromium).
-      - run: bunx playwright install --with-deps chromium webkit firefox
+      # chromium's headless shell at build time (installed alongside chromium). Browser
+      # binaries are cached by Playwright version, so only OS deps reinstall on a hit.
+      - id: pw-version
+        run: |
+          echo "v=$(bunx playwright --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')" >> "$GITHUB_OUTPUT"
+      - id: pw-cache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-full-${{ steps.pw-version.outputs.v }}
+      - if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: bunx playwright install --with-deps chromium webkit firefox
+      - if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: bunx playwright install-deps chromium webkit firefox
       # Real-corpus build guard: e2e itself runs against the FIXTURE corpus
       # (playwright.config.ts's webServer runs scripts/e2e-server.ts, which builds
       # tests/fixtures/content into dist-e2e), so this build's only job is proving the
