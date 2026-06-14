@@ -11,21 +11,21 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Root scroller stays at the browser default `auto` (instant) — never `smooth`. A smooth
+     root scroll is dangerous on SPA nav: the scroll-to-top is a synchronous reset run right
+     before the content swap, so a smooth animation is still in flight when the swap changes
+     document height — WebKit clamps scrollY to the new, smaller max and cancels the animation
+     there, stranding the page near the old position (the "press Home, it doesn't scroll up"
+     race). @moku-labs/web >=1.12.1 forces that nav reset to instant regardless of this value,
+     so smooth here can no longer bite — but we keep the root instant anyway (nothing in the
+     blog wants smooth root scrolling). The deliberate same-tab "scroll to top" still animates:
+     the framework passes an explicit behavior:"smooth" there (reduced-motion-aware). */
   scrollbar-gutter: stable;
   /* Lock the text scale: without this, iOS Safari auto-inflates every font on a
      portrait→landscape rotate (the whole page appears to zoom). 100% keeps the
      natural size while still allowing the user to pinch-zoom. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-}
-
-/* Honour reduced-motion: no smooth scroll-to-top on navigation (the spa scroll defers to
-   this via behavior:"auto" when view transitions are off), and no smooth anchor jumps. */
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
 }
 
 a {
