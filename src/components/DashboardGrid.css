@@ -57,6 +57,13 @@
     border: 1px solid var(--border-default);
     padding: 1.25rem;
     position: relative;
+    /* Flex column so cards "fill, don't strand": grid items stretch to their row
+       height, and with the tag footer pinned to the bottom (margin-top:auto
+       below) the slack on a card shorter than its row reads as breathing room
+       above the footer instead of a dead gap. Paired with the title/excerpt
+       line-clamps, which cap how tall any one card can push its row. */
+    display: flex;
+    flex-direction: column;
     transition:
       border-color var(--duration-normal) var(--ease-out-expo),
       box-shadow var(--duration-normal) var(--ease-out-expo),
@@ -176,6 +183,14 @@
     font-weight: 700;
     line-height: 1.4;
     margin-bottom: 0.5rem;
+    /* Cap the title at 3 lines so a long headline can't balloon its grid row.
+       line-clamp is width-aware: wide cards still show the full title; only the
+       narrow 1-col outliers truncate. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
 
     a {
       color: var(--text-secondary);
@@ -198,13 +213,39 @@
     color: var(--text-body);
     line-height: 1.6;
     opacity: 0.85;
+    /* Keep a minimum gap to the footer even when the auto margin below collapses
+       (tight cards); on stretched cards the auto margin adds the rest. */
+    margin-bottom: 0.75rem;
+    /* Clamp the excerpt for the same reason as the title. The row-spanning bento
+       cards get a larger clamp below — they have the vertical room to fill. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    overflow: hidden;
   }
 
   [data-tags] {
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
-    margin-top: 0.75rem;
+    /* Pin the tag footer to the card bottom; the slack collects above it as
+       breathing room rather than a dead gap below the tags. */
+    margin-top: auto;
+  }
+
+  /* Bento only: at the 4-col breakpoint c3/c4/c5 each span two rows, so give
+     their excerpt a larger clamp — this fills the tall cells instead of leaving
+     them half-empty. Scoped to the full-page bento AND to ≥901px, the only width
+     with row spans; the 2-col/1-col layouts and the partial-page auto-flow grid
+     keep the uniform 4-line clamp so every card matches. */
+  @media (min-width: 901px) {
+    :scope[data-cards="10"] article:nth-child(3) p,
+    :scope[data-cards="10"] article:nth-child(4) p,
+    :scope[data-cards="10"] article:nth-child(5) p {
+      -webkit-line-clamp: 6;
+      line-clamp: 6;
+    }
   }
 
   /* Stats card variant */
