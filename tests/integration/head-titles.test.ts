@@ -31,6 +31,9 @@ function headContext(params: Record<string, string>, data: unknown) {
     params,
     data,
     locale: params.lang ?? DEFAULT_LOCALE,
+    // RouteContext gained `meta` (the route's .meta() bag) in web 1.14.0; these head
+    // handlers don't read it, so an empty bag satisfies the type.
+    meta: {},
     url: (name: string, p?: Record<string, string>) => app.router.toUrl(name, p ?? {})
   };
 }
