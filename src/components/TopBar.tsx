@@ -16,7 +16,7 @@ interface Props {
  */
 export function TopBar({ quote }: Props) {
   return (
-    <div data-component="titlebar">
+    <div data-island="titlebar">
       <span data-title>{quote}</span>
       <div data-dots>
         <span data-dot="red"></span>

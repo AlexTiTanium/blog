@@ -25,7 +25,7 @@ interface Props {
  */
 export function StatusBar({ articleCount, latestPostDate }: Props) {
   return (
-    <div data-component="status">
+    <div data-island="status">
       <span data-item>
         <span data-dot="green"></span>
         build: passing

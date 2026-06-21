@@ -64,7 +64,7 @@ test.describe("SPA hydration is alive (client JS actually ran)", () => {
     // In-page DOM poll instead of expect(locator).toBeVisible(): WebKit parks Playwright in
     // a perpetual "waiting for navigation to finish" state after a Navigation-API commit,
     // which hangs auto-waiting locator actions — but one-shot in-page evals run fine.
-    await page.waitForFunction(() => Boolean(document.querySelector('[data-component="archive"]')));
+    await page.waitForFunction(() => Boolean(document.querySelector('[data-island="archive"]')));
 
     const survived = await page.evaluate(
       () => (globalThis as unknown as { __spaSentinel?: boolean }).__spaSentinel === true

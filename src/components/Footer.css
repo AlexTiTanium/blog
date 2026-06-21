@@ -1,6 +1,6 @@
 /* Footer -- IDE status bar */
 
-@scope ([data-component="footer"]) {
+@scope ([data-island="footer"]) {
   :scope {
     display: flex;
     align-items: center;

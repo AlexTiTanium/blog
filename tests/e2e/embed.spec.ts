@@ -12,7 +12,7 @@ const src = EMBEDDED?.embed?.src ?? "";
 const title = EMBEDDED?.embed?.title ?? "";
 
 // The facade figure inside the article body.
-const FACADE = '[data-content] figure[data-component="lazy-embed"]';
+const FACADE = '[data-content] figure[data-island="lazy-embed"]';
 
 test.describe("Lazy embed (::embed directive)", () => {
   test.skip(!EMBEDDED, "no article with an ::embed directive in the fixture corpus");
@@ -59,7 +59,7 @@ test.describe("Lazy embed (::embed directive)", () => {
 
     await page.click('a[href="/archive/"]');
     await page.waitForURL(/\/archive\//);
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
 
     // Back is an SPA traversal: the framework re-fetches and swaps the article content
     // (independent of which paginated listing carries this article's link).

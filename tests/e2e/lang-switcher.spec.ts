@@ -36,7 +36,7 @@ const fontsReady = async (page: Page): Promise<void> => {
 };
 
 /** The language-switcher root. */
-const switcher = (page: Page): Locator => page.locator('[data-component="lang-switcher"]');
+const switcher = (page: Page): Locator => page.locator('[data-island="lang-switcher"]');
 
 /** Direct anchor children of the switcher (one per locale). */
 const localeLinks = (page: Page): Locator => switcher(page).locator("> a");
@@ -104,10 +104,10 @@ for (const phone of PHONES) {
       await expect(switcher(page)).toHaveAttribute("data-expanded", "true");
 
       // The push design recedes the tabs while expanded — they are not interactive.
-      await expect(page.locator('[data-component="tab-nav"] > a[href="/about/"]')).toBeHidden();
+      await expect(page.locator('[data-island="tab-nav"] > a[href="/about/"]')).toBeHidden();
 
       // Tapping the (now-vacated) nav area collapses without navigating.
-      await page.locator('[data-component="tab-nav"]').click({ position: { x: 6, y: 6 } });
+      await page.locator('[data-island="tab-nav"]').click({ position: { x: 6, y: 6 } });
       await expect(switcher(page)).not.toHaveAttribute("data-expanded", "true");
       await expect(page).toHaveURL(/\/$/);
     });
@@ -118,7 +118,7 @@ for (const phone of PHONES) {
       await expect(switcher(page)).toHaveAttribute("data-expanded", "true");
 
       // The title bar is in-header but outside the switcher and is not a link.
-      await page.click('[data-component="titlebar"]');
+      await page.click('[data-island="titlebar"]');
       await expect(switcher(page)).not.toHaveAttribute("data-expanded", "true");
       await expect(page).toHaveURL(/\/$/);
     });

@@ -26,7 +26,7 @@ function GitHubMark() {
  */
 export function Footer() {
   return (
-    <footer data-component="footer">
+    <footer data-island="footer">
       <div data-part="left">
         <span data-item>
           <span data-dot="green"></span>

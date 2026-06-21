@@ -3,7 +3,7 @@
    descendants: card layout is inseparable from the bento grid (grid-area placement, cycling accent
    borders, stagger animation), so DashCard has no separate stylesheet by design. */
 
-@scope ([data-component="dashboard"]) {
+@scope ([data-island="dashboard"]) {
   :scope {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

@@ -10,14 +10,14 @@
  * is swallowed so it can't trigger browser back/forward. Neighbor slides are preloaded; a viewport
  * change (phone rotate) re-snaps to a clean state. Styles in styles/lightbox.css.
  */
-import { createComponent } from "@moku-labs/web/browser";
+import { createIsland } from "@moku-labs/web/browser";
 
 /** One fullscreen slide: image URL + alt (galleries pass resolved slides; a lone image passes one). */
 export type LightboxSlide = { src: string; alt: string };
 
 /**
  * The lightbox island's public api — resolved by sibling islands via
- * `ctx.component<LightboxApi>("lightbox")` (the cross-island seam; replaces importing
+ * `ctx.island<LightboxApi>("lightbox")` (the cross-island seam; replaces importing
  * `openLightbox` directly). The `gallery` island calls `open(slides, index)` on a slide click.
  */
 export type LightboxApi = { open: (slides: LightboxSlide[], index: number) => void };
@@ -621,7 +621,7 @@ function openLightbox(slides: LightboxSlide[], index: number): void {
 function openLoneImage(event: Event): void {
   const image = (event.target as Element).closest("img");
   if (!image) return;
-  if (image.closest('[data-component="gallery"]')) return;
+  if (image.closest('[data-island="gallery"]')) return;
   const source = image.getAttribute("src");
   if (!source) return;
   openLightbox([{ src: source, alt: image.getAttribute("alt") ?? "" }], 0);
@@ -630,10 +630,10 @@ function openLoneImage(event: Event): void {
 /**
  * Lightbox island: a lone article image click → fullscreen dialog (no pager). Also exposes the
  * page-level `open(slides, index)` viewer as its cross-island `api`, resolved by the `gallery`
- * island via `ctx.component<LightboxApi>("lightbox")` (the dialog itself is a page singleton, so its
+ * island via `ctx.island<LightboxApi>("lightbox")` (the dialog itself is a page singleton, so its
  * runtime lives in module scope — only the api + the per-instance lone-image listener are wired here).
  */
-export const lightbox = createComponent<Record<never, never>, LightboxApi>("lightbox", {
+export const lightbox = createIsland<Record<never, never>, LightboxApi>("lightbox", {
   /**
    * Expose the fullscreen viewer as this island's api (the cross-island seam).
    *

@@ -1,10 +1,10 @@
 /* Tag List View -- filtered article listing by tag */
 
-[data-component="tag-list"] {
+[data-island="tag-list"] {
   padding: 1rem 0 3rem;
 }
 
-@scope ([data-component="tag-list"]) {
+@scope ([data-island="tag-list"]) {
   :scope {
     background: var(--surface-card);
     border: 1px solid var(--border-default);

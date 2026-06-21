@@ -42,7 +42,7 @@ export function DashboardGrid({
   const uniqueTags = new Set(articles.flatMap(a => a.frontmatter.tags)).size;
 
   return (
-    <div data-component="dashboard" data-cards={articles.length}>
+    <div data-island="dashboard" data-cards={articles.length}>
       {articles.map(article => (
         <DashCard key={article.computed.slug} article={article} locale={locale} total={postCount} />
       ))}

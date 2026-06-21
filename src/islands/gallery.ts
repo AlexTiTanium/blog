@@ -1,18 +1,18 @@
 /**
  * @file gallery island — enhances a `::gallery` block (the framework's
- * `<div data-component="gallery">`, inner markup from src/components/Gallery.tsx). Mounts on each
+ * `<div data-island="gallery">`, inner markup from src/components/Gallery.tsx). Mounts on each
  * gallery, tracks the scroll-snap slide track to sync the active dot + chevron disabled-state,
  * wires chevron/dot/arrow-key paging, and opens the fullscreen lightbox (islands/lightbox.ts) on a
  * slide click — paged across the whole set. With no JS the block is already a swipeable strip
  * (Gallery.css); this only adds the chrome behavior.
  */
-import { createComponent } from "@moku-labs/web/browser";
+import { createIsland } from "@moku-labs/web/browser";
 import type { LightboxApi, LightboxSlide } from "./lightbox";
 import { trackLoad } from "./lightbox";
 
 /**
  * Opens the fullscreen viewer for a slide set — supplied by the gallery island (resolved via
- * `ctx.component("lightbox")`), so `enhanceGallery` never imports the lightbox behaviour directly.
+ * `ctx.island("lightbox")`), so `enhanceGallery` never imports the lightbox behaviour directly.
  */
 type OpenLightbox = (slides: LightboxSlide[], index: number) => void;
 
@@ -96,7 +96,7 @@ function markCurrentDot(dots: HTMLElement[], index: number): void {
 /**
  * Wire one gallery element: scroll tracking, chevron/dot/arrow paging, and click-to-lightbox.
  *
- * @param root - The gallery element (the framework's `[data-component="gallery"]`).
+ * @param root - The gallery element (the framework's `[data-island="gallery"]`).
  * @param open - Opens the fullscreen viewer (resolved from the lightbox island's api).
  * @returns A teardown removing all listeners/observers.
  * @example
@@ -247,10 +247,10 @@ function enhanceGallery(root: HTMLElement, open: OpenLightbox): () => void {
 }
 
 /** Gallery island: enhances each `::gallery` block with paging + click-to-lightbox. */
-export const gallery = createComponent("gallery", {
+export const gallery = createIsland("gallery", {
   /**
    * Enhance the gallery on mount; its listeners/observers are released via `ctx.cleanup`. The
-   * fullscreen viewer is resolved from the sibling `lightbox` island's api (`ctx.component`), so
+   * fullscreen viewer is resolved from the sibling `lightbox` island's api (`ctx.island`), so
    * the gallery no longer imports the lightbox behaviour directly.
    *
    * @param ctx - The island lifecycle context.
@@ -260,7 +260,7 @@ export const gallery = createComponent("gallery", {
   onMount(ctx) {
     // eslint-disable-next-line jsdoc/require-jsdoc -- inline binding of the lightbox island's api
     const open: OpenLightbox = (slides, index) =>
-      ctx.component<LightboxApi>("lightbox")?.open(slides, index);
+      ctx.island<LightboxApi>("lightbox")?.open(slides, index);
     ctx.cleanup(enhanceGallery(ctx.el as HTMLElement, open));
   }
 });

@@ -3,10 +3,10 @@
  * navigation. View transitions are OFF (instant swap), so this is a plain Web Animations API
  * tween on the new `main > section` — NOT a View Transition. That matters: there is no snapshot,
  * so none of the scroll-before-snapshot flash, and the persistent sticky header is never touched.
- * Mounts on `<main data-component="page-fx">` (persistent — outside the swap region — so its
+ * Mounts on `<main data-island="page-fx">` (persistent — outside the swap region — so its
  * `onNavEnd` fires after every navigation).
  */
-import { createComponent } from "@moku-labs/web/browser";
+import { createIsland } from "@moku-labs/web/browser";
 
 /** Fade + slight upward rise for the incoming content. */
 const ENTER_KEYFRAMES: Keyframe[] = [
@@ -45,7 +45,7 @@ function animateContentIn(main: Element): void {
 }
 
 /** page-fx island: replays a subtle content-arrive animation after each navigation. */
-export const pageFx = createComponent("page-fx", {
+export const pageFx = createIsland("page-fx", {
   /**
    * Animate the freshly-swapped content in after each SPA navigation.
    *

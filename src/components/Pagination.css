@@ -1,6 +1,6 @@
 /* Pagination Navigation -- button-style page controls */
 
-@scope ([data-component="pagination"]) {
+@scope ([data-island="pagination"]) {
   :scope {
     grid-column: 1 / -1;
     display: flex;

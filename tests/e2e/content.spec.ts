@@ -13,13 +13,13 @@ const RU_NATIVE = nativeSlugs("ru");
 test.describe("Content", () => {
   test("home page shows the first page of article cards", async ({ page }) => {
     await page.goto("/");
-    const cards = page.locator('[data-component="dashboard"] article:not([data-variant="stats"])');
+    const cards = page.locator('[data-island="dashboard"] article:not([data-variant="stats"])');
     await expect(cards).toHaveCount(Math.min(ARTICLES.length, PAGE_SIZE));
   });
 
   test("home page shows stats card with total article count", async ({ page }) => {
     await page.goto("/");
-    const statsCard = page.locator('[data-component="dashboard"] article[data-variant="stats"]');
+    const statsCard = page.locator('[data-island="dashboard"] article[data-variant="stats"]');
     await expect(statsCard).toBeVisible();
     await expect(statsCard.locator("[data-value]").first()).toHaveText(String(ARTICLES.length));
   });
@@ -27,7 +27,7 @@ test.describe("Content", () => {
   test("article has title, date, author, and body", async ({ page }) => {
     await page.goto(`/${CANONICAL.slug}/`);
 
-    await expect(page.locator('[data-component="split-pane"] article > header h1')).toHaveText(
+    await expect(page.locator('[data-island="split-pane"] article > header h1')).toHaveText(
       CANONICAL.title
     );
     await expect(page.locator("[data-meta]")).toContainText(CANONICAL.date);
@@ -44,7 +44,7 @@ test.describe("Content", () => {
 
   test("archive page lists articles", async ({ page }) => {
     await page.goto("/archive/");
-    const entries = page.locator('[data-component="archive"] [data-entry]');
+    const entries = page.locator('[data-island="archive"] [data-entry]');
     expect(await entries.count()).toBeGreaterThan(0);
   });
 
@@ -94,7 +94,7 @@ test.describe("Pagination", () => {
   // both branches are asserted so the suite adapts as the corpus grows.
   test("home pagination matches corpus size", async ({ page }) => {
     await page.goto("/");
-    const pagination = page.locator('[data-component="pagination"]');
+    const pagination = page.locator('[data-island="pagination"]');
     if (PAGINATED) {
       await expect(pagination).toBeVisible();
       await expect(pagination.locator("[data-next]")).toBeVisible();
@@ -108,9 +108,7 @@ test.describe("Pagination", () => {
     const res = await page.goto("/page/2/");
     if (PAGINATED) {
       expect(res?.status()).toBe(200);
-      const cards = page.locator(
-        '[data-component="dashboard"] article:not([data-variant="stats"])'
-      );
+      const cards = page.locator('[data-island="dashboard"] article:not([data-variant="stats"])');
       expect(await cards.count()).toBeGreaterThan(0);
     } else {
       expect(res?.status()).toBe(404);
@@ -119,7 +117,7 @@ test.describe("Pagination", () => {
 
   test("archive pagination matches corpus size", async ({ page }) => {
     await page.goto("/archive/");
-    const pagination = page.locator('[data-component="pagination"]');
+    const pagination = page.locator('[data-island="pagination"]');
     await (PAGINATED ? expect(pagination).toBeVisible() : expect(pagination).toHaveCount(0));
   });
 });
@@ -127,18 +125,18 @@ test.describe("Pagination", () => {
 test.describe("Structure", () => {
   test("header has navigation tabs", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
-    await expect(page.locator('[data-component="tab-nav"] > a')).toHaveCount(3);
+    await expect(page.locator('[data-island="tab-nav"]')).toBeVisible();
+    await expect(page.locator('[data-island="tab-nav"] > a')).toHaveCount(3);
   });
 
   test("footer is present", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator('[data-component="footer"]')).toBeVisible();
+    await expect(page.locator('[data-island="footer"]')).toBeVisible();
   });
 
   test("language switcher shows all supported locales", async ({ page }) => {
     await page.goto("/");
-    const langItems = page.locator('[data-component="lang-switcher"] a');
+    const langItems = page.locator('[data-island="lang-switcher"] a');
     await expect(langItems).toHaveCount(LOCALES.length);
     for (const [index, locale] of LOCALES.entries()) {
       await expect(langItems.nth(index)).toHaveText(locale.toUpperCase());

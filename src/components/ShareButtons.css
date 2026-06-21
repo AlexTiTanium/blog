@@ -1,6 +1,6 @@
 /* ShareButtons -- social sharing links */
 
-@scope ([data-component="share"]) {
+@scope ([data-island="share"]) {
   :scope {
     display: flex;
     flex-wrap: wrap;

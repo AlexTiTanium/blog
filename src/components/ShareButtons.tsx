@@ -22,7 +22,7 @@ export function ShareButtons({ url, title }: Props) {
   const encodedTitle = encodeURIComponent(title);
 
   return (
-    <div data-component="share">
+    <div data-island="share">
       <span data-label>Share:</span>
 
       <a

@@ -94,7 +94,7 @@ export const makeApp = (stage: Stage, { contentDir = "./content", outDir = "dist
             // styled in EmbedFacade.css); the activation island is `lazyEmbed` (src/islands).
             embed: { facade: EmbedFacade },
             // `::gallery{src="./images/<folder>/" caption="…"}` → the folder's images, SSR'd via
-            // our `Gallery` component (src/components/Gallery) into a `[data-component="gallery"]`
+            // our `Gallery` component (src/components/Gallery) into a `[data-island="gallery"]`
             // block, enhanced by the `gallery` island. Styled in Gallery.css. Requires
             // trustedContent (raw component markup the sanitize pass would strip).
             gallery: { component: Gallery }
@@ -180,7 +180,7 @@ export const makeApp = (stage: Stage, { contentDir = "./content", outDir = "dist
       },
       // viewTransitions:false → instant content swap (no View Transition, so no scroll-before-
       // snapshot flash). Motion, if any, comes from a CSS animation on the incoming content.
-      spa: { components: islands, viewTransitions: false, progressBar: true },
+      spa: { islands, viewTransitions: false, progressBar: true },
       data: { outputDir: "_data", baseUrl: "/_data/" },
       deploy: { target: "cloudflare-pages", outDir: "dist", productionBranch: "main", ci: true },
       // serve/preview act on the same output dir as build (stated explicitly so the linkage is

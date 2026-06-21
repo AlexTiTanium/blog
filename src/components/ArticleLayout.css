@@ -1,7 +1,7 @@
 /* ArticleLayout -- split-pane layout + article section padding */
 
 /* --- Split Pane (article layout) --- */
-@scope ([data-component="split-pane"]) {
+@scope ([data-island="split-pane"]) {
   :scope {
     display: grid;
     grid-template-columns: 1fr var(--width-sidebar);

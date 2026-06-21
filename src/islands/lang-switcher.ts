@@ -4,9 +4,9 @@
  * SPA nav, so both must be recomputed from the live URL). (2) On phones (<=600px) it drives the
  * collapsed selector: the current-locale pill toggles `[data-expanded]` (CSS in LanguageSwitcher.css
  * reveals/hides the other codes and recedes the nav tabs), and a click outside / a tab / Escape /
- * a navigation collapses it again. Mounts on `[data-component="lang-switcher"]`.
+ * a navigation collapses it again. Mounts on `[data-island="lang-switcher"]`.
  */
-import { createComponent } from "@moku-labs/web/browser";
+import { createIsland } from "@moku-labs/web/browser";
 import { LOCALES, type Locale } from "../i18n/index";
 import { localeFromPath, swapLocale } from "../lib/locale";
 
@@ -34,7 +34,7 @@ function linkLocale(link: Element): Locale | undefined {
  *
  * @param element - The mounted lang-switcher element.
  * @example
- * sync(document.querySelector('[data-component="lang-switcher"]'));
+ * sync(document.querySelector('[data-island="lang-switcher"]'));
  */
 function sync(element: Element): void {
   const path = globalThis.location.pathname;
@@ -148,7 +148,7 @@ function onKeydown(event: KeyboardEvent): void {
 }
 
 /** Lang-switcher island: keeps locale links current + drives the collapsed mobile selector. */
-export const langSwitcher = createComponent("lang-switcher", {
+export const langSwitcher = createIsland("lang-switcher", {
   /**
    * Sync the locale links to the initial URL and wire up the collapse/expand handlers.
    *

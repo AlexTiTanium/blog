@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 /**
  * @file Unit tests for blog islands via `@moku-labs/web/testing` — the cross-island `api` seam
- * (gallery → lightbox through `ctx.component`, no module import) plus DOM-only islands that were
+ * (gallery → lightbox through `ctx.island`, no module import) plus DOM-only islands that were
  * previously only reachable through Playwright E2E.
  */
 
@@ -62,11 +62,11 @@ describe("gallery island — cross-island api", () => {
     "</div>" +
     '<button data-gallery-nav="prev"></button><button data-gallery-nav="next"></button>';
 
-  it("opens the lightbox island's viewer via ctx.component on a slide click", () => {
+  it("opens the lightbox island's viewer via ctx.island on a slide click", () => {
     const open = vi.fn();
     const handle = mountIsland(gallery, {
       html: GALLERY_HTML,
-      components: { lightbox: { open } }
+      islands: { lightbox: { open } }
     });
 
     const slides = handle.el.querySelectorAll<HTMLElement>("[data-gallery-slide]");
@@ -81,7 +81,7 @@ describe("gallery island — cross-island api", () => {
   it("no-ops gracefully when no lightbox provider is registered", () => {
     const handle = mountIsland(gallery, { html: GALLERY_HTML });
     const slide = handle.el.querySelector<HTMLElement>("[data-gallery-slide]");
-    // ctx.component("lightbox") → undefined → optional-chained no-op (no throw).
+    // ctx.island("lightbox") → undefined → optional-chained no-op (no throw).
     expect(() => slide?.dispatchEvent(new Event("click", { bubbles: true }))).not.toThrow();
   });
 });

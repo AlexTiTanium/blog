@@ -46,7 +46,7 @@ export function Pagination({ currentPage, totalPages, baseUrl }: PaginationProps
   const items = pageWindow(currentPage, totalPages);
 
   return (
-    <nav data-component="pagination" aria-label="Pagination">
+    <nav data-island="pagination" aria-label="Pagination">
       <a
         data-prev
         href={currentPage > 1 ? pageUrl(baseUrl, currentPage - 1) : undefined}

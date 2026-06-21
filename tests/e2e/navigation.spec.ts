@@ -16,52 +16,52 @@ test.describe("Navigation", () => {
     await page.click('a[href="/about/"]');
     await expect(page).toHaveURL(/\/about\//);
 
-    await page.click('[data-component="tab-nav"] a[href="/"]');
+    await page.click('[data-island="tab-nav"] a[href="/"]');
     await expect(page).toHaveURL(/\/$/);
   });
 
   test("language switcher works", async ({ page }) => {
     await page.goto("/");
-    await page.click('[data-component="lang-switcher"] a[href="/ru/"]');
+    await page.click('[data-island="lang-switcher"] a[href="/ru/"]');
     await expect(page).toHaveURL(/\/ru\//);
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
   });
 
   test("article links from home page work", async ({ page }) => {
     await page.goto("/");
-    const firstArticleLink = page.locator('[data-component="dashboard"] h2 a').first();
+    const firstArticleLink = page.locator('[data-island="dashboard"] h2 a').first();
     const href = await firstArticleLink.getAttribute("href");
     await firstArticleLink.click();
     await expect(page).toHaveURL(new RegExp(href ?? ""));
-    await expect(page.locator('[data-component="split-pane"] article > header h1')).toBeVisible();
+    await expect(page.locator('[data-island="split-pane"] article > header h1')).toBeVisible();
   });
 });
 
 test.describe("SPA Navigation", () => {
   test("preserves shell and swaps content on navigation", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
-    await expect(page.locator('[data-component="footer"]')).toBeVisible();
+    await expect(page.locator('[data-island="tab-nav"]')).toBeVisible();
+    await expect(page.locator('[data-island="footer"]')).toBeVisible();
 
     await page.click('a[href="/archive/"]');
     await page.waitForURL(/\/archive\//);
 
-    await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
-    await expect(page.locator('[data-component="footer"]')).toBeVisible();
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="tab-nav"]')).toBeVisible();
+    await expect(page.locator('[data-island="footer"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
   });
 
   test("back button restores previous page", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
 
     await page.click('a[href="/archive/"]');
     await page.waitForURL(/\/archive\//);
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
 
     await page.goBack();
     await page.waitForURL(/\/$/);
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
   });
 
   test("forward button after back restores navigated page", async ({ page }) => {
@@ -69,7 +69,7 @@ test.describe("SPA Navigation", () => {
 
     await page.click('a[href="/archive/"]');
     await page.waitForURL(/\/archive\//);
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
 
     await page.goBack();
     await page.waitForURL(/\/$/);
@@ -79,38 +79,38 @@ test.describe("SPA Navigation", () => {
     // last, leaving /archive/ showing dashboard content. A real user sees the page
     // render between presses; without this settle the test is a coin-flip locally
     // and reliably loses on slow CI runners.
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
 
     await page.goForward();
     await page.waitForURL(/\/archive\//);
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
   });
 
   test("deep link loads article page directly", async ({ page }) => {
     await page.goto(`/${CANONICAL.slug}/`);
-    await expect(page.locator('[data-component="split-pane"] article > header h1')).toHaveText(
+    await expect(page.locator('[data-island="split-pane"] article > header h1')).toHaveText(
       CANONICAL.title
     );
-    await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
-    await expect(page.locator('[data-component="footer"]')).toBeVisible();
+    await expect(page.locator('[data-island="tab-nav"]')).toBeVisible();
+    await expect(page.locator('[data-island="footer"]')).toBeVisible();
   });
 
   test("deep link loads Russian archive page directly", async ({ page }) => {
     await page.goto("/ru/archive/");
     await expect(page).toHaveURL(/\/ru\/archive\//);
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
   });
 
   test("language switch updates html lang attribute via SPA navigation", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
 
-    await page.click('[data-component="lang-switcher"] a[href="/ru/"]');
+    await page.click('[data-island="lang-switcher"] a[href="/ru/"]');
     await page.waitForURL(/\/ru\//);
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
 
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
   });
 
   test("SPA navigation through multiple pages in sequence", async ({ page }) => {
@@ -118,19 +118,19 @@ test.describe("SPA Navigation", () => {
 
     await page.click('a[href="/archive/"]');
     await page.waitForURL(/\/archive\//);
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
 
     await page.click('a[href="/about/"]');
     await page.waitForURL(/\/about\//);
 
-    await page.click('[data-component="tab-nav"] a[href="/"]');
+    await page.click('[data-island="tab-nav"] a[href="/"]');
     await page.waitForURL(/\/$/);
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
   });
 
   test("tab-nav active state updates on SPA navigation", async ({ page }) => {
     await page.goto("/");
-    const tabNav = page.locator('[data-component="tab-nav"]');
+    const tabNav = page.locator('[data-island="tab-nav"]');
 
     await expect(tabNav.locator('a[href="/"][aria-current="page"]')).toBeVisible();
 
@@ -145,7 +145,7 @@ test.describe("SPA Navigation - Russian locale", () => {
   test("Russian home page loads correctly", async ({ page }) => {
     await page.goto("/ru/");
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
   });
 
   test("navigation through Russian pages works", async ({ page }) => {
@@ -153,20 +153,20 @@ test.describe("SPA Navigation - Russian locale", () => {
 
     await page.click('a[href="/ru/archive/"]');
     await page.waitForURL(/\/ru\/archive\//);
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
 
     await page.click('a[href="/ru/about/"]');
     await page.waitForURL(/\/ru\/about\//);
 
     await page.click('a[href="/ru/"]');
     await page.waitForURL(/\/ru\/$/);
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
   });
 
   test("Russian article deep link loads correctly", async ({ page }) => {
     await page.goto(`/ru/${CANONICAL.slug}/`);
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
-    await expect(page.locator('[data-component="split-pane"] article > header h1')).toBeVisible();
+    await expect(page.locator('[data-island="split-pane"] article > header h1')).toBeVisible();
   });
 
   test("switch from Russian to English via lang switcher", async ({ page }) => {
@@ -174,7 +174,7 @@ test.describe("SPA Navigation - Russian locale", () => {
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
 
     // The EN lang-switcher link now points at the bare default-locale url.
-    await page.click('[data-component="lang-switcher"] a[href="/"]');
+    await page.click('[data-island="lang-switcher"] a[href="/"]');
     await page.waitForURL(/\/$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });

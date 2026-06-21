@@ -1,10 +1,10 @@
 /* Archive View (git-log listing) -- colocated from components.css */
 
-[data-component="archive"] {
+[data-island="archive"] {
   padding: 1rem 0 3rem;
 }
 
-@scope ([data-component="archive"]) {
+@scope ([data-island="archive"]) {
   :scope {
     background: var(--surface-card);
     border: 1px solid var(--border-default);
@@ -149,7 +149,7 @@
 
   /* Pagination sits inside the bordered archive card — give it bottom breathing room.
      Scoped here (not on the shared Pagination component) so it only affects the archive. */
-  [data-component="pagination"] {
+  [data-island="pagination"] {
     margin-bottom: 1rem;
   }
 

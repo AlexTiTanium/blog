@@ -1,5 +1,5 @@
 /* EmbedFacade -- `::embed` click-to-activate facade.
-   The framework owns <figure class="lazy-embed"> (data-component + data-embed-*
+   The framework owns <figure class="lazy-embed"> (data-island + data-embed-*
    hooks + reserved-box sizing inline style); this styles the box chrome, the
    facade inner content (src/components/EmbedFacade.tsx, data-* attrs), and the
    activated iframe. Scoped to the article body, same as code/article typography. */

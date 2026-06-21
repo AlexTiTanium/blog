@@ -135,7 +135,7 @@ test.describe("Bare default-locale content on disk", () => {
 
     const html = readFileSync(root, "utf8");
     expect(html).not.toContain('http-equiv="refresh"');
-    expect(html).toContain('data-component="dashboard"');
+    expect(html).toContain('data-island="dashboard"');
   });
 
   test("dist/index.html and dist/en/index.html are identical (modulo build-id)", () => {
@@ -154,7 +154,7 @@ test.describe("Root Path Content", () => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/$/);
 
-    const dashboard = page.locator('[data-component="dashboard"]');
+    const dashboard = page.locator('[data-island="dashboard"]');
     await expect(dashboard).toBeVisible();
   });
 
@@ -162,14 +162,14 @@ test.describe("Root Path Content", () => {
     await page.goto("/");
     const rootTitle = await page.title();
     const rootFirstCard = await page
-      .locator('[data-component="dashboard"] article:not([data-variant="stats"]) header')
+      .locator('[data-island="dashboard"] article:not([data-variant="stats"]) header')
       .first()
       .textContent();
 
     await page.goto("/en/");
     const enTitle = await page.title();
     const enFirstCard = await page
-      .locator('[data-component="dashboard"] article:not([data-variant="stats"]) header')
+      .locator('[data-island="dashboard"] article:not([data-variant="stats"]) header')
       .first()
       .textContent();
 

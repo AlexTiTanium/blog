@@ -4,10 +4,10 @@
  * hover (`pointerover`, desktop) or first touch (`touchstart`, mobile) of an internal page link, it
  * pre-fetches that link's `/_data/.../index.json` — the SAME URL the framework's data reader fetches
  * ([[../routes]] → `ctx.require(contentPlugin)`) — into the HTTP cache, so the upcoming navigation
- * reuses it. Each target is warmed at most once. Mounts on the persistent `<body data-component=
+ * reuses it. Each target is warmed at most once. Mounts on the persistent `<body data-island=
  * "link-prefetch">` host (src/index.html) — its document-level listeners must outlive every nav.
  */
-import { createComponent } from "@moku-labs/web/browser";
+import { createIsland } from "@moku-labs/web/browser";
 
 /**
  * Data-reader base — MUST mirror `pluginConfigs.data.baseUrl` in `src/spa.tsx`. Kept as a local
@@ -59,7 +59,7 @@ function pagePathOf(node: EventTarget | null): string | undefined {
 }
 
 /** link-prefetch island: pre-downloads a hovered/touched page's JSON so its SPA nav feels instant. */
-export const linkPrefetch = createComponent("link-prefetch", {
+export const linkPrefetch = createIsland("link-prefetch", {
   /**
    * Attach document-level hover/touch listeners that warm each internal page's JSON once.
    *

@@ -1,6 +1,6 @@
 /**
  * @file `::gallery` component — the inner content the framework SSRs (to static markup at build
- * time) inside its `<div class="gallery" data-component="gallery">` wrapper. Renders a full-width
+ * time) inside its `<div class="gallery" data-island="gallery">` wrapper. Renders a full-width
  * scroll-snap slide track plus the chevron + dot controls; with no JS it is already a swipeable
  * strip (the CSS fallback). The `gallery` SPA island (src/islands/gallery.ts) enhances it —
  * active-dot sync, chevron/keyboard paging, click-to-open the fullscreen lightbox. Styled in
