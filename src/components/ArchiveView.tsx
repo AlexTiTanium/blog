@@ -83,7 +83,7 @@ export function ArchiveView({
   const postCount = totalArticles ?? articles.length;
 
   return (
-    <div data-component="archive">
+    <div data-island="archive">
       <header>
         <nav aria-label="breadcrumb">
           <a href={homeUrl(locale)}>blog</a> <span data-sep>/</span> archive <span data-sep>/</span>{" "}

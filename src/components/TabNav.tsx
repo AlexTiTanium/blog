@@ -27,7 +27,7 @@ export function TabNav({ locale, activeTab, alternates }: Props) {
   const ui = t(locale);
 
   return (
-    <nav data-component="tab-nav">
+    <nav data-island="tab-nav">
       <a href={homeUrl(locale)} aria-current={activeTab === "home" ? "page" : undefined}>
         <span data-icon>~</span> {ui.home}
       </a>

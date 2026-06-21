@@ -1,6 +1,6 @@
 /* StatusBar -- build status indicators */
 
-@scope ([data-component="status"]) {
+@scope ([data-island="status"]) {
   :scope {
     display: flex;
     align-items: center;

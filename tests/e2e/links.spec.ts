@@ -88,24 +88,24 @@ test.describe("SPA client navigation — no failed requests through a click path
 
     // Home -> Archive -> About -> Home (nav tabs)
     for (const href of ["/archive/", "/about/", "/"]) {
-      await page.click(`[data-component="tab-nav"] a[href="${href}"]`);
+      await page.click(`[data-island="tab-nav"] a[href="${href}"]`);
       await page.waitForURL(url => new URL(url).pathname === href);
       await page.waitForLoadState("networkidle");
     }
 
     // Open the first article from the dashboard
-    const firstArticle = page.locator('[data-component="dashboard"] h2 a').first();
+    const firstArticle = page.locator('[data-island="dashboard"] h2 a').first();
     await firstArticle.click();
-    await expect(page.locator('[data-component="split-pane"] article > header h1')).toBeVisible();
+    await expect(page.locator('[data-island="split-pane"] article > header h1')).toBeVisible();
     await page.waitForLoadState("networkidle");
 
     // Back home
-    await page.click('[data-component="tab-nav"] a[href="/"]');
+    await page.click('[data-island="tab-nav"] a[href="/"]');
     await page.waitForURL(/\/$/);
     await page.waitForLoadState("networkidle");
 
     // Language switch (en -> ru) via the lang switcher
-    await page.click('[data-component="lang-switcher"] a[href^="/ru/"]');
+    await page.click('[data-island="lang-switcher"] a[href^="/ru/"]');
     await page.waitForURL(/\/ru\//);
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
     await page.waitForLoadState("networkidle");
@@ -120,11 +120,11 @@ test.describe("SPA client navigation — no failed requests through a click path
     // about locale.
     await page.goto("/");
     await expect(
-      page.locator('[data-component="dashboard"] article:not([data-variant="stats"])')
+      page.locator('[data-island="dashboard"] article:not([data-variant="stats"])')
     ).toHaveCount(Math.min(ARTICLES.length, PAGE_SIZE));
 
     // First nav into the article route (first card on the dashboard).
-    const firstCard = page.locator('[data-component="dashboard"] h2 a').first();
+    const firstCard = page.locator('[data-island="dashboard"] h2 a').first();
     const firstHref = await firstCard.getAttribute("href");
     await firstCard.click();
     await page.waitForURL(url => new URL(url).pathname === firstHref);
@@ -141,12 +141,12 @@ test.describe("SPA client navigation — no failed requests through a click path
 
     // About locale round-trip (en -> ru -> en) — content must persist each time.
     await page.goto("/about/");
-    await page.click('[data-component="lang-switcher"] a[href^="/ru/"]');
+    await page.click('[data-island="lang-switcher"] a[href^="/ru/"]');
     await page.waitForURL(/\/ru\/about\//);
-    await expect(page.locator('[data-component="about"]')).toBeVisible();
+    await expect(page.locator('[data-island="about"]')).toBeVisible();
     // Back to English: on /ru/about/ the EN link is the bare /about/.
-    await page.click('[data-component="lang-switcher"] a[href="/about/"]');
+    await page.click('[data-island="lang-switcher"] a[href="/about/"]');
     await page.waitForURL(url => new URL(url).pathname === "/about/");
-    await expect(page.locator('[data-component="about"]')).toBeVisible();
+    await expect(page.locator('[data-island="about"]')).toBeVisible();
   });
 });

@@ -3,7 +3,7 @@
    so it inherits tokens, fonts, and page chrome. Reuses the hero's [data-syntax]/[data-cursor]
    vocabulary; only the error-screen layout lives here. */
 
-[data-component="not-found"] {
+[data-island="not-found"] {
   /* Fill the gap between the sticky header and the footer, and center the payload. */
   min-height: clamp(420px, 64vh, 720px);
   display: flex;
@@ -15,7 +15,7 @@
   padding: 3rem 0;
 }
 
-@scope ([data-component="not-found"]) {
+@scope ([data-island="not-found"]) {
   /* Dim source-comment eyebrow above the glyph. */
   [data-eyebrow] {
     font-family: var(--font-display);
@@ -118,7 +118,7 @@
 
 /* Hover gating — desktop only (mirrors animations.css). */
 @media (hover: hover) and (pointer: fine) {
-  [data-component="not-found"] [data-action]:hover {
+  [data-island="not-found"] [data-action]:hover {
     color: var(--text-primary);
     border-color: var(--border-hover);
     background: color-mix(in srgb, var(--accent-primary) 8%, transparent);
@@ -126,11 +126,11 @@
   }
 }
 
-[data-component="not-found"] [data-action]:active {
+[data-island="not-found"] [data-action]:active {
   transform: scale(0.98);
 }
 
-[data-component="not-found"] [data-action]:focus-visible {
+[data-island="not-found"] [data-action]:focus-visible {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
@@ -155,7 +155,7 @@
 
 /* Respect reduced-motion: drop the split + twitch, keep it crisp. */
 @media (prefers-reduced-motion: reduce) {
-  [data-component="not-found"] [data-glitch] {
+  [data-island="not-found"] [data-glitch] {
     text-shadow: none;
     animation: none;
   }
@@ -163,12 +163,12 @@
 
 /* Small screens. */
 @media (max-width: 600px) {
-  [data-component="not-found"] {
+  [data-island="not-found"] {
     min-height: clamp(360px, 58vh, 600px);
     gap: 1rem;
   }
 
-  [data-component="not-found"] [data-errbox] {
+  [data-island="not-found"] [data-errbox] {
     font-size: var(--text-xs);
     padding: 0.75rem 0.85rem;
   }

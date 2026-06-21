@@ -8,7 +8,7 @@
 }
 
 /* Title Bar (IDE window chrome) */
-@scope ([data-component="titlebar"]) {
+@scope ([data-island="titlebar"]) {
   :scope {
     display: flex;
     align-items: center;

@@ -1,7 +1,7 @@
 /* ============================================================
    Photo gallery (::gallery directive)
    The framework wraps the Gallery.tsx output in
-   <div class="gallery" data-component="gallery">. Inside: a
+   <div class="gallery" data-island="gallery">. Inside: a
    full-width scroll-snap slide track, overlay chevrons, and a dot
    rail. With no JS it is already a swipeable strip (this CSS is the
    fallback); the `gallery` island adds active-dot sync, chevron/

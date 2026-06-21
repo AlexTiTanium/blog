@@ -1,9 +1,9 @@
 /**
  * @file tab-nav island — keeps the persistent header nav in sync after SPA navigation. The header
  * is not re-rendered by the framework on nav, so this re-derives each tab's href, label, and active
- * state from the live `location.pathname`. Mounts on `[data-component="tab-nav"]`.
+ * state from the live `location.pathname`. Mounts on `[data-island="tab-nav"]`.
  */
-import { createComponent } from "@moku-labs/web/browser";
+import { createIsland } from "@moku-labs/web/browser";
 import { t } from "../i18n/index";
 import { localeFromPath } from "../lib/locale";
 import { aboutUrl, archiveUrl, homeUrl } from "../lib/urls";
@@ -50,7 +50,7 @@ function activeTab(path: string, locale: string): string {
  *
  * @param element - The mounted tab-nav element.
  * @example
- * sync(document.querySelector('[data-component="tab-nav"]'));
+ * sync(document.querySelector('[data-island="tab-nav"]'));
  */
 function sync(element: Element): void {
   // Derive locale, UI strings, and which tab the live URL activates
@@ -79,7 +79,7 @@ function sync(element: Element): void {
 }
 
 /** Tab-nav island: re-syncs nav links/active state on mount and after each navigation. */
-export const tabNav = createComponent("tab-nav", {
+export const tabNav = createIsland("tab-nav", {
   /**
    * Sync the nav to the initial URL on mount.
    *

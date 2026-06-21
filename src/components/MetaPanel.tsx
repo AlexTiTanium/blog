@@ -39,7 +39,7 @@ export function MetaPanel({ article, locale, recentArticles, relatedArticles }: 
   const recentList = recentArticles.slice(0, SIDEBAR_LIST_LIMIT);
 
   return (
-    <aside data-component="meta-panel">
+    <aside data-island="meta-panel">
       <section>
         <h3>{ui.fileInfo}</h3>
         <dl>

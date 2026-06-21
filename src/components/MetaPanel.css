@@ -1,6 +1,6 @@
 /* MetaPanel -- article sidebar meta panel */
 
-@scope ([data-component="meta-panel"]) {
+@scope ([data-island="meta-panel"]) {
   :scope {
     /* Top breathing room lives inside the panel so it's filled by the elevated
        background (flush to the card's top edge) — not a card-colored gap above it. */

@@ -11,7 +11,7 @@ test.describe("Dashboard entrance retirement", () => {
   test("grid is stamped data-entered and all cards end visible", async ({ page }) => {
     await page.goto("/");
 
-    const grid = page.locator('[data-component="dashboard"]');
+    const grid = page.locator('[data-island="dashboard"]');
     await expect(grid).toHaveAttribute("data-entered", "");
 
     const opacities = await grid
@@ -23,12 +23,12 @@ test.describe("Dashboard entrance retirement", () => {
 
   test("a freshly swapped-in grid is stamped again after SPA navigation", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator('[data-component="dashboard"]')).toHaveAttribute("data-entered", "");
+    await expect(page.locator('[data-island="dashboard"]')).toHaveAttribute("data-entered", "");
 
     await page.click('a[href="/archive/"]');
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
 
-    await page.click('[data-component="tab-nav"] a[href="/"]');
-    await expect(page.locator('[data-component="dashboard"]')).toHaveAttribute("data-entered", "");
+    await page.click('[data-island="tab-nav"] a[href="/"]');
+    await expect(page.locator('[data-island="dashboard"]')).toHaveAttribute("data-entered", "");
   });
 });

@@ -63,7 +63,7 @@ export function AboutView({ locale }: Props): VNode {
   const profile = aboutContent(locale);
 
   return (
-    <div data-component="about">
+    <div data-island="about">
       <header>
         <nav aria-label="breadcrumb">
           <a href={homeUrl(locale)}>blog</a> <span data-sep>/</span> README.md

@@ -16,12 +16,12 @@ test.describe("Bare Path English", () => {
   test("root / serves real English home content (no redirect)", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
   });
 
   test("/archive/ serves real English archive content", async ({ page }) => {
     await page.goto("/archive/");
-    await expect(page.locator('[data-component="archive"]')).toBeVisible();
+    await expect(page.locator('[data-island="archive"]')).toBeVisible();
   });
 
   test("/about/ serves real English about content", async ({ page }) => {
@@ -31,12 +31,12 @@ test.describe("Bare Path English", () => {
 
   test("bare tag page serves real English tag content", async ({ page }) => {
     await page.goto(`/tags/${TAGS[0]}/`);
-    await expect(page.locator('[data-component="tab-nav"]')).toBeVisible();
+    await expect(page.locator('[data-island="tab-nav"]')).toBeVisible();
   });
 
   test("bare article path serves real English article content", async ({ page }) => {
     await page.goto(`/${CANONICAL.slug}/`);
-    await expect(page.locator('[data-component="split-pane"] article > header h1')).toBeVisible();
+    await expect(page.locator('[data-island="split-pane"] article > header h1')).toBeVisible();
   });
 });
 
@@ -44,7 +44,7 @@ test.describe("/en/ alias serves English directly (not a redirect)", () => {
   test("/en/ stays at /en/ and shows home content", async ({ page }) => {
     await page.goto("/en/");
     await expect(page).toHaveURL(/\/en\/$/);
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
   });
 
   test("/en/<article>/ stays at /en/<article>/ with bare canonical", async ({ page }) => {
@@ -62,7 +62,7 @@ test.describe("Non-default locale stays prefixed", () => {
     await page.goto("/ru/");
     await expect(page).toHaveURL(/\/ru\/$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "ru");
-    await expect(page.locator('[data-component="dashboard"]')).toBeVisible();
+    await expect(page.locator('[data-island="dashboard"]')).toBeVisible();
   });
 });
 
@@ -73,7 +73,7 @@ test.describe("Disk content (no redirect pages)", () => {
 
     const html = readFileSync(root, "utf8");
     expect(html).not.toContain('http-equiv="refresh"');
-    expect(html).toContain('data-component="dashboard"');
+    expect(html).toContain('data-island="dashboard"');
   });
 
   test("dist/en/index.html exists (the English alias)", () => {

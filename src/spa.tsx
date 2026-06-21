@@ -25,11 +25,11 @@ const app = createApp({
     head: { titleTemplate: `%s — ${SITE.name}` },
     // viewTransitions:false → instant content swap (no View Transition, so no scroll-before-
     // snapshot flash). Motion, if any, comes from a CSS animation on the incoming content.
-    spa: { components: islands, viewTransitions: false, progressBar: true },
+    spa: { islands, viewTransitions: false, progressBar: true },
     data: { baseUrl: "/_data/" }
   }
 });
 
-// Boots kernel: nav interception + scan [data-component] + hydrate.
+// Boots kernel: nav interception + scan [data-island] + hydrate.
 // Errors surfaced, not swallowed (spec/11 §1.13).
 app.start().catch(err => console.error("[blog] SPA boot failed", err));

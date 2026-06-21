@@ -1,8 +1,8 @@
 /**
  * @file title-bar island — picks a dev-humor quote on mount and re-picks after SPA navigation.
- * Mounts on `[data-component="titlebar"]` (the persistent header title bar).
+ * Mounts on `[data-island="titlebar"]` (the persistent header title bar).
  */
-import { createComponent } from "@moku-labs/web/browser";
+import { createIsland } from "@moku-labs/web/browser";
 import { pickQuote } from "../lib/quotes";
 
 /**
@@ -10,7 +10,7 @@ import { pickQuote } from "../lib/quotes";
  *
  * @param element - The mounted title-bar element.
  * @example
- * setQuote(document.querySelector('[data-component="titlebar"]'));
+ * setQuote(document.querySelector('[data-island="titlebar"]'));
  */
 function setQuote(element: Element): void {
   const titleElement = element.querySelector("[data-title]");
@@ -18,7 +18,7 @@ function setQuote(element: Element): void {
 }
 
 /** Title-bar island: hourly-rotating quote, refreshed on mount and after each navigation. */
-export const titleBar = createComponent("titlebar", {
+export const titleBar = createIsland("titlebar", {
   /**
    * Pick the initial quote when the bar mounts.
    *

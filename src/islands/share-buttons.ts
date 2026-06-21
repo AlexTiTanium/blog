@@ -1,9 +1,9 @@
 /**
  * @file share-buttons island — copy-to-clipboard for the "Copy" button. Mounts on
- * `[data-component="share"]`. The click handler is a shared module function, so the same reference
+ * `[data-island="share"]`. The click handler is a shared module function, so the same reference
  * mounts/unmounts cleanly across navigations.
  */
-import { createComponent } from "@moku-labs/web/browser";
+import { createIsland } from "@moku-labs/web/browser";
 
 /** Confirmation label shown on the copy button after a successful copy. */
 const COPIED_LABEL = "Copied!";
@@ -70,7 +70,7 @@ function handleCopyClick(event: Event): void {
 }
 
 /** Share-buttons island: wires the copy-link button to the Clipboard API (with a legacy fallback). */
-export const shareButtons = createComponent("share", {
+export const shareButtons = createIsland("share", {
   /**
    * Bind the copy-link click handler when the share bar mounts.
    *

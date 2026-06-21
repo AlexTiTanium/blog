@@ -1,6 +1,6 @@
 /* About View (README-style profile) -- colocated from components.css */
 
-@scope ([data-component="about"]) {
+@scope ([data-island="about"]) {
   :scope {
     background: var(--surface-card);
     border: 1px solid var(--border-default);

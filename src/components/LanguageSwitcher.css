@@ -1,6 +1,6 @@
 /* LanguageSwitcher -- locale toggle in tab nav */
 
-@scope ([data-component="lang-switcher"]) {
+@scope ([data-island="lang-switcher"]) {
   :scope {
     display: flex;
     align-items: center;
@@ -42,7 +42,7 @@
    codes animate their width/opacity so the switcher grows leftward while the nav tabs
    recede (TabNav.css). Desktop/tablet (>600px) keep the full four-code row above. ── */
 @media (max-width: 600px) {
-  [data-component="lang-switcher"] {
+  [data-island="lang-switcher"] {
     flex-shrink: 0;
     gap: 0;
     overflow: visible;
@@ -53,7 +53,7 @@
 
   /* Collapse direction (the codes retracting): this base transition is the one in effect
      once [data-expanded] is gone, so it governs the EXIT. Accelerate out + a quick fade. */
-  [data-component="lang-switcher"] > a {
+  [data-island="lang-switcher"] > a {
     transition:
       max-width var(--duration-normal) var(--ease-in),
       padding var(--duration-normal) var(--ease-in),
@@ -63,7 +63,7 @@
   }
 
   /* Collapsed: every non-current code is hidden (zero box, not focusable). */
-  [data-component="lang-switcher"] > a:not([aria-current="true"]) {
+  [data-island="lang-switcher"] > a:not([aria-current="true"]) {
     max-width: 0;
     padding-inline: 0;
     opacity: 0;
@@ -79,7 +79,7 @@
      back half and makes interrupted toggles jump. @supports below upgrades this to an
      exact, headroom-free `max-content` where the engine can animate to intrinsic sizes.
      This rule carries its own transition so the EXPAND direction keeps the springy expo. */
-  [data-component="lang-switcher"][data-expanded] > a:not([aria-current="true"]) {
+  [data-island="lang-switcher"][data-expanded] > a:not([aria-current="true"]) {
     max-width: 1.65rem;
     padding-inline: 0.4rem;
     opacity: 1;
@@ -95,17 +95,17 @@
   /* Where the engine can interpolate to/from intrinsic sizes, animate to the exact glyph
      width — zero dead zone, and future-proof for locale codes wider than the fallback cap. */
   @supports (interpolate-size: allow-keywords) {
-    [data-component="lang-switcher"] {
+    [data-island="lang-switcher"] {
       interpolate-size: allow-keywords;
     }
 
-    [data-component="lang-switcher"][data-expanded] > a:not([aria-current="true"]) {
+    [data-island="lang-switcher"][data-expanded] > a:not([aria-current="true"]) {
       max-width: max-content;
     }
   }
 
   /* The current code is the tappable pill. */
-  [data-component="lang-switcher"] > a[aria-current="true"] {
+  [data-island="lang-switcher"] > a[aria-current="true"] {
     padding: 0.3rem 0.45rem;
   }
 }

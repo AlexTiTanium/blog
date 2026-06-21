@@ -22,7 +22,7 @@ interface Props {
  */
 export function LanguageSwitcher({ currentLocale, alternates }: Props) {
   return (
-    <div data-component="lang-switcher">
+    <div data-island="lang-switcher">
       {LOCALES.map(loc => {
         const alt = alternates?.find(a => a.locale === loc);
         const href = alt?.href ?? homeUrl(loc);

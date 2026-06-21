@@ -1,6 +1,6 @@
 /**
  * @file dashboard island — retires the one-shot card entrance once it has played.
- * Mounts on `[data-component="dashboard"]` (the bento grid, re-mounted per navigation).
+ * Mounts on `[data-island="dashboard"]` (the bento grid, re-mounted per navigation).
  *
  * The cards enter via the CSS `card-enter` animation (staggered, `fill: both`). Left in
  * place, that animation is a latent bug: browsers suspend CSS animations of offscreen
@@ -12,7 +12,7 @@
  * finished fill-mode animation is visually a no-op (the natural style is already the end
  * state), and a still-suspended offscreen card snaps to its natural visible state.
  */
-import { createComponent } from "@moku-labs/web/browser";
+import { createIsland } from "@moku-labs/web/browser";
 
 /**
  * How long after mount the entrance is considered settled. The slowest card finishes at
@@ -29,14 +29,14 @@ const settleTimers = new WeakMap<Element, ReturnType<typeof setTimeout>>();
  *
  * @param element - The mounted dashboard grid element.
  * @example
- * markEntered(document.querySelector('[data-component="dashboard"]'));
+ * markEntered(document.querySelector('[data-island="dashboard"]'));
  */
 function markEntered(element: HTMLElement): void {
   element.dataset["entered"] = "";
 }
 
 /** Dashboard island: stamps `data-entered` after the card entrance window. */
-export const dashboard = createComponent("dashboard", {
+export const dashboard = createIsland("dashboard", {
   /**
    * Schedule the entrance retirement when the grid mounts.
    *

@@ -34,7 +34,7 @@ export function ArticleLayout({ article, locale, recentArticles, relatedArticles
   const author = article.frontmatter.author || SITE.author;
 
   return (
-    <div data-component="split-pane">
+    <div data-island="split-pane">
       <main>
         <article>
           <header>
@@ -58,7 +58,7 @@ export function ArticleLayout({ article, locale, recentArticles, relatedArticles
 
           <div
             data-content
-            data-component="lightbox"
+            data-island="lightbox"
             dangerouslySetInnerHTML={{ __html: article.html }}
           />
 

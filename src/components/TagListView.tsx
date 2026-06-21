@@ -25,7 +25,7 @@ interface Props {
  */
 export function TagListView({ tag, articles, locale }: Props) {
   return (
-    <div data-component="tag-list">
+    <div data-island="tag-list">
       <header>
         <nav aria-label="breadcrumb">
           <a href={homeUrl(locale)}>blog</a>
