@@ -16,6 +16,13 @@ import { createComponent } from "@moku-labs/web/browser";
 export type LightboxSlide = { src: string; alt: string };
 
 /**
+ * The lightbox island's public api — resolved by sibling islands via
+ * `ctx.component<LightboxApi>("lightbox")` (the cross-island seam; replaces importing
+ * `openLightbox` directly). The `gallery` island calls `open(slides, index)` on a slide click.
+ */
+export type LightboxApi = { open: (slides: LightboxSlide[], index: number) => void };
+
+/**
  * Force a synchronous reflow so a just-set transform applies before transitions re-enable.
  *
  * @param element - The element to flush layout for.
@@ -559,7 +566,7 @@ function buildUi(): LightboxUi {
  * @example
  * openLightbox(gallerySlides, 2);
  */
-export function openLightbox(slides: LightboxSlide[], index: number): void {
+function openLightbox(slides: LightboxSlide[], index: number): void {
   if (slides.length === 0) return;
 
   ui ??= buildUi();
@@ -620,26 +627,32 @@ function openLoneImage(event: Event): void {
   openLightbox([{ src: source, alt: image.getAttribute("alt") ?? "" }], 0);
 }
 
-/** Lightbox island: a lone article image click → fullscreen dialog (no pager). */
-export const lightbox = createComponent("lightbox", {
+/**
+ * Lightbox island: a lone article image click → fullscreen dialog (no pager). Also exposes the
+ * page-level `open(slides, index)` viewer as its cross-island `api`, resolved by the `gallery`
+ * island via `ctx.component<LightboxApi>("lightbox")` (the dialog itself is a page singleton, so its
+ * runtime lives in module scope — only the api + the per-instance lone-image listener are wired here).
+ */
+export const lightbox = createComponent<Record<never, never>, LightboxApi>("lightbox", {
   /**
-   * Bind the lone-image click handler when the article body mounts.
+   * Expose the fullscreen viewer as this island's api (the cross-island seam).
    *
-   * @param context - The island lifecycle context.
+   * @returns The lightbox api with `open(slides, index)`.
    * @example
-   * onMount(context);
+   * api();
    */
-  onMount(context) {
-    context.el.addEventListener("click", openLoneImage);
+  api() {
+    return { open: openLightbox };
   },
   /**
-   * Remove the lone-image click handler when the article body is destroyed.
+   * Bind the lone-image click handler when the article body mounts (removed on destroy via cleanup).
    *
-   * @param context - The island lifecycle context.
+   * @param ctx - The island lifecycle context.
    * @example
-   * onDestroy(context);
+   * onMount(ctx);
    */
-  onDestroy(context) {
-    context.el.removeEventListener("click", openLoneImage);
+  onMount(ctx) {
+    ctx.el.addEventListener("click", openLoneImage);
+    ctx.cleanup(() => ctx.el.removeEventListener("click", openLoneImage));
   }
 });

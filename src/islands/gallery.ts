@@ -7,11 +7,14 @@
  * (Gallery.css); this only adds the chrome behavior.
  */
 import { createComponent } from "@moku-labs/web/browser";
-import type { LightboxSlide } from "./lightbox";
-import { openLightbox, trackLoad } from "./lightbox";
+import type { LightboxApi, LightboxSlide } from "./lightbox";
+import { trackLoad } from "./lightbox";
 
-/** Per-gallery teardown callbacks, keyed by the mounted element. */
-const teardowns = new WeakMap<Element, () => void>();
+/**
+ * Opens the fullscreen viewer for a slide set — supplied by the gallery island (resolved via
+ * `ctx.component("lightbox")`), so `enhanceGallery` never imports the lightbox behaviour directly.
+ */
+type OpenLightbox = (slides: LightboxSlide[], index: number) => void;
 
 /**
  * A slide's center in the track's scroll-content coordinates. Measured via bounding rects —
@@ -94,11 +97,12 @@ function markCurrentDot(dots: HTMLElement[], index: number): void {
  * Wire one gallery element: scroll tracking, chevron/dot/arrow paging, and click-to-lightbox.
  *
  * @param root - The gallery element (the framework's `[data-component="gallery"]`).
+ * @param open - Opens the fullscreen viewer (resolved from the lightbox island's api).
  * @returns A teardown removing all listeners/observers.
  * @example
- * const cleanup = enhanceGallery(galleryEl);
+ * const cleanup = enhanceGallery(galleryEl, open);
  */
-function enhanceGallery(root: HTMLElement): () => void {
+function enhanceGallery(root: HTMLElement, open: OpenLightbox): () => void {
   const track = root.querySelector<HTMLElement>("[data-gallery-track]");
   if (!track) return () => {};
 
@@ -200,7 +204,7 @@ function enhanceGallery(root: HTMLElement): () => void {
     const image = (event.target as Element).closest<HTMLElement>("[data-gallery-slide]");
     if (!image) return;
     const index = slides.indexOf(image);
-    openLightbox(lightboxSlides, index === -1 ? current : index);
+    open(lightboxSlides, index === -1 ? current : index);
   };
 
   /**
@@ -245,24 +249,18 @@ function enhanceGallery(root: HTMLElement): () => void {
 /** Gallery island: enhances each `::gallery` block with paging + click-to-lightbox. */
 export const gallery = createComponent("gallery", {
   /**
-   * Enhance the gallery when it mounts.
+   * Enhance the gallery on mount; its listeners/observers are released via `ctx.cleanup`. The
+   * fullscreen viewer is resolved from the sibling `lightbox` island's api (`ctx.component`), so
+   * the gallery no longer imports the lightbox behaviour directly.
    *
-   * @param context - The island lifecycle context.
+   * @param ctx - The island lifecycle context.
    * @example
-   * onMount(context);
+   * onMount(ctx);
    */
-  onMount(context) {
-    teardowns.set(context.el, enhanceGallery(context.el as HTMLElement));
-  },
-  /**
-   * Tear down the gallery's listeners when it is destroyed.
-   *
-   * @param context - The island lifecycle context.
-   * @example
-   * onDestroy(context);
-   */
-  onDestroy(context) {
-    teardowns.get(context.el)?.();
-    teardowns.delete(context.el);
+  onMount(ctx) {
+    // eslint-disable-next-line jsdoc/require-jsdoc -- inline binding of the lightbox island's api
+    const open: OpenLightbox = (slides, index) =>
+      ctx.component<LightboxApi>("lightbox")?.open(slides, index);
+    ctx.cleanup(enhanceGallery(ctx.el as HTMLElement, open));
   }
 });
