@@ -192,9 +192,6 @@ export const makeApp = (stage: Stage, { contentDir = "./content", outDir = "dist
       // Wire the Node env providers so `ctx.env.require(...)` (used by deploy to read
       // CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID) returns real values — process.env
       // first so CI-injected secrets win, .env (gitignored) is the local fallback.
-      // `env` is a core plugin: @moku-labs/core's createApp `pluginConfigs` type omits
-      // core-plugin keys, though the runtime merges them (see core's initCorePlugins).
-      // @ts-expect-error -- core-plugin config key intentionally absent from createApp's type; runtime-supported
       env: { providers: [processEnv(), dotenv(".env")] }
     }
   });
